@@ -1,0 +1,60 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+
+      - name: Deploy to Vercel (production)
+        id: deploy
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
+
+      - name: Post-deploy health check
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.preview-url }}
+        run: |
+          set -euo pipefail
+          echo "Checking health at ${DEPLOY_URL}/api/health"
+          for attempt in $(seq 1 12); do
+            if response=$(curl -fsS "${DEPLOY_URL}/api/health"); then
+              echo "$response"
+              if echo "$response" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'; then
+                echo "Health check passed on attempt ${attempt}"
+                exit 0
+              fi
+            fi
+            echo "Attempt ${attempt}/12 failed; retrying in 5s..."
+            sleep 5
+          done
+          echo "Health check failed after deploy"
+          exit 1

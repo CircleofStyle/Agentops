@@ -1,0 +1,73 @@
+import { SampleIssuePreview } from "@/components/SampleIssuePreview";
+import { SignupForm } from "@/components/SignupForm";
+
+export default function HomePage() {
+  return (
+    <main className="relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-900/40 via-slate-950 to-slate-950" />
+
+      <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
+        <header className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-brand-500">
+            AgentOps Brief
+          </p>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            Practical AI automation
+            <span className="block text-brand-500">for small business</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400 sm:text-xl">
+            One weekly playbook you can run this week — no dev team, no hype decks.
+            Built for owners who need leverage, not another tool subscription.
+          </p>
+        </header>
+
+        <section className="mt-12 flex flex-col items-center gap-8 lg:mt-16">
+          <SignupForm />
+        </section>
+
+        <section className="mt-20 grid gap-12 lg:mt-28 lg:grid-cols-2 lg:items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-white sm:text-3xl">
+              What you get every week
+            </h2>
+            <ul className="mt-6 space-y-4 text-slate-300">
+              <li className="flex gap-3">
+                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-500/20 text-sm text-brand-500">
+                  1
+                </span>
+                <span>
+                  <strong className="text-white">One workflow</strong> — copy-paste steps with
+                  tools you already use (Gmail, Sheets, Slack, Zapier).
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-500/20 text-sm text-brand-500">
+                  2
+                </span>
+                <span>
+                  <strong className="text-white">Time estimate</strong> — every issue ships with
+                  a realistic setup time, usually under 30 minutes.
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-500/20 text-sm text-brand-500">
+                  3
+                </span>
+                <span>
+                  <strong className="text-white">Agent-operated</strong> — researched and drafted
+                  by AI, reviewed for clarity before it hits your inbox.
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <SampleIssuePreview />
+        </section>
+
+        <footer className="mt-20 border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
+          <p>© {new Date().getFullYear()} NovaRho · AgentOps Brief</p>
+        </footer>
+      </div>
+    </main>
+  );
+}
