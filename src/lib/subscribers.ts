@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
+import { logger } from "@/lib/logger";
 
 export type SubscriberRecord = {
   email: string;
@@ -25,9 +26,19 @@ async function readSubscribers(): Promise<SubscriberRecord[]> {
   }
 }
 
-async function writeSubscribers(subscribers: SubscriberRecord[]) {
-  await ensureDataDir();
-  await writeFile(SUBSCRIBERS_FILE, JSON.stringify(subscribers, null, 2), "utf-8");
+async function writeSubscribers(subscribers: SubscriberRecord[]): Promise<boolean> {
+  try {
+    await ensureDataDir();
+    await writeFile(SUBSCRIBERS_FILE, JSON.stringify(subscribers, null, 2), "utf-8");
+    return true;
+  } catch (error) {
+    // Vercel/serverless runtimes expose a read-only filesystem outside /tmp.
+    logger.warn("Subscriber file write skipped", {
+      reason: error instanceof Error ? error.message : "unknown",
+      storage: "filesystem_unavailable",
+    });
+    return false;
+  }
 }
 
 export async function findSubscriber(email: string): Promise<SubscriberRecord | undefined> {
