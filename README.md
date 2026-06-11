@@ -73,19 +73,21 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
 
    | Secret | Source |
    |--------|--------|
-   | `VERCEL_TOKEN` | Vercel → Account → Tokens |
-   | `VERCEL_ORG_ID` | Vercel project settings → General |
-   | `VERCEL_PROJECT_ID` | Vercel project settings → General |
+   | `PRODUCTION_URL` | Public production URL (e.g. `https://agentops.vercel.app`) |
+   | `VERCEL_AUTOMATION_BYPASS_SECRET` | Optional — Vercel → Deployment Protection → Protection Bypass for Automation |
 
 5. **GitHub environment** — create `production` environment (optional protection rules).
+
+6. **Vercel Deployment Protection** — for a public landing page, use **Only Preview Deployments** (not All Deployments). If protection is enabled on production URLs, health checks and smoke tests return `401` until disabled or bypass secret is configured.
 
 ### Deploy flow
 
 - **Preview:** Vercel auto-deploys every PR when GitHub is connected. CI (`.github/workflows/ci.yml`) runs lint/typecheck/build on PRs.
-- **Production:** Push to `main` triggers `.github/workflows/deploy.yml`:
+- **Production:** Vercel Git integration deploys on push to `main`. `.github/workflows/deploy.yml` then:
   1. lint → typecheck → build
-  2. `vercel deploy --prod`
-  3. Post-deploy health check on `/api/health` — **workflow fails if health check fails**
+  2. Post-deploy health check on `PRODUCTION_URL/api/health` (optional bypass header)
+
+**Current production deployment:** `https://agentops-c0cn9dd5b-circleofstyles-projects.vercel.app` (Vercel Git deploy succeeded; returns `401` until deployment protection is relaxed or a public production domain is assigned).
 
 ### Smoke test
 

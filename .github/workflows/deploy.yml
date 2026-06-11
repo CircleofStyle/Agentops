@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  verify:
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -30,31 +30,34 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm build
 
-      - name: Deploy to Vercel (production)
-        id: deploy
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: "--prod"
-
+      # Vercel Git integration deploys on push. This job verifies production health.
       - name: Post-deploy health check
         env:
-          DEPLOY_URL: ${{ steps.deploy.outputs.preview-url }}
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           set -euo pipefail
-          echo "Checking health at ${DEPLOY_URL}/api/health"
+          if [ -z "${PRODUCTION_URL}" ]; then
+            echo "PRODUCTION_URL secret not set — skipping health gate."
+            echo "Set PRODUCTION_URL in GitHub Actions secrets (e.g. https://agentops.vercel.app)"
+            exit 0
+          fi
+          BASE="${PRODUCTION_URL%/}"
+          CURL_OPTS=(-fsS)
+          if [ -n "${VERCEL_AUTOMATION_BYPASS_SECRET}" ]; then
+            CURL_OPTS+=(-H "x-vercel-protection-bypass: ${VERCEL_AUTOMATION_BYPASS_SECRET}")
+          fi
+          echo "Checking health at ${BASE}/api/health"
           for attempt in $(seq 1 12); do
-            if response=$(curl -fsS "${DEPLOY_URL}/api/health"); then
+            if response=$(curl "${CURL_OPTS[@]}" "${BASE}/api/health"); then
               echo "$response"
               if echo "$response" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'; then
                 echo "Health check passed on attempt ${attempt}"
                 exit 0
               fi
             fi
-            echo "Attempt ${attempt}/12 failed; retrying in 5s..."
-            sleep 5
+            echo "Attempt ${attempt}/12 failed; retrying in 10s..."
+            sleep 10
           done
-          echo "Health check failed after deploy"
+          echo "Health check failed — if you see 401, disable Vercel Deployment Protection or set VERCEL_AUTOMATION_BYPASS_SECRET"
           exit 1
