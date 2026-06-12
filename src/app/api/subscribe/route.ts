@@ -1,6 +1,6 @@
-import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { createConfirmationToken } from "@/lib/confirm-token";
 import { addToResendAudience, sendVerificationEmail } from "@/lib/email";
 import { logger } from "@/lib/logger";
 import { findSubscriber, upsertPendingSubscriber } from "@/lib/subscribers";
@@ -36,7 +36,15 @@ export async function POST(request: Request) {
     });
   }
 
-  const token = randomBytes(32).toString("hex");
+  const token = createConfirmationToken(email);
+  if (!token) {
+    logger.error("Confirmation token unavailable", { reason: "missing_subscribe_token_secret" });
+    return NextResponse.json(
+      { error: "Signup is temporarily unavailable. Please try again later." },
+      { status: 503 },
+    );
+  }
+
   await upsertPendingSubscriber(email, token);
 
   const emailSent = await sendVerificationEmail(email, token);
