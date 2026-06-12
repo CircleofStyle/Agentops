@@ -9,7 +9,7 @@ export default function HomePage() {
       <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
         <header className="text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-brand-500">
-            AgentOps Brief
+            Automate This Week
           </p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
             Practical AI automation
@@ -65,7 +65,7 @@ export default function HomePage() {
         </section>
 
         <footer className="mt-20 border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
-          <p>© {new Date().getFullYear()} NovaRho · AgentOps Brief</p>
+          <p>© {new Date().getFullYear()} NovaRho · Automate This Week</p>
         </footer>
       </div>
     </main>

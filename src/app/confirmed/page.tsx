@@ -5,7 +5,7 @@ export default function ConfirmedPage() {
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="max-w-md text-center">
         <p className="text-sm font-semibold uppercase tracking-wider text-brand-500">
-          AgentOps Brief
+          Automate This Week
         </p>
         <h1 className="mt-4 text-3xl font-bold text-white">You&apos;re subscribed!</h1>
         <p className="mt-4 text-slate-400">

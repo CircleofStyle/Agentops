@@ -6,7 +6,7 @@ function write(level: LogLevel, message: string, context?: LogContext) {
   const entry = {
     level,
     message,
-    service: "agentops-brief",
+    service: "automate-this-week",
     timestamp: new Date().toISOString(),
     ...(context ? { context } : {}),
   };

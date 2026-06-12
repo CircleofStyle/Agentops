@@ -7,7 +7,7 @@ export function getResendClient(): Resend | null {
 }
 
 export function getFromEmail(): string {
-  return process.env.RESEND_FROM_EMAIL ?? "AgentOps Brief <onboarding@resend.dev>";
+  return process.env.RESEND_FROM_EMAIL ?? "Automate This Week <onboarding@resend.dev>";
 }
 
 export function getAudienceId(): string | undefined {
@@ -16,4 +16,25 @@ export function getAudienceId(): string | undefined {
 
 export function getSiteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+}
+
+export function getResendConfigStatus(): {
+  configured: boolean;
+  hasApiKey: boolean;
+  hasFromEmail: boolean;
+  hasAudienceId: boolean;
+  hasSiteUrl: boolean;
+} {
+  const hasApiKey = Boolean(process.env.RESEND_API_KEY);
+  const hasFromEmail = Boolean(process.env.RESEND_FROM_EMAIL);
+  const hasAudienceId = Boolean(process.env.RESEND_AUDIENCE_ID);
+  const hasSiteUrl = Boolean(process.env.NEXT_PUBLIC_SITE_URL);
+
+  return {
+    configured: hasApiKey && hasFromEmail && hasAudienceId && hasSiteUrl,
+    hasApiKey,
+    hasFromEmail,
+    hasAudienceId,
+    hasSiteUrl,
+  };
 }

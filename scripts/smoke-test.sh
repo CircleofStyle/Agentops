@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke test for AgentOps Brief — run against local or deployed URL.
+# Smoke test for Automate This Week — run against local or deployed URL.
 # Usage: ./scripts/smoke-test.sh [BASE_URL]
 set -euo pipefail
 
@@ -16,7 +16,7 @@ echo "$health" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"' || {
 
 echo "==> Landing page"
 landing=$(curl -fsS "${BASE_URL}/")
-echo "$landing" | grep -qi "AgentOps Brief" || {
+echo "$landing" | grep -qi "Automate This Week" || {
   echo "FAIL: landing page missing expected content"
   exit 1
 }

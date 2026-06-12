@@ -1,4 +1,4 @@
-# AgentOps Brief
+# Automate This Week
 
 NovaRho Phase 1 venture — an AI-operated B2B newsletter teaching small businesses practical automation workflows.
 
@@ -63,7 +63,7 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
    | `RESEND_API_KEY` | Yes (prod) | Resend API key |
    | `RESEND_FROM_EMAIL` | Yes (prod) | Verified sender |
    | `RESEND_AUDIENCE_ID` | Yes (prod) | Audience for waitlist |
-   | `NEXT_PUBLIC_SITE_URL` | Yes | Production URL (e.g. `https://agentops-brief.vercel.app`) |
+   | `NEXT_PUBLIC_SITE_URL` | Yes | Production URL (e.g. `https://automate-this-week.vercel.app`) |
    | `CONTENT_PIPELINE_SECRET` | Yes (prod) | Bearer token for content API |
    | `OPENAI_API_KEY` | For content | LLM draft generation |
 
@@ -87,7 +87,7 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
   1. lint → typecheck → build
   2. Post-deploy health check on `PRODUCTION_URL/api/health` (optional bypass header)
 
-**Current production deployment:** `https://agentops-c0cn9dd5b-circleofstyles-projects.vercel.app` (Vercel Git deploy succeeded; returns `401` until deployment protection is relaxed or a public production domain is assigned).
+**Current production deployment:** `https://agentops-circleofstyles-projects.vercel.app` (Vercel production alias; `agentops-git-main-*` also tracks `main`). Update `PRODUCTION_URL` GitHub secret to this URL — stale per-deployment URLs (e.g. `agentops-c0cn9dd5b-*`) can serve older builds.
 
 ### Smoke test
 

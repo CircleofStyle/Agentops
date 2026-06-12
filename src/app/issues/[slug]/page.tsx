@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!issue) return { title: "Issue not found" };
 
   return {
-    title: `${issue.frontmatter.title} — AgentOps Brief`,
+    title: `${issue.frontmatter.title} — Automate This Week`,
     description: issue.body.slice(0, 160),
   };
 }
@@ -35,7 +35,7 @@ export default async function IssuePage({ params }: PageProps) {
           href="/"
           className="text-sm font-medium text-brand-500 transition hover:text-brand-400"
         >
-          ← AgentOps Brief
+          ← Automate This Week
         </Link>
 
         <header className="mt-8">
