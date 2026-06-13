@@ -14,8 +14,22 @@ export function getAudienceId(): string | undefined {
   return process.env.RESEND_AUDIENCE_ID;
 }
 
+function resolveSiteUrl(): string | null {
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+
+  const vercelHost =
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
+  if (vercelHost) {
+    return `https://${vercelHost}`;
+  }
+
+  return null;
+}
+
 export function getSiteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  return resolveSiteUrl() ?? "http://localhost:3000";
 }
 
 export function getResendConfigStatus(): {
@@ -28,7 +42,7 @@ export function getResendConfigStatus(): {
   const hasApiKey = Boolean(process.env.RESEND_API_KEY);
   const hasFromEmail = Boolean(process.env.RESEND_FROM_EMAIL);
   const hasAudienceId = Boolean(process.env.RESEND_AUDIENCE_ID);
-  const hasSiteUrl = Boolean(process.env.NEXT_PUBLIC_SITE_URL);
+  const hasSiteUrl = Boolean(resolveSiteUrl());
 
   return {
     configured: hasApiKey && hasFromEmail && hasAudienceId && hasSiteUrl,
