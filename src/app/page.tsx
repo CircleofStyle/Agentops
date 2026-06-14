@@ -12,12 +12,12 @@ export default function HomePage() {
             Automate This Week
           </p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Practical AI automation
-            <span className="block text-brand-500">for small business</span>
+            Automate one workflow this week
+            <span className="block text-brand-500">for service businesses without a dev team</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400 sm:text-xl">
-            One weekly playbook you can run this week — no dev team, no hype decks.
-            Built for owners who need leverage, not another tool subscription.
+            Each Tuesday: one copy-paste playbook — Gmail, Sheets, Slack, or Zapier — you can
+            finish in under 30 minutes.
           </p>
         </header>
 
@@ -54,8 +54,8 @@ export default function HomePage() {
                   3
                 </span>
                 <span>
-                  <strong className="text-white">Agent-operated</strong> — researched and drafted
-                  by AI, reviewed for clarity before it hits your inbox.
+                  <strong className="text-white">Human-reviewed</strong> — researched fast, edited
+                  for clarity before it hits your inbox.
                 </span>
               </li>
             </ul>

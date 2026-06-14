@@ -78,7 +78,7 @@ export function SignupForm() {
         disabled={state === "loading"}
         className="w-full rounded-lg bg-brand-500 px-6 py-3 font-semibold text-white transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {state === "loading" ? "Subscribing…" : "Get the free brief"}
+        {state === "loading" ? "Subscribing…" : "Send me the weekly playbook"}
       </button>
 
       {state === "error" && (

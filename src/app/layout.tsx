@@ -6,11 +6,11 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: "Automate This Week — Practical AI automation for small business",
+  title: "Automate This Week — One practical workflow per week for small service businesses",
   description:
     "A weekly B2B newsletter teaching small businesses practical AI automation workflows. No hype — just playbooks you can run this week.",
   openGraph: {
-    title: "Automate This Week — Practical AI automation for small business",
+    title: "Automate This Week — One practical workflow per week for small service businesses",
     description:
       "Weekly automation playbooks for small businesses. Subscribe for free.",
     type: "website",
