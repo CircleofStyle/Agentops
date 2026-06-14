@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import { logger } from "@/lib/logger";
+import { mergeUtmFields, type UtmParams } from "@/lib/utm";
 
 export type SubscriberRecord = {
   email: string;
@@ -8,6 +9,9 @@ export type SubscriberRecord = {
   createdAt: string;
   confirmedAt?: string;
   token: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
 };
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -54,6 +58,7 @@ export async function findSubscriberByToken(token: string): Promise<SubscriberRe
 export async function upsertPendingSubscriber(
   email: string,
   token: string,
+  utm?: UtmParams,
 ): Promise<SubscriberRecord> {
   const subscribers = await readSubscribers();
   const normalized = email.toLowerCase();
@@ -63,11 +68,14 @@ export async function upsertPendingSubscriber(
     return existing;
   }
 
+  const attribution = mergeUtmFields(existing, utm);
+
   const record: SubscriberRecord = {
     email: normalized,
     status: "pending",
     createdAt: existing?.createdAt ?? new Date().toISOString(),
     token,
+    ...attribution,
   };
 
   const next = existing

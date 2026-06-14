@@ -4,9 +4,13 @@ import { createConfirmationToken } from "@/lib/confirm-token";
 import { addToResendAudience, sendVerificationEmail } from "@/lib/email";
 import { logger } from "@/lib/logger";
 import { findSubscriber, upsertPendingSubscriber } from "@/lib/subscribers";
+import { sanitizeUtmInput } from "@/lib/utm";
 
 const subscribeSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
+  utm_source: z.string().max(100).optional(),
+  utm_medium: z.string().max(100).optional(),
+  utm_campaign: z.string().max(100).optional(),
 });
 
 export async function POST(request: Request) {
@@ -27,7 +31,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const { email } = parsed.data;
+  const { email, ...utmFields } = parsed.data;
+  const utm = sanitizeUtmInput(utmFields);
   const existing = await findSubscriber(email);
 
   if (existing?.status === "confirmed") {
@@ -45,7 +50,16 @@ export async function POST(request: Request) {
     );
   }
 
-  await upsertPendingSubscriber(email, token);
+  await upsertPendingSubscriber(email, token, utm);
+
+  if (utm?.utm_source) {
+    logger.info("Subscriber attribution captured", {
+      email,
+      utm_source: utm.utm_source,
+      utm_medium: utm.utm_medium,
+      utm_campaign: utm.utm_campaign,
+    });
+  }
 
   const emailSent = await sendVerificationEmail(email, token);
 

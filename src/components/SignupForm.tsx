@@ -1,13 +1,41 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import {
+  parseUtmFromSearchParams,
+  UTM_PARAM_KEYS,
+  UTM_STORAGE_KEY,
+  type UtmParams,
+} from "@/lib/utm";
 
 type FormState = "idle" | "loading" | "success" | "error";
+
+function readStoredUtm(): UtmParams {
+  try {
+    const raw = sessionStorage.getItem(UTM_STORAGE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw) as UtmParams;
+  } catch {
+    return {};
+  }
+}
 
 export function SignupForm() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<FormState>("idle");
   const [message, setMessage] = useState("");
+  const [utm, setUtm] = useState<UtmParams>({});
+
+  useEffect(() => {
+    const fromUrl = parseUtmFromSearchParams(new URLSearchParams(window.location.search));
+    if (Object.keys(fromUrl).length > 0) {
+      sessionStorage.setItem(UTM_STORAGE_KEY, JSON.stringify(fromUrl));
+      setUtm(fromUrl);
+      return;
+    }
+
+    setUtm(readStoredUtm());
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -15,10 +43,16 @@ export function SignupForm() {
     setMessage("");
 
     try {
+      const payload: Record<string, string> = { email };
+      for (const key of UTM_PARAM_KEYS) {
+        const value = utm[key];
+        if (value) payload[key] = value;
+      }
+
       const response = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify(payload),
       });
 
       const data = (await response.json()) as { message?: string; error?: string };

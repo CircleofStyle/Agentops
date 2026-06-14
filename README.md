@@ -45,10 +45,21 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
 ## API
 
 - `GET /api/health` — returns `{ "status": "ok", ... }` (used by deploy gate)
-- `POST /api/subscribe` — `{ "email": "..." }` waitlist signup
+- `POST /api/subscribe` — `{ "email": "..." }` waitlist signup; optional `utm_source`, `utm_medium`, `utm_campaign` (also captured from landing URL query params via sessionStorage)
+- `GET /api/metrics` — subscriber counts and UTM attribution breakdown (auth: `Authorization: Bearer $CONTENT_PIPELINE_SECRET` or `$METRICS_SECRET`)
 - `GET /api/confirm?token=...` — double opt-in confirmation
 - `POST /api/content/draft` — agent content draft (auth: `CONTENT_PIPELINE_SECRET`)
 - `POST /api/content/publish` — publish draft (auth: `CONTENT_PIPELINE_SECRET`)
+
+### Growth attribution
+
+Landing links can include standard UTM query params, e.g. `/?utm_source=linkedin&utm_medium=social&utm_campaign=launch-week-1`. The signup form persists these in `sessionStorage` and sends them with the subscribe request. Attribution is stored on each subscriber record in `data/subscribers.json` (first-touch: existing UTM fields are not overwritten on re-signup). Resend contacts do not currently support custom metadata in the SDK, so UTM lives in the local subscriber store and metrics API.
+
+Example metrics call (local dev with default `.env.local` secret):
+
+```bash
+curl -fsS -H "Authorization: Bearer dev-secret-change-me" http://localhost:3000/api/metrics
+```
 
 ## Deployment (Vercel)
 
@@ -64,7 +75,8 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
    | `RESEND_FROM_EMAIL` | Yes (prod) | Verified sender |
    | `RESEND_AUDIENCE_ID` | Yes (prod) | Audience for waitlist |
    | `NEXT_PUBLIC_SITE_URL` | Yes | Production URL (e.g. `https://automate-this-week.vercel.app`) |
-   | `CONTENT_PIPELINE_SECRET` | Yes (prod) | Bearer token for content API |
+   | `CONTENT_PIPELINE_SECRET` | Yes (prod) | Bearer token for content API and metrics API |
+   | `METRICS_SECRET` | Optional | Override bearer token for `/api/metrics` only |
    | `OPENAI_API_KEY` | For content | LLM draft generation |
 
    Never commit secrets. Use `.env.local` locally; Vercel dashboard for deployed envs.
