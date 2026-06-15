@@ -1,3 +1,6 @@
+const LEGAL_ENTITY =
+  "Nova Rho, S.A. Krizevac, Luzernerstrasse 110, 6333 Hünenberg See";
+
 const DATA_CATEGORIES = [
   "Contact details you provide when subscribing or asking for updates.",
   "Usage signals, IP addresses, device and browser metadata generated when you visit our site.",
@@ -55,7 +58,7 @@ export default function LegalPage() {
             <p className="text-sm uppercase tracking-[0.4em] text-slate-500">GDPR + Swiss FADP</p>
           </div>
           <p className="text-slate-300">
-            NovaRho AG, Bahnhofstrasse 10, 8001 Zürich, Switzerland, is the data controller for the
+            {LEGAL_ENTITY}, Switzerland, is the data controller for the
             Automate This Week site and all automation playbook delivery. We treat personal data
             with the protections demanded by Articles 5–8 of the EU General Data Protection
             Regulation and Articles 8–15 of the revised Swiss Federal Act on Data Protection.
@@ -205,13 +208,13 @@ export default function LegalPage() {
           </ul>
           <p className="text-sm text-slate-400">
             Swiss law governs disputes that cannot be resolved informally. The competent courts in
-            Zürich have exclusive jurisdiction, unless mandatory consumer protections dictate
+            Zug have exclusive jurisdiction, unless mandatory consumer protections dictate
             otherwise for EU residents.
           </p>
         </section>
 
         <footer className="space-y-2 border-t border-slate-800/60 pt-6 text-center text-sm text-slate-500">
-          <p>NovaRho AG · Bahnhofstrasse 10 · 8001 Zürich · Switzerland</p>
+          <p>{LEGAL_ENTITY} · Switzerland</p>
           <p>
             Questions? Email{" "}
             <a className="text-brand-400 hover:text-brand-300" href="mailto:legal@novarho.com">
