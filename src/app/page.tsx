@@ -64,9 +64,6 @@ export default function HomePage() {
           <SampleIssuePreview />
         </section>
 
-        <footer className="mt-20 border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
-          <p>© {new Date().getFullYear()} NovaRho · Automate This Week</p>
-        </footer>
       </div>
     </main>
   );

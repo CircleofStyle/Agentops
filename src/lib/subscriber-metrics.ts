@@ -1,3 +1,4 @@
+import { getMonetizationMetrics, type MonetizationMetrics } from "@/lib/monetization-metrics";
 import { getAudienceId, getResendClient } from "@/lib/resend";
 import { exportSubscribers } from "@/lib/subscribers";
 
@@ -10,6 +11,7 @@ export type SubscriberMetrics = {
   attribution: {
     bySource: Record<string, number>;
   };
+  monetization: MonetizationMetrics;
   resend: {
     configured: boolean;
     audienceTotal: number | null;
@@ -39,6 +41,8 @@ export async function getSubscriberMetrics(): Promise<SubscriberMetrics> {
     }
   }
 
+  const monetization = await getMonetizationMetrics();
+
   return {
     subscribers: {
       pending,
@@ -46,6 +50,7 @@ export async function getSubscriberMetrics(): Promise<SubscriberMetrics> {
       total: pending + confirmed,
     },
     attribution: { bySource },
+    monetization,
     resend: {
       configured: Boolean(resend && audienceId),
       audienceTotal,

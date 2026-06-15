@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { GumroadKitCta } from "@/components/GumroadKitCta";
+import { AffiliateDisclosure } from "@/components/AffiliateDisclosure";
+import { AffiliateToolLinks } from "@/components/AffiliateToolLinks";
 import { markdownToHtml } from "@/lib/content/markdown";
 import { getPublishedIssue } from "@/lib/content/storage";
+import { issueHasAffiliateTools } from "@/lib/affiliates";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -56,6 +60,15 @@ export default async function IssuePage({ params }: PageProps) {
           className="issue-content mt-10 space-y-4 text-slate-300 [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-white [&_code]:rounded [&_code]:bg-slate-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:text-brand-300 [&_li]:ml-4 [&_li]:list-disc [&_ol]:list-decimal [&_ol]:pl-5 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-slate-900 [&_pre]:p-4 [&_pre]:text-sm [&_strong]:text-white [&_ul]:list-disc [&_ul]:pl-5"
           dangerouslySetInnerHTML={{ __html: html }}
         />
+
+        <GumroadKitCta issueSlug={slug} />
+
+        {issueHasAffiliateTools(slug) ? (
+          <>
+            <AffiliateToolLinks />
+            <AffiliateDisclosure className="mt-6" />
+          </>
+        ) : null}
       </article>
     </main>
   );

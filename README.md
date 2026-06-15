@@ -46,7 +46,7 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
 
 - `GET /api/health` — returns `{ "status": "ok", ... }` (used by deploy gate)
 - `POST /api/subscribe` — `{ "email": "..." }` waitlist signup; optional `utm_source`, `utm_medium`, `utm_campaign` (also captured from landing URL query params via sessionStorage)
-- `GET /api/metrics` — subscriber counts and UTM attribution breakdown (auth: `Authorization: Bearer $CONTENT_PIPELINE_SECRET` or `$METRICS_SECRET`)
+- `GET /api/metrics` — subscriber counts, UTM attribution breakdown, and monetization KPIs (auth: `Authorization: Bearer $CONTENT_PIPELINE_SECRET` or `$METRICS_SECRET`)
 - `GET /api/confirm?token=...` — double opt-in confirmation
 - `POST /api/content/draft` — agent content draft (auth: `CONTENT_PIPELINE_SECRET`)
 - `POST /api/content/publish` — publish draft (auth: `CONTENT_PIPELINE_SECRET`)
@@ -60,6 +60,30 @@ Example metrics call (local dev with default `.env.local` secret):
 ```bash
 curl -fsS -H "Authorization: Bearer dev-secret-change-me" http://localhost:3000/api/metrics
 ```
+
+Response includes a `monetization` object (backward compatible — existing fields unchanged):
+
+```json
+{
+  "subscribers": { "pending": 0, "confirmed": 0, "total": 0 },
+  "attribution": { "bySource": {} },
+  "monetization": {
+    "affiliateClicks7d": 0,
+    "gumroadSales30d": 0,
+    "sponsorRevenueTotal": 0
+  },
+  "resend": { "configured": false, "audienceTotal": null },
+  "timestamp": "2026-06-14T00:00:00.000Z"
+}
+```
+
+Monetization values resolve in order: **env override** → **`data/monetization.json` seed** → **0**. Copy `data/monetization.json.example` to `data/monetization.json` for manual CMO updates until Gumroad/sponsor APIs are wired.
+
+| Field | Source (Phase 2) |
+|-------|------------------|
+| `affiliateClicks7d` | `METRICS_AFFILIATE_CLICKS_7D` or seed; 0 until click analytics exist |
+| `gumroadSales30d` | `METRICS_GUMROAD_SALES_30D` or seed |
+| `sponsorRevenueTotal` | `METRICS_SPONSOR_REVENUE_TOTAL` or seed |
 
 ## Deployment (Vercel)
 
@@ -75,6 +99,7 @@ curl -fsS -H "Authorization: Bearer dev-secret-change-me" http://localhost:3000/
    | `RESEND_FROM_EMAIL` | Yes (prod) | Verified sender |
    | `RESEND_AUDIENCE_ID` | Yes (prod) | Audience for waitlist |
    | `NEXT_PUBLIC_SITE_URL` | Yes | Production URL (e.g. `https://automate-this-week.vercel.app`) |
+   | `NEXT_PUBLIC_GUMROAD_KIT_URL` | Optional | Gumroad product URL; issue-page kit CTA hidden until set |
    | `CONTENT_PIPELINE_SECRET` | Yes (prod) | Bearer token for content API and metrics API |
    | `METRICS_SECRET` | Optional | Override bearer token for `/api/metrics` only |
    | `OPENAI_API_KEY` | For content | LLM draft generation |

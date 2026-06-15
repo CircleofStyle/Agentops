@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
+import { SiteFooter } from "@/components/SiteFooter";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
@@ -27,7 +30,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen font-sans">{children}</body>
+      <body className="flex min-h-screen flex-col font-sans">
+        <div className="flex-1">{children}</div>
+        <SiteFooter />
+        <CookieConsentBanner />
+      </body>
     </html>
   );
 }
