@@ -40,6 +40,7 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
 | `pnpm smoke` | Run smoke test against local server |
 | `pnpm content:draft` | Generate content draft from topic |
 | `pnpm content:publish` | Publish approved draft |
+| `pnpm content:broadcast` | Email published playbook to Resend audience |
 | `pnpm content:list` | List content issues |
 
 ## API
@@ -49,9 +50,50 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
 - `GET /api/metrics` — subscriber counts, UTM attribution breakdown, and monetization KPIs (auth: `Authorization: Bearer $CONTENT_PIPELINE_SECRET` or `$METRICS_SECRET`)
 - `GET /api/confirm?token=...` — double opt-in confirmation
 - `POST /api/content/draft` — agent content draft (auth: `CONTENT_PIPELINE_SECRET`)
-- `POST /api/content/publish` — publish draft (auth: `CONTENT_PIPELINE_SECRET`)
+- `POST /api/content/publish` — publish draft (auth: `CONTENT_PIPELINE_SECRET`); optional `{ "broadcast": true }` to email audience after publish
+- `POST /api/content/broadcast` — send playbook email for an already-published issue (auth: `CONTENT_PIPELINE_SECRET`)
 
-### Growth attribution
+### Weekly playbook broadcast
+
+When a playbook publishes, email verified subscribers via Resend **broadcast** to `RESEND_AUDIENCE_ID`. Idempotency is tracked in `data/playbook-broadcasts.json` (one send per issue slug).
+
+**Dry-run (no Resend call):**
+
+```bash
+pnpm content:broadcast auto-triage-customer-emails --dry-run
+# or via API:
+curl -fsS -X POST http://localhost:3000/api/content/broadcast \
+  -H "Authorization: Bearer dev-secret-change-me" \
+  -H "Content-Type: application/json" \
+  -d '{"slug":"auto-triage-customer-emails","dryRun":true}'
+```
+
+**Publish + broadcast in one call:**
+
+```bash
+curl -fsS -X POST http://localhost:3000/api/content/publish \
+  -H "Authorization: Bearer $CONTENT_PIPELINE_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"slug":"auto-triage-customer-emails","broadcast":true}'
+```
+
+**Test to a single inbox (transactional send, does not write idempotency log):**
+
+```bash
+curl -fsS -X POST http://localhost:3000/api/content/broadcast \
+  -H "Authorization: Bearer $CONTENT_PIPELINE_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"slug":"auto-triage-customer-emails","testEmail":"you@example.com"}'
+```
+
+**Catch-up for issue #1** (re-broadcast to full audience when `catchUp: true` bypasses idempotency):
+
+```bash
+pnpm content:broadcast auto-triage-customer-emails --catch-up
+```
+
+Production checklist: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_AUDIENCE_ID`, and `NEXT_PUBLIC_SITE_URL` must all be set. Verify with `testEmail` before the first full-audience broadcast.
+
 
 Landing links can include standard UTM query params, e.g. `/?utm_source=linkedin&utm_medium=social&utm_campaign=launch-week-1`. The signup form persists these in `sessionStorage` and sends them with the subscribe request. Attribution is stored on each subscriber record in `data/subscribers.json` (first-touch: existing UTM fields are not overwritten on re-signup). Resend contacts do not currently support custom metadata in the SDK, so UTM lives in the local subscriber store and metrics API.
 

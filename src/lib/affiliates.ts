@@ -40,7 +40,10 @@ const AFFILIATE_ENV_KEYS: Record<AffiliateToolId, string> = {
 };
 
 /** Issue slugs that surface affiliate tool signup links. */
-export const ISSUE_AFFILIATE_SLUGS = new Set(["auto-triage-customer-emails"]);
+export const ISSUE_AFFILIATE_SLUGS = new Set([
+  "auto-triage-customer-emails",
+  "quote-follow-up-workflow",
+]);
 
 export function issueHasAffiliateTools(slug: string): boolean {
   return ISSUE_AFFILIATE_SLUGS.has(slug);

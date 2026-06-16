@@ -1,6 +1,28 @@
 #!/usr/bin/env tsx
 import { generateDraft } from "../src/lib/content/draft-generator";
 import { listIssues, publishIssue } from "../src/lib/content/storage";
+import { sendPlaybookBroadcast } from "../src/lib/playbook-broadcast";
+
+function parseBroadcastFlags(argv: string[]): {
+  slug: string | undefined;
+  dryRun: boolean;
+  catchUp: boolean;
+  testEmail?: string;
+} {
+  let dryRun = false;
+  let catchUp = false;
+  let testEmail: string | undefined;
+  const positional: string[] = [];
+
+  for (const arg of argv) {
+    if (arg === "--dry-run") dryRun = true;
+    else if (arg === "--catch-up") catchUp = true;
+    else if (arg.startsWith("--test-email=")) testEmail = arg.slice("--test-email=".length);
+    else positional.push(arg);
+  }
+
+  return { slug: positional[0], dryRun, catchUp, testEmail };
+}
 
 async function main() {
   const [command, arg] = process.argv.slice(2);
@@ -27,6 +49,24 @@ async function main() {
       console.log(`  publishedAt: ${doc.frontmatter.publishedAt}`);
       break;
     }
+    case "broadcast": {
+      const flags = parseBroadcastFlags(process.argv.slice(3));
+      if (!flags.slug) {
+        console.error(
+          "Usage: pnpm content:broadcast <slug> [--dry-run] [--catch-up] [--test-email=you@example.com]",
+        );
+        process.exit(1);
+      }
+      const result = await sendPlaybookBroadcast({
+        slug: flags.slug,
+        dryRun: flags.dryRun,
+        catchUp: flags.catchUp,
+        testEmail: flags.testEmail,
+      });
+      console.log(JSON.stringify(result, null, 2));
+      if (result.status === "failed") process.exit(1);
+      break;
+    }
     case "list": {
       const status = arg === "draft" || arg === "published" ? arg : undefined;
       const issues = await listIssues(status);
@@ -42,7 +82,7 @@ async function main() {
       break;
     }
     default:
-      console.error("Commands: draft, publish, list");
+      console.error("Commands: draft, publish, broadcast, list");
       process.exit(1);
   }
 }

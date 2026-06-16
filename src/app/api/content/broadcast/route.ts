@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isPipelineAuthorized } from "@/lib/content/auth";
-import { publishIssue } from "@/lib/content/storage";
 import { sendPlaybookBroadcast } from "@/lib/playbook-broadcast";
 
 const bodySchema = z.object({
   slug: z.string().min(1).max(200),
-  broadcast: z.boolean().optional(),
   dryRun: z.boolean().optional(),
   catchUp: z.boolean().optional(),
   testEmail: z.string().email().optional(),
@@ -29,26 +27,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  try {
-    const doc = await publishIssue(parsed.data.slug);
-    const response: Record<string, unknown> = {
-      slug: doc.frontmatter.slug,
-      status: doc.frontmatter.status,
-      publishedAt: doc.frontmatter.publishedAt,
-    };
+  const result = await sendPlaybookBroadcast(parsed.data);
 
-    if (parsed.data.broadcast) {
-      response.broadcast = await sendPlaybookBroadcast({
-        slug: parsed.data.slug,
-        dryRun: parsed.data.dryRun,
-        catchUp: parsed.data.catchUp,
-        testEmail: parsed.data.testEmail,
-      });
-    }
-
-    return NextResponse.json(response);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Publish failed";
-    return NextResponse.json({ error: message }, { status: 404 });
-  }
+  const httpStatus = result.status === "failed" ? 502 : 200;
+  return NextResponse.json(
+    {
+      ...result,
+      timestamp: new Date().toISOString(),
+    },
+    { status: httpStatus },
+  );
 }

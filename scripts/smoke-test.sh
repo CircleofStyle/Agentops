@@ -27,11 +27,17 @@ subscribe_response=$(curl -fsS -X POST "${BASE_URL}/api/subscribe" \
   -d '{"email":"smoke-test@example.com"}')
 echo "$subscribe_response"
 
-echo "==> Published issue page"
-# Uses seeded content from content/issues/
+echo "==> Published issue page (issue #1)"
 issue_page=$(curl -fsS "${BASE_URL}/issues/auto-triage-customer-emails")
 echo "$issue_page" | grep -qi "Auto-triage" || {
-  echo "FAIL: published issue page not reachable"
+  echo "FAIL: issue #1 page not reachable"
+  exit 1
+}
+
+echo "==> Published issue page (issue #2)"
+issue2_page=$(curl -fsS "${BASE_URL}/issues/quote-follow-up-workflow")
+echo "$issue2_page" | grep -qi "quote" || {
+  echo "FAIL: issue #2 page not reachable"
   exit 1
 }
 
