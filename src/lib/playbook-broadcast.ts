@@ -1,7 +1,9 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import type { IssueDocument } from "@/lib/content/types";
+import { markdownToHtml } from "@/lib/content/markdown";
 import { getPublishedIssue } from "@/lib/content/storage";
+import { extractTeaser } from "@/lib/content/visibility";
 import { logger } from "@/lib/logger";
 import { getAudienceId, getFromEmail, getResendClient, getSiteUrl } from "@/lib/resend";
 
@@ -57,18 +59,9 @@ async function writeBroadcastLog(records: PlaybookBroadcastRecord[]): Promise<bo
   }
 }
 
+/** @deprecated Use extractTeaser from visibility.ts */
 export function extractIssueSummary(body: string, maxSentences = 2): string {
-  const paragraphs = body
-    .split(/\n\n+/)
-    .map((p) => p.trim())
-    .filter((p) => p && !p.startsWith("#"));
-
-  const first = paragraphs[0] ?? "";
-  const sentences = first.match(/[^.!?]+[.!?]+/g) ?? [first];
-  return sentences
-    .slice(0, maxSentences)
-    .join(" ")
-    .trim();
+  return extractTeaser(body, maxSentences);
 }
 
 function buildSubject(issue: IssueDocument): string {
@@ -79,14 +72,22 @@ function buildIssueUrl(slug: string): string {
   return `${getSiteUrl()}/issues/${slug}`;
 }
 
-function buildBroadcastHtml(issue: IssueDocument, summary: string, issueUrl: string): string {
+function buildBroadcastHtml(
+  issue: IssueDocument,
+  summary: string,
+  issueUrl: string,
+  bodyHtml: string,
+): string {
   return `
     <div style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; color: #0f172a;">
       <h1 style="color: #0ea5e9; font-size: 22px;">Automate This Week</h1>
       <h2 style="font-size: 18px; line-height: 1.4;">${issue.frontmatter.title}</h2>
       <p style="font-size: 16px; line-height: 1.6;">${summary}</p>
+      <div style="font-size: 15px; line-height: 1.6; margin: 24px 0;">
+        ${bodyHtml}
+      </div>
       <p>
-        <a href="${issueUrl}" style="display: inline-block; background: #0ea5e9; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none;">Read the playbook</a>
+        <a href="${issueUrl}" style="display: inline-block; background: #0ea5e9; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none;">View on web</a>
       </p>
       <p style="color: #64748b; font-size: 14px;">Or copy this link: ${issueUrl}</p>
       <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
@@ -97,11 +98,20 @@ function buildBroadcastHtml(issue: IssueDocument, summary: string, issueUrl: str
   `.trim();
 }
 
-function buildTestEmailHtml(issue: IssueDocument, summary: string, issueUrl: string): string {
-  return buildBroadcastHtml(issue, summary, issueUrl).replace(
+function buildTestEmailHtml(
+  issue: IssueDocument,
+  summary: string,
+  issueUrl: string,
+  bodyHtml: string,
+): string {
+  return buildBroadcastHtml(issue, summary, issueUrl, bodyHtml).replace(
     '<a href="{{{RESEND_UNSUBSCRIBE_URL}}}">Unsubscribe</a>',
     "Reply to this email to opt out.",
   );
+}
+
+function buildBroadcastText(issue: IssueDocument, summary: string, issueUrl: string): string {
+  return `${issue.frontmatter.title}\n\n${summary}\n\n${issue.body}\n\nView on web: ${issueUrl}`;
 }
 
 export async function findBroadcastForSlug(slug: string): Promise<PlaybookBroadcastRecord | undefined> {
@@ -138,13 +148,14 @@ export async function sendPlaybookBroadcast(options: {
     };
   }
 
-  const summary = extractIssueSummary(issue.body);
+  const summary = extractTeaser(issue.body);
   const subject = buildSubject(issue);
   const issueUrl = buildIssueUrl(slug);
+  const bodyHtml = await markdownToHtml(issue.body);
   const html = testEmail
-    ? buildTestEmailHtml(issue, summary, issueUrl)
-    : buildBroadcastHtml(issue, summary, issueUrl);
-  const text = `${issue.frontmatter.title}\n\n${summary}\n\nRead the playbook: ${issueUrl}`;
+    ? buildTestEmailHtml(issue, summary, issueUrl, bodyHtml)
+    : buildBroadcastHtml(issue, summary, issueUrl, bodyHtml);
+  const text = buildBroadcastText(issue, summary, issueUrl);
 
   if (dryRun) {
     return {

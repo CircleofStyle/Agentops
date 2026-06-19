@@ -67,6 +67,7 @@ export async function generateDraft(topic: string): Promise<IssueDocument> {
       slug,
       topic,
       setupMinutes: 20,
+      visibility: "email-only",
     },
     buildDraftBody(topic),
   );

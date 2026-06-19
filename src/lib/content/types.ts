@@ -1,3 +1,5 @@
+import type { IssueVisibility } from "./visibility";
+
 export type IssueStatus = "draft" | "published";
 
 export interface IssueFrontmatter {
@@ -8,6 +10,8 @@ export interface IssueFrontmatter {
   topic?: string;
   setupMinutes?: number;
   publishedAt?: string;
+  /** `sample` = full body on web; `email-only` = teaser + signup; `archived` = hidden from web. */
+  visibility?: IssueVisibility;
 }
 
 export interface IssueDocument {

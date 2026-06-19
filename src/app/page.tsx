@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SampleIssuePreview } from "@/components/SampleIssuePreview";
 import { SignupForm } from "@/components/SignupForm";
 
@@ -16,8 +17,8 @@ export default function HomePage() {
             <span className="block text-brand-500">for service businesses without a dev team</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400 sm:text-xl">
-            Each Tuesday: one copy-paste playbook — Gmail, Sheets, Slack, or Zapier — you can
-            finish in under 30 minutes.
+            Read one free sample on the site. Subscribers get the full copy-paste playbook every
+            Tuesday by email — Gmail, Sheets, Slack, or Zapier, usually under 30 minutes.
           </p>
         </header>
 
@@ -54,8 +55,8 @@ export default function HomePage() {
                   3
                 </span>
                 <span>
-                  <strong className="text-white">Human-reviewed</strong> — researched fast, edited
-                  for clarity before it hits your inbox.
+                  <strong className="text-white">In your inbox</strong> — full playbooks arrive
+                  every Tuesday by email. The site shows one free sample and short teasers.
                 </span>
               </li>
             </ul>
@@ -63,6 +64,15 @@ export default function HomePage() {
 
           <SampleIssuePreview />
         </section>
+
+        <p className="mt-12 text-center lg:mt-16">
+          <Link
+            href="/issues"
+            className="text-sm font-medium text-brand-500 transition hover:text-brand-400"
+          >
+            Browse playbook archive →
+          </Link>
+        </p>
 
       </div>
     </main>

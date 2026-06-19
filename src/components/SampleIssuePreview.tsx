@@ -4,7 +4,7 @@ export function SampleIssuePreview() {
   return (
     <article className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl backdrop-blur sm:p-8">
       <p className="text-xs font-semibold uppercase tracking-wider text-brand-500">
-        Sample issue · Week 1
+        Free sample · Issue #1
       </p>
       <h2 className="mt-3 text-xl font-bold text-white sm:text-2xl">
         Auto-triage customer emails with a 15-minute Zapier + GPT workflow
@@ -32,7 +32,7 @@ export function SampleIssuePreview() {
         href="/issues/auto-triage-customer-emails"
         className="mt-6 inline-block text-sm font-medium text-brand-500 transition hover:text-brand-400"
       >
-        Read full issue →
+        Read the free sample →
       </Link>
     </article>
   );

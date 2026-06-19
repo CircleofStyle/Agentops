@@ -9,7 +9,11 @@ export default function ConfirmedPage() {
         </p>
         <h1 className="mt-4 text-3xl font-bold text-white">You&apos;re subscribed!</h1>
         <p className="mt-4 text-slate-400">
-          Your email is confirmed. Watch your inbox for the next playbook.
+          Your email is confirmed. Full playbooks arrive every Tuesday. While you wait, read the{" "}
+          <Link href="/issues/auto-triage-customer-emails" className="text-brand-400 hover:text-brand-300">
+            free sample
+          </Link>{" "}
+          on the site.
         </p>
         <Link
           href="/"

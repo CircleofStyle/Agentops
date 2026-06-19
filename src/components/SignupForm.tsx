@@ -112,7 +112,7 @@ export function SignupForm() {
         disabled={state === "loading"}
         className="w-full rounded-lg bg-brand-500 px-6 py-3 font-semibold text-white transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {state === "loading" ? "Subscribing…" : "Send me the weekly playbook"}
+        {state === "loading" ? "Subscribing…" : "Get the full playbook every Tuesday"}
       </button>
 
       {state === "error" && (
@@ -122,7 +122,8 @@ export function SignupForm() {
       )}
 
       <p className="text-center text-xs text-slate-500">
-        Free forever. Unsubscribe anytime. We send one playbook per week.
+        Free. Read the sample on the site anytime. Full playbooks are email-only — one per week,
+        unsubscribe anytime.
       </p>
     </form>
   );

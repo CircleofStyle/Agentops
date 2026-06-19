@@ -5,7 +5,8 @@ status: published
 slug: quote-follow-up-workflow
 topic: quote follow-up workflow
 setupMinutes: 20
-publishedAt: '2026-06-16'
+publishedAt: '2026-06-19'
+visibility: email-only
 ---
 You send a quote, the prospect goes quiet, and follow-up slips. This playbook nudges silent prospects on day 3 and day 7 — without a spreadsheet reminder or a sticky note on your monitor.
 

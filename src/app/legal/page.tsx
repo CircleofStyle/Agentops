@@ -59,10 +59,23 @@ export default function LegalPage() {
           </div>
           <p className="text-slate-300">
             {LEGAL_ENTITY}, Switzerland, is the data controller for the
-            Automate This Week site and all automation playbook delivery. We treat personal data
+            Automate This Week site and weekly playbook emails. We treat personal data
             with the protections demanded by Articles 5–8 of the EU General Data Protection
             Regulation and Articles 8–15 of the revised Swiss Federal Act on Data Protection.
           </p>
+          <div className="rounded-2xl border border-slate-800/70 bg-slate-900/40 p-5 text-sm text-slate-300">
+            <h3 className="text-base font-semibold text-white">Newsletter delivery</h3>
+            <p className="mt-2">
+              Automate This Week is primarily an email product. One sample playbook is published on
+              the website so you can evaluate the format. Full weekly playbooks are sent only to
+              verified subscribers at the email address you provide. You can unsubscribe from any
+              email or by contacting{" "}
+              <a className="text-brand-400 hover:text-brand-300" href="mailto:legal@novarho.com">
+                legal@novarho.com
+              </a>
+              .
+            </p>
+          </div>
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-3 rounded-2xl border border-slate-800/70 bg-slate-900/40 p-5">
               <h3 className="text-lg font-semibold text-white">Data we collect</h3>
@@ -193,10 +206,15 @@ export default function LegalPage() {
             By using Automate This Week, you agree that NovaRho provides automation playbooks and
             marketing materials “as-is.” We do not guarantee specific business outcomes, uptime, or
             accuracy. Software and automations are your responsibility to test before deployment.
+            Full playbooks are delivered by email to verified subscribers; one sample may remain
+            publicly readable on the website.
           </p>
           <ul className="list-disc space-y-3 pl-5 text-sm text-slate-300">
             <li>Use the site only for lawful, non-deceptive purposes.</li>
-            <li>Respect intellectual property; do not redistribute playbooks without permission.</li>
+            <li>
+              Respect intellectual property; do not redistribute email playbooks or forward them
+              beyond your organization without permission.
+            </li>
             <li>
               We may suspend or terminate access if we detect abuse, spam, or attempts to reverse
               engineer our infrastructure.

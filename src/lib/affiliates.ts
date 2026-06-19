@@ -39,14 +39,18 @@ const AFFILIATE_ENV_KEYS: Record<AffiliateToolId, string> = {
   openai: "AFFILIATE_URL_OPENAI",
 };
 
-/** Issue slugs that surface affiliate tool signup links. */
-export const ISSUE_AFFILIATE_SLUGS = new Set([
-  "auto-triage-customer-emails",
-  "quote-follow-up-workflow",
-]);
+/** Per-issue affiliate tools surfaced on full-body (sample) pages. */
+const ISSUE_AFFILIATE_TOOLS: Record<string, AffiliateToolId[]> = {
+  "auto-triage-customer-emails": ["zapier", "make", "openai"],
+  "quote-follow-up-workflow": ["zapier", "make"],
+};
+
+export function getAffiliateToolsForIssue(slug: string): AffiliateToolId[] {
+  return ISSUE_AFFILIATE_TOOLS[slug] ?? [];
+}
 
 export function issueHasAffiliateTools(slug: string): boolean {
-  return ISSUE_AFFILIATE_SLUGS.has(slug);
+  return getAffiliateToolsForIssue(slug).length > 0;
 }
 
 function resolveAffiliateBaseUrl(toolId: AffiliateToolId): string {

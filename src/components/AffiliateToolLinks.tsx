@@ -1,6 +1,13 @@
-import { AFFILIATE_TOOLS, buildAffiliateUrl } from "@/lib/affiliates";
+import { AFFILIATE_TOOLS, buildAffiliateUrl, getAffiliateToolsForIssue } from "@/lib/affiliates";
 
-export function AffiliateToolLinks() {
+type AffiliateToolLinksProps = {
+  issueSlug: string;
+};
+
+export function AffiliateToolLinks({ issueSlug }: AffiliateToolLinksProps) {
+  const toolIds = getAffiliateToolsForIssue(issueSlug);
+  const tools = AFFILIATE_TOOLS.filter((tool) => toolIds.includes(tool.id));
+
   return (
     <section
       aria-labelledby="affiliate-tools-heading"
@@ -14,7 +21,7 @@ export function AffiliateToolLinks() {
         still apply — swap the platform in the trigger and routing steps.
       </p>
       <ul className="mt-5 space-y-4">
-        {AFFILIATE_TOOLS.map((tool) => (
+        {tools.map((tool) => (
           <li key={tool.id} className="text-sm text-slate-300">
             <a
               href={buildAffiliateUrl(tool.id)}

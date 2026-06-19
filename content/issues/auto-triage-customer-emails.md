@@ -6,6 +6,7 @@ slug: auto-triage-customer-emails
 topic: auto-triage customer emails
 setupMinutes: 15
 publishedAt: '2026-06-09'
+visibility: sample
 ---
 
 Most small shops lose leads in a shared inbox. This playbook routes urgent requests, drafts replies, and logs everything — without hiring ops.
