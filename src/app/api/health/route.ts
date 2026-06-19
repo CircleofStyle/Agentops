@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isPaperclipConfigured } from "@/lib/paperclip-client";
 import { getResendConfigStatus } from "@/lib/resend";
 
 export async function GET() {
@@ -18,6 +19,11 @@ export async function GET() {
         !resend.hasAudienceId && "RESEND_AUDIENCE_ID",
         !resend.hasSiteUrl && "NEXT_PUBLIC_SITE_URL",
       ].filter(Boolean),
+    },
+    inboundWebhook: {
+      route: "/api/webhooks/resend/inbound",
+      webhookSecretConfigured: Boolean(process.env.RESEND_WEBHOOK_SECRET),
+      paperclipConfigured: isPaperclipConfigured(),
     },
   });
 }

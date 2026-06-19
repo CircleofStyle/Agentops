@@ -13,7 +13,8 @@
     "content:publish": "tsx scripts/content.ts publish",
     "content:broadcast": "tsx scripts/content.ts broadcast",
     "content:list": "tsx scripts/content.ts list",
-    "smoke": "bash scripts/smoke-test.sh http://localhost:3000"
+    "smoke": "bash scripts/smoke-test.sh http://localhost:3000",
+    "verify:inbound": "tsx scripts/verify-inbound-webhook.ts"
   },
   "dependencies": {
     "next": "^15.5.19",
