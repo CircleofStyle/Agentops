@@ -69,6 +69,26 @@ else
   exit 1
 fi
 
+echo "==> Published issue #3 (email-only gating, if published)"
+issue3_status=$(curl -s -o /tmp/issue3-smoke.html -w "%{http_code}" "${BASE_URL}/issues/google-review-request-workflow")
+if [[ "$issue3_status" == "200" ]]; then
+  issue3_page=$(cat /tmp/issue3-smoke.html)
+  echo "$issue3_page" | grep -qi "Get the full playbook by email" || {
+    echo "FAIL: issue #3 should show email gate when published"
+    exit 1
+  }
+  echo "$issue3_page" | grep -qi "### 1. Copy the job tracker" && {
+    echo "FAIL: issue #3 should not expose full step-by-step on web"
+    exit 1
+  }
+  echo "Issue #3 gating OK"
+elif [[ "$issue3_status" == "404" ]]; then
+  echo "SKIP: issue #3 not published yet"
+else
+  echo "FAIL: issue #3 returned unexpected status ${issue3_status}"
+  exit 1
+fi
+
 echo "==> Resend inbound webhook (unconfigured → 503, or 400 without signature)"
 webhook_status=$(curl -sS -o /tmp/atw-webhook-body.txt -w "%{http_code}" -X POST \
   "${BASE_URL}/api/webhooks/resend/inbound" \
