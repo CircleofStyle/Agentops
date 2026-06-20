@@ -60,7 +60,7 @@ echo "$issue1_page" | grep -qi "Step-by-step" || {
   echo "FAIL: issue #1 should show full playbook body (sample visibility)"
   exit 1
 }
-echo "$issue1_page" | grep -qi "Get the full playbook by email" && {
+echo "$issue1_page" | grep -qi "Get this playbook in your inbox" && {
   echo "FAIL: issue #1 should not show email gate (sample visibility)"
   exit 1
 }
@@ -69,7 +69,7 @@ echo "==> Published issue #2 (email-only gating, if published)"
 issue2_status=$(curl -s -o /tmp/issue2-smoke.html -w "%{http_code}" "${BASE_URL}/issues/quote-follow-up-workflow")
 if [[ "$issue2_status" == "200" ]]; then
   issue2_page=$(cat /tmp/issue2-smoke.html)
-  echo "$issue2_page" | grep -qi "Get the full playbook by email" || {
+  echo "$issue2_page" | grep -qi "Get this playbook in your inbox" || {
     echo "FAIL: issue #2 should show email gate when published"
     exit 1
   }
@@ -89,7 +89,7 @@ echo "==> Published issue #3 (email-only gating, if published)"
 issue3_status=$(curl -s -o /tmp/issue3-smoke.html -w "%{http_code}" "${BASE_URL}/issues/google-review-request-workflow")
 if [[ "$issue3_status" == "200" ]]; then
   issue3_page=$(cat /tmp/issue3-smoke.html)
-  echo "$issue3_page" | grep -qi "Get the full playbook by email" || {
+  echo "$issue3_page" | grep -qi "Get this playbook in your inbox" || {
     echo "FAIL: issue #3 should show email gate when published"
     exit 1
   }
