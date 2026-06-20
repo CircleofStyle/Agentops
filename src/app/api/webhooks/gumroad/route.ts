@@ -1,0 +1,59 @@
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import {
+  isAllAccessGumroadSale,
+  isGumroadRefund,
+  normalizeGumroadSale,
+  parseGumroadWebhookPayload,
+  verifyGumroadWebhookSecret,
+} from "@/lib/gumroad-webhook";
+import { grantAllAccess, revokeAllAccess } from "@/lib/subscribers";
+
+export async function POST(request: NextRequest) {
+  if (!verifyGumroadWebhookSecret(request)) {
+    logger.warn("Gumroad webhook rejected", { reason: "invalid_secret" });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let data: Record<string, string>;
+  try {
+    data = await parseGumroadWebhookPayload(request);
+  } catch (error) {
+    logger.warn("Gumroad webhook parse failed", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  const sale = normalizeGumroadSale(data);
+  if (!sale) {
+    return NextResponse.json({ error: "Missing required sale fields" }, { status: 400 });
+  }
+
+  if (!isAllAccessGumroadSale(sale)) {
+    logger.info("Gumroad webhook ignored", {
+      reason: "not_all_access_product",
+      sale_id: sale.sale_id,
+      product_permalink: sale.product_permalink,
+    });
+    return NextResponse.json({ ok: true, ignored: "not_all_access_product" });
+  }
+
+  if (isGumroadRefund(sale)) {
+    await revokeAllAccess(sale.email);
+    logger.info("All access revoked from Gumroad refund", {
+      email: sale.email,
+      sale_id: sale.sale_id,
+    });
+    return NextResponse.json({ ok: true, action: "revoked" });
+  }
+
+  await grantAllAccess(sale.email, "gumroad");
+  logger.info("All access granted from Gumroad sale", {
+    email: sale.email,
+    sale_id: sale.sale_id,
+    product_permalink: sale.product_permalink,
+  });
+
+  return NextResponse.json({ ok: true, action: "granted" });
+}

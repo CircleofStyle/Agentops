@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Automate This Week  vertical workflow diagram template (NOV-112)
+  Edit step labels via the <text id="step-N-label"> elements below.
+  Step kinds: action (default box), wait (tinted box), decision (dashed box).
+  Brand tokens: accent #0ea5e9, text #0f172a, muted #64748b, border #e2e8f0.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="420" viewBox="0 0 560 420" role="img" aria-labelledby="workflow-title workflow-desc">
+  <title id="workflow-title">Automation workflow</title>
+  <desc id="workflow-desc">Vertical step-by-step automation flow</desc>
+
+  <defs>
+    <style>
+      .step-label { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 16px; font-weight: 600; fill: #0f172a; }
+      .step-sub { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 13px; fill: #64748b; }
+      .arrow { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-linecap: round; }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="560" height="420" rx="16" fill="#f8fafc"/>
+
+  <!-- Header -->
+  <text x="280" y="36" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" letter-spacing="0.08em" fill="#0ea5e9">WHAT HAPPENS</text>
+
+  <!-- Step 1  action -->
+  <g id="step-1" data-kind="action">
+    <rect x="80" y="56" width="400" height="52" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <text id="step-1-label" class="step-label" x="280" y="88" text-anchor="middle">Step 1 label</text>
+  </g>
+
+  <line class="arrow" x1="280" y1="108" x2="280" y2="128" marker-end="url(#arrowhead)"/>
+
+  <!-- Step 2  wait -->
+  <g id="step-2" data-kind="wait">
+    <rect x="80" y="128" width="400" height="52" rx="10" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="1.5" stroke-opacity="0.45"/>
+    <text id="step-2-label" class="step-label" x="280" y="160" text-anchor="middle">Wait step label</text>
+  </g>
+
+  <line class="arrow" x1="280" y1="180" x2="280" y2="200" marker-end="url(#arrowhead)"/>
+
+  <!-- Step 3  action -->
+  <g id="step-3" data-kind="action">
+    <rect x="80" y="200" width="400" height="52" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <text id="step-3-label" class="step-label" x="280" y="232" text-anchor="middle">Step 3 label</text>
+  </g>
+
+  <line class="arrow" x1="280" y1="252" x2="280" y2="272" marker-end="url(#arrowhead)"/>
+
+  <!-- Step 4  decision -->
+  <g id="step-4" data-kind="decision">
+    <rect x="80" y="272" width="400" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <text id="step-4-label" class="step-label" x="280" y="304" text-anchor="middle">Decision label?</text>
+  </g>
+
+  <line class="arrow" x1="280" y1="324" x2="280" y2="344" marker-end="url(#arrowhead)"/>
+
+  <!-- Step 5  action -->
+  <g id="step-5" data-kind="action">
+    <rect x="80" y="344" width="400" height="52" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <text id="step-5-label" class="step-label" x="280" y="376" text-anchor="middle">Step 5 label</text>
+  </g>
+
+  <!-- Footer note (optional  delete if unused) -->
+  <text id="footer-note" class="step-sub" x="280" y="412" text-anchor="middle" opacity="0">Optional footer</text>
+</svg>

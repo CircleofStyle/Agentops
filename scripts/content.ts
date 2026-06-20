@@ -1,6 +1,8 @@
 #!/usr/bin/env tsx
 import { generateDraft } from "../src/lib/content/draft-generator";
 import { listIssues, publishIssue } from "../src/lib/content/storage";
+import { processDueDripEmails } from "../src/lib/drip";
+import { getDripCadenceDays, getDripSequenceSlugs } from "../src/lib/drip-sequence";
 import { sendPlaybookBroadcast } from "../src/lib/playbook-broadcast";
 
 function parseBroadcastFlags(argv: string[]): {
@@ -67,6 +69,19 @@ async function main() {
       if (result.status === "failed") process.exit(1);
       break;
     }
+    case "drip": {
+      const dryRun = process.argv.includes("--dry-run");
+      const sequence = await getDripSequenceSlugs();
+      const result = await processDueDripEmails({ dryRun });
+      console.log(
+        JSON.stringify(
+          { ...result, sequence, cadenceDays: getDripCadenceDays(), timestamp: new Date().toISOString() },
+          null,
+          2,
+        ),
+      );
+      break;
+    }
     case "list": {
       const status = arg === "draft" || arg === "published" ? arg : undefined;
       const issues = await listIssues(status);
@@ -82,7 +97,7 @@ async function main() {
       break;
     }
     default:
-      console.error("Commands: draft, publish, broadcast, list");
+      console.error("Commands: draft, publish, broadcast, drip, list");
       process.exit(1);
   }
 }

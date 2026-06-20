@@ -40,7 +40,8 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
 | `pnpm smoke` | Run smoke test against local server |
 | `pnpm content:draft` | Generate content draft from topic |
 | `pnpm content:publish` | Publish approved draft |
-| `pnpm content:broadcast` | Email published playbook to Resend audience |
+| `pnpm content:broadcast` | Email published playbook to Resend audience (deprecated when drip active) |
+| `pnpm content:drip` | Run drip advance job (due subscribers + migration) |
 | `pnpm content:list` | List content issues |
 
 ## API
@@ -51,11 +52,29 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
 - `GET /api/confirm?token=...` — double opt-in confirmation
 - `POST /api/content/draft` — agent content draft (auth: `CONTENT_PIPELINE_SECRET`)
 - `POST /api/content/publish` — publish draft (auth: `CONTENT_PIPELINE_SECRET`); optional `{ "broadcast": true }` to email audience after publish
-- `POST /api/content/broadcast` — send playbook email for an already-published issue (auth: `CONTENT_PIPELINE_SECRET`)
+- `POST /api/content/broadcast` — send playbook email for an already-published issue (auth: `CONTENT_PIPELINE_SECRET`; skipped when drip sequence is active unless `catchUp: true`)
+- `GET|POST /api/pipeline/drip` — advance due drip emails + migrate legacy subscribers (auth: `CONTENT_PIPELINE_SECRET`; Vercel cron daily 14:00 UTC)
 
 ### Weekly playbook broadcast
 
+> **Deprecation:** When `DRIP_SEQUENCE_ENABLED` is true (default), full-audience broadcast is skipped. New subscribers receive playbooks via the per-subscriber drip sequence anchored to confirm date. Use `catchUp: true` to force a legacy broadcast.
+
 When a playbook publishes, email verified subscribers via Resend **broadcast** to `RESEND_AUDIENCE_ID`. Idempotency is tracked in `data/playbook-broadcasts.json` (one send per issue slug).
+
+### Signup drip sequence
+
+On confirm: welcome email + issue #1 (transactional). Issue #2+ sends on `DRIP_CADENCE_DAYS` (default 7) via daily cron `GET /api/pipeline/drip`. Subscriber state: `dripSequenceIndex`, `lastDripSentAt`, `issuesSent[]` in `data/subscribers.json`. Existing confirmed subscribers without drip fields are migrated to current published count (no backfill).
+
+**Dry-run drip advance:**
+
+```bash
+pnpm content:drip --dry-run
+# or:
+curl -fsS -X POST http://localhost:3000/api/pipeline/drip \
+  -H "Authorization: Bearer dev-secret-change-me" \
+  -H "Content-Type: application/json" \
+  -d '{"dryRun":true}'
+```
 
 **Dry-run (no Resend call):**
 
@@ -142,6 +161,12 @@ Monetization values resolve in order: **env override** → **`data/monetization.
    | `RESEND_AUDIENCE_ID` | Yes (prod) | Audience for waitlist |
    | `NEXT_PUBLIC_SITE_URL` | Yes | Production URL (e.g. `https://automate-this-week.vercel.app`) |
    | `NEXT_PUBLIC_GUMROAD_KIT_URL` | Optional | Gumroad product URL; issue-page kit CTA hidden until set |
+   | `NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL` | Optional | All Access Pass checkout URL; `/all-access` CTA hidden until set |
+   | `GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK` | Optional | Filter Gumroad webhook to this product permalink |
+   | `GUMROAD_WEBHOOK_SECRET` | Optional (prod) | Query param secret on `/api/webhooks/gumroad` |
+   | `ALL_ACCESS_CODES` | Optional | Comma-separated manual unlock codes |
+   | `AFFILIATE_URL_CURSOR` | Optional | Board referral URL for `/tools` + issue #12 |
+   | `AFFILIATE_URL_PAPERCLIP` | Optional | Board referral URL for `/tools` + issue #12 |
    | `CONTENT_PIPELINE_SECRET` | Yes (prod) | Bearer token for content API and metrics API |
    | `METRICS_SECRET` | Optional | Override bearer token for `/api/metrics` only |
    | `OPENAI_API_KEY` | For content | LLM draft generation |

@@ -7,10 +7,23 @@ topic: quote follow-up workflow
 setupMinutes: 20
 publishedAt: '2026-06-16'
 visibility: email-only
+difficulty: intermediate
+toolRequirements:
+  - Google Sheets
+  - Gmail
+  - Zapier
+roiImpact: Recover 15%+ of silent quotes with timed nudges
+emailSubject: "Playbook #2: Win back silent quotes automatically"
+workflowDiagram: /workflow-diagrams/quote-follow-up-workflow.png
+workflowDiagramAlt: Quote sent, wait three days, automatic follow-up, second nudge after seven days if no reply
 ---
 You send a quote, the prospect goes quiet, and follow-up slips. This playbook nudges silent prospects on day 3 and day 7 — without a spreadsheet reminder or a sticky note on your monitor.
 
 Pairs well with [issue #1](/issues/auto-triage-customer-emails): triage incoming quote requests first, then let this workflow chase the ones that stall.
+
+## What happens
+
+![Quote follow-up automation flow](/workflow-diagrams/quote-follow-up-workflow.png)
 
 ## The problem
 

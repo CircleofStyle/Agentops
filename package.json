@@ -12,9 +12,12 @@
     "content:draft": "tsx scripts/content.ts draft",
     "content:publish": "tsx scripts/content.ts publish",
     "content:broadcast": "tsx scripts/content.ts broadcast",
+    "content:drip": "tsx scripts/content.ts drip",
     "content:list": "tsx scripts/content.ts list",
     "smoke": "bash scripts/smoke-test.sh http://localhost:3000",
-    "verify:inbound": "tsx scripts/verify-inbound-webhook.ts"
+    "smoke:launch": "ALL_ACCESS_LAUNCH=1 bash scripts/smoke-test.sh",
+    "verify:inbound": "tsx scripts/verify-inbound-webhook.ts",
+    "verify:gumroad": "tsx scripts/verify-gumroad-webhook.ts"
   },
   "dependencies": {
     "next": "^15.5.19",
@@ -32,6 +35,7 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^15.5.19",
     "gray-matter": "^4.0.3",
+    "playwright": "^1.61.0",
     "postcss": "^8.5.3",
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",

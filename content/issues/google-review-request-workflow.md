@@ -7,7 +7,15 @@ topic: google review request workflow
 setupMinutes: 25
 visibility: email-only
 difficulty: beginner
+toolRequirements:
+  - Google Sheets
+  - Gmail
+  - Zapier
+roiImpact: One new 5-star review often pays for the setup in local search visibility
+emailSubject: "Playbook #3: Turn finished jobs into Google reviews"
 publishedAt: '2026-06-19'
+workflowDiagram: /workflow-diagrams/google-review-request-workflow.png
+workflowDiagramAlt: Job marked complete, wait two days, automatic review request, gentle reminder after seven days if no review
 ---
 You finish the job. The customer is happy. Then you forget to ask for a review — and your Google profile stays quiet while competitors stack five stars.
 
@@ -27,26 +35,14 @@ Every completed job gets a timed review request on schedule. You build social pr
 
 ## What happens
 
-```
-Job marked complete
-    ↓
-Wait 2 days
-    ↓
-Automatic review request email
-    ↓
-Still no review?
-    ↓
-Gentle reminder after 7 days
-```
-
-> **Diagram:** Workflow image coming soon. Text flow above is sufficient for email until then.
+![Google review request automation flow](/workflow-diagrams/google-review-request-workflow.png)
 
 ## What's included
 
 - **Job Completion Tracker** — [Copy the Google Sheet template](https://docs.google.com/spreadsheets/d/TEMPLATE_ID/copy) *(board: create once, reuse link — columns: `email`, `name`, `job_completed_at`, `google_review_link`, `status`, `last_nudge`)*
 - **2 review request emails** — initial ask + gentle reminder (below)
 - **Setup guide** — step-by-step
-- **Workflow diagram** — visual flow (coming soon)
+- **Workflow diagram** — visual flow above
 
 ## Setup snapshot
 

@@ -3,46 +3,83 @@ import { getIssueBySlug, writeIssue } from "./storage";
 import type { IssueDocument } from "./types";
 
 function buildDraftBody(topic: string): string {
-  return `Most small businesses can automate this workflow in under 30 minutes with tools they already use.
+  return `You spend time on **${topic}** every week — and it still slips when you're busy.
+
+This playbook gives you a copy-paste kit: tracker template, email scripts, and a step-by-step setup you can finish in one sitting.
+
+**Setup time: 20 minutes.**
 
 ## The problem
 
-Teams lose time on repetitive work around **${topic}**. This playbook gives you a copy-paste starting point.
+Teams lose time and revenue on repetitive work around **${topic}**. Manual reminders don't scale, and things fall through the cracks when you're focused on delivery.
 
-## What you'll build
+## The outcome
 
-1. **Trigger** — identify the event that should start the workflow (email, form, calendar, CRM update).
-2. **Classify** — use a short structured prompt to route the item (urgent, support, sales, spam).
-3. **Act** — notify the right channel and draft a reply in your tone.
+After setup, **${topic}** runs on schedule without you remembering to check. You get consistency without adding headcount.
+
+## What happens
+
+\`\`\`
+Trigger event
+    ↓
+Wait / check condition
+    ↓
+Automatic action (email, SMS, or task)
+    ↓
+Still no response?
+    ↓
+Follow-up on schedule
+\`\`\`
+
+> **Diagram:** Add a workflow image when the UX template ships. Text flow above is sufficient for email until then.
+
+## What's included
+
+- **Tracker template** — Google Sheet (copy link — replace \`TEMPLATE_ID\` when board provides master sheet URL)
+- **Email / message templates** — nudge 1, nudge 2, final check-in (copy-paste ready)
+- **Setup guide** — step-by-step below
+- **Workflow diagram** — visual flow (add when hosted asset is ready)
+
+## Setup snapshot
+
+| | |
+|---|---|
+| **Setup time** | 20 minutes |
+| **Difficulty** | Beginner |
+| **Tools** | Google Sheets, Gmail, Zapier (free tier OK) |
+| **ROI** | One recovered customer usually pays for the setup instantly |
 
 ## Step-by-step
 
-### 1. Set up the trigger
+### 1. Copy the tracker
 
-Pick your source system (Gmail label, Typeform, HubSpot stage change) and connect it in Zapier or Make.
+Open the template link above → **Make a copy**. Add a row each time the trigger event happens.
 
-### 2. Add the classification step
+### 2. Connect your tracker
 
-Use a prompt like:
+In Zapier: when a **new row** appears (or your CRM stage changes), start the workflow.
 
-\`\`\`
-Given this message about ${topic}, return JSON:
-{ "intent": "quote|support|spam", "urgency": "high|low", "summary": "one sentence" }
-\`\`\`
+> **Already use a CRM?** Swap the sheet for your CRM's equivalent trigger — same logic.
 
-### 3. Route and draft
+### 3. Schedule the first follow-up
 
-- High urgency → Slack + SMS
-- Support → helpdesk queue with draft reply
-- Sales → CRM task for follow-up within 24h
+Add a wait step. Before sending, confirm the item is still open (re-read from Sheets or CRM).
 
-## Estimated setup time
+### 4. Send follow-up #1
 
-20–30 minutes for a first version. Iterate after one week of real traffic.
+Use a short, friendly template with \`{{name}}\` placeholders. Update the tracker after each touch.
 
-## Next week
+### 5. Second nudge
 
-Reply with what broke — we'll ship a follow-up tuning checklist.`;
+Duplicate the path with a longer wait. Stop if status changes to won or lost.
+
+### 6. Final check-in (optional)
+
+Polite close-the-loop message. Mark lost in the tracker if no reply.
+
+## What to measure
+
+Track reply rate within 48h of the first nudge and % of open items that convert. Target **15%+ reply rate** on nudge 1 before adding more automation.`;
 }
 
 export async function generateDraft(topic: string): Promise<IssueDocument> {

@@ -25,5 +25,11 @@ export async function GET() {
       webhookSecretConfigured: Boolean(process.env.RESEND_WEBHOOK_SECRET),
       paperclipConfigured: isPaperclipConfigured(),
     },
+    gumroadWebhook: {
+      route: "/api/webhooks/gumroad",
+      webhookSecretConfigured: Boolean(process.env.GUMROAD_WEBHOOK_SECRET),
+      allAccessProductConfigured: Boolean(process.env.GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK),
+      checkoutUrlConfigured: Boolean(process.env.NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL),
+    },
   });
 }

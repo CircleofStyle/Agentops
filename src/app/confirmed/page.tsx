@@ -7,13 +7,21 @@ export default function ConfirmedPage() {
         <p className="text-sm font-semibold uppercase tracking-wider text-brand-500">
           Automate This Week
         </p>
-        <h1 className="mt-4 text-3xl font-bold text-white">You&apos;re subscribed!</h1>
+        <h1 className="mt-4 text-3xl font-bold text-white">You&apos;re in — check your inbox</h1>
         <p className="mt-4 text-slate-400">
-          Your email is confirmed. Full playbooks arrive every Tuesday. While you wait, read the{" "}
-          <Link href="/issues/auto-triage-customer-emails" className="text-brand-400 hover:text-brand-300">
-            free sample
+          Issue #1 — auto-triage customer emails — is on its way. Expect 2–5 hours saved per week
+          once it&apos;s live. The next playbook follows in 7 days.{" "}
+          <Link href="/season-1" className="text-brand-400 hover:text-brand-300">
+            See your Season 1 roadmap
           </Link>{" "}
-          on the site.
+          or read the{" "}
+          <Link
+            href="/issues/auto-triage-customer-emails"
+            className="text-brand-400 hover:text-brand-300"
+          >
+            free sample
+          </Link>
+          .
         </p>
         <Link
           href="/"

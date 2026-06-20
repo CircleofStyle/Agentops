@@ -3,5 +3,11 @@
   "framework": "nextjs",
   "buildCommand": "pnpm build",
   "installCommand": "pnpm install --frozen-lockfile",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "crons": [
+    {
+      "path": "/api/pipeline/drip",
+      "schedule": "0 14 * * *"
+    }
+  ]
 }

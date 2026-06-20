@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="420" viewBox="0 0 560 420" role="img" aria-labelledby="workflow-title workflow-desc">
+  <title id="workflow-title">Google review request automation</title>
+  <desc id="workflow-desc">Job marked complete, wait two days, automatic review request email, gentle reminder after seven days if no review</desc>
+
+  <defs>
+    <style>
+      .step-label { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 16px; font-weight: 600; fill: #0f172a; }
+      .arrow { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-linecap: round; }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect width="560" height="420" rx="16" fill="#f8fafc"/>
+
+  <text x="280" y="36" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" letter-spacing="0.08em" fill="#0ea5e9">WHAT HAPPENS</text>
+
+  <g id="step-1" data-kind="action">
+    <rect x="80" y="56" width="400" height="52" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <text class="step-label" x="280" y="88" text-anchor="middle">Job marked complete</text>
+  </g>
+
+  <line class="arrow" x1="280" y1="108" x2="280" y2="128" marker-end="url(#arrowhead)"/>
+
+  <g id="step-2" data-kind="wait">
+    <rect x="80" y="128" width="400" height="52" rx="10" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="1.5" stroke-opacity="0.45"/>
+    <text class="step-label" x="280" y="160" text-anchor="middle">Wait 2 days</text>
+  </g>
+
+  <line class="arrow" x1="280" y1="180" x2="280" y2="200" marker-end="url(#arrowhead)"/>
+
+  <g id="step-3" data-kind="action">
+    <rect x="80" y="200" width="400" height="52" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <text class="step-label" x="280" y="232" text-anchor="middle">Automatic review request</text>
+  </g>
+
+  <line class="arrow" x1="280" y1="252" x2="280" y2="272" marker-end="url(#arrowhead)"/>
+
+  <g id="step-4" data-kind="decision">
+    <rect x="80" y="272" width="400" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <text class="step-label" x="280" y="304" text-anchor="middle">Still no review?</text>
+  </g>
+
+  <line class="arrow" x1="280" y1="324" x2="280" y2="344" marker-end="url(#arrowhead)"/>
+
+  <g id="step-5" data-kind="action">
+    <rect x="80" y="344" width="400" height="52" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <text class="step-label" x="280" y="376" text-anchor="middle">Gentle reminder after 7 days</text>
+  </g>
+</svg>

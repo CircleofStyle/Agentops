@@ -59,7 +59,7 @@ export default function LegalPage() {
           </div>
           <p className="text-slate-300">
             {LEGAL_ENTITY}, Switzerland, is the data controller for the
-            Automate This Week site and weekly playbook emails. We treat personal data
+            Automate This Week site and playbook emails. We treat personal data
             with the protections demanded by Articles 5–8 of the EU General Data Protection
             Regulation and Articles 8–15 of the revised Swiss Federal Act on Data Protection.
           </p>
@@ -67,9 +67,10 @@ export default function LegalPage() {
             <h3 className="text-base font-semibold text-white">Newsletter delivery</h3>
             <p className="mt-2">
               Automate This Week is primarily an email product. One sample playbook is published on
-              the website so you can evaluate the format. Full weekly playbooks are sent only to
-              verified subscribers at the email address you provide. You can unsubscribe from any
-              email or by contacting{" "}
+              the website so you can evaluate the format. Full playbooks are sent only to verified
+              subscribers on a fixed sequence — one every 7 days after you confirm — at the email
+              address you provide. Each playbook targets a measurable business outcome — response
+              time, quote recovery, or reviews. You can unsubscribe from any email or by contacting{" "}
               <a className="text-brand-400 hover:text-brand-300" href="mailto:legal@novarho.com">
                 legal@novarho.com
               </a>

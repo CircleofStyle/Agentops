@@ -14,6 +14,22 @@ echo "$health" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"' || {
   exit 1
 }
 
+if [[ "${ALL_ACCESS_LAUNCH:-0}" == "1" ]]; then
+  echo "==> All Access launch health (strict)"
+  echo "$health" | grep -q '"checkoutUrlConfigured"[[:space:]]*:[[:space:]]*true' || {
+    echo "FAIL: gumroadWebhook.checkoutUrlConfigured is not true — set NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL in Vercel"
+    exit 1
+  }
+  echo "$health" | grep -q '"webhookSecretConfigured"[[:space:]]*:[[:space:]]*true' || {
+    echo "FAIL: gumroadWebhook.webhookSecretConfigured is not true — set GUMROAD_WEBHOOK_SECRET in Vercel"
+    exit 1
+  }
+  echo "$health" | grep -q '"allAccessProductConfigured"[[:space:]]*:[[:space:]]*true' || {
+    echo "FAIL: gumroadWebhook.allAccessProductConfigured is not true — set GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK"
+    exit 1
+  }
+fi
+
 echo "==> Landing page"
 landing=$(curl -fsS "${BASE_URL}/")
 echo "$landing" | grep -qi "Automate This Week" || {
@@ -86,6 +102,50 @@ elif [[ "$issue3_status" == "404" ]]; then
   echo "SKIP: issue #3 not published yet"
 else
   echo "FAIL: issue #3 returned unexpected status ${issue3_status}"
+  exit 1
+fi
+
+echo "==> All Access landing"
+all_access=$(curl -fsS "${BASE_URL}/all-access")
+echo "$all_access" | grep -qi "All Access Pass" || {
+  echo "FAIL: /all-access missing expected heading"
+  exit 1
+}
+echo "$all_access" | grep -qi "€49" || {
+  echo "FAIL: /all-access missing pricing"
+  exit 1
+}
+if [[ "${ALL_ACCESS_LAUNCH:-0}" == "1" ]]; then
+  echo "$all_access" | grep -qi "Get all access on Gumroad" || {
+    echo "FAIL: /all-access missing live Gumroad checkout CTA — NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL unset or deploy stale"
+    exit 1
+  }
+  echo "$all_access" | grep -qi "Checkout opens soon" && {
+    echo "FAIL: /all-access still shows pre-launch placeholder copy"
+    exit 1
+  }
+fi
+
+echo "==> Tools page (Cursor + Paperclip affiliates)"
+tools=$(curl -fsS "${BASE_URL}/tools")
+echo "$tools" | grep -qi "Tools we use" || {
+  echo "FAIL: /tools missing expected heading"
+  exit 1
+}
+echo "$tools" | grep -qi "Cursor" || {
+  echo "FAIL: /tools missing Cursor affiliate"
+  exit 1
+}
+
+echo "==> Gumroad webhook (missing sale fields → 400)"
+gumroad_status=$(curl -sS -o /tmp/atw-gumroad-body.txt -w "%{http_code}" -X POST \
+  "${BASE_URL}/api/webhooks/gumroad" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "email=")
+gumroad_body=$(cat /tmp/atw-gumroad-body.txt)
+echo "status=${gumroad_status} body=${gumroad_body}"
+if [[ "${gumroad_status}" != "400" ]]; then
+  echo "FAIL: expected 400 for invalid Gumroad payload, got ${gumroad_status}"
   exit 1
 fi
 

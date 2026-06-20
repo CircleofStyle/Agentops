@@ -1,6 +1,9 @@
 import Link from "next/link";
 
 const footerLinks = [
+  { href: "/season-1", label: "Season 1" },
+  { href: "/all-access", label: "All access" },
+  { href: "/issues", label: "Playbooks" },
   { href: "/legal#privacy-policy", label: "Privacy policy" },
   { href: "/legal#cookies", label: "Cookies" },
   { href: "/legal#data-protection", label: "Data protection" },

@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import { ALL_ACCESS_COOKIE, resolveAllAccessFromCookie } from "@/lib/all-access";
 import { AffiliateDisclosure } from "@/components/AffiliateDisclosure";
 import { AffiliateToolLinks } from "@/components/AffiliateToolLinks";
 import { GumroadKitCta } from "@/components/GumroadKitCta";
 import { IssueEmailGate } from "@/components/IssueEmailGate";
+import { IssueMetadataBadges } from "@/components/IssueMetadataBadges";
 import { issueHasAffiliateTools } from "@/lib/affiliates";
 import { markdownToHtml } from "@/lib/content/markdown";
 import { getPublishedIssue } from "@/lib/content/storage";
@@ -14,6 +17,7 @@ import {
   isPublicBody,
   isWebVisible,
   issueDescription,
+  shouldShowFullBody,
 } from "@/lib/content/visibility";
 
 interface PageProps {
@@ -36,7 +40,9 @@ export default async function IssuePage({ params }: PageProps) {
   const issue = await getPublishedIssue(slug);
   if (!issue || !isWebVisible(issue)) notFound();
 
-  const showFullBody = isPublicBody(issue);
+  const cookieStore = await cookies();
+  const hasAllAccess = await resolveAllAccessFromCookie(cookieStore.get(ALL_ACCESS_COOKIE)?.value);
+  const showFullBody = shouldShowFullBody(issue, hasAllAccess);
   const html = showFullBody ? await markdownToHtml(issue.body) : null;
   const problem = extractProblemSection(issue.body);
   const teaser = problem ?? extractTeaser(issue.body);
@@ -56,16 +62,16 @@ export default async function IssuePage({ params }: PageProps) {
         <header className="mt-8">
           <p className="text-xs font-semibold uppercase tracking-wider text-brand-500">
             Issue · {issue.frontmatter.date}
-            {!showFullBody ? " · Email subscribers" : null}
+            {showFullBody && !isPublicBody(issue)
+              ? " · All Access"
+              : !showFullBody
+                ? " · Email subscribers"
+                : null}
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
             {issue.frontmatter.title}
           </h1>
-          {issue.frontmatter.setupMinutes ? (
-            <p className="mt-4 text-sm text-slate-500">
-              Estimated setup time: {issue.frontmatter.setupMinutes} minutes
-            </p>
-          ) : null}
+          <IssueMetadataBadges frontmatter={issue.frontmatter} className="mt-4" />
         </header>
 
         {showFullBody && html ? (

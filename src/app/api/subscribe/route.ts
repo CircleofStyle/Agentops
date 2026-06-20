@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     message: emailSent
-      ? "Check your inbox and click the confirmation link to complete signup."
+      ? "Check your inbox to confirm — your first automation playbook arrives right after."
       : "Subscription recorded. Configure RESEND_API_KEY to enable confirmation emails.",
   });
 }

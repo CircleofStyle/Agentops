@@ -47,6 +47,16 @@ export async function listIssues(status?: IssueStatus): Promise<IssueDocument[]>
   return docs.sort((a, b) => b.frontmatter.date.localeCompare(a.frontmatter.date));
 }
 
+/** Published playbooks in drip order (issue #1 → #N), oldest first. */
+export async function listPublishedIssuesInSequence(): Promise<IssueDocument[]> {
+  const published = await listIssues("published");
+  return published.sort((a, b) => {
+    const aKey = a.frontmatter.publishedAt ?? a.frontmatter.date;
+    const bKey = b.frontmatter.publishedAt ?? b.frontmatter.date;
+    return aKey.localeCompare(bKey);
+  });
+}
+
 export async function getIssueBySlug(slug: string): Promise<IssueDocument | null> {
   const filePath = issuePath(slug);
   try {

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import {
   parseUtmFromSearchParams,
@@ -64,7 +65,10 @@ export function SignupForm() {
       }
 
       setState("success");
-      setMessage(data.message ?? "Check your inbox to confirm your subscription.");
+      setMessage(
+        data.message ??
+          "Check your inbox to confirm — your first automation playbook arrives right after.",
+      );
       setEmail("");
     } catch {
       setState("error");
@@ -112,7 +116,7 @@ export function SignupForm() {
         disabled={state === "loading"}
         className="w-full rounded-lg bg-brand-500 px-6 py-3 font-semibold text-white transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {state === "loading" ? "Subscribing…" : "Get the full playbook every Tuesday"}
+        {state === "loading" ? "Subscribing…" : "Get my first playbook — free"}
       </button>
 
       {state === "error" && (
@@ -122,8 +126,19 @@ export function SignupForm() {
       )}
 
       <p className="text-center text-xs text-slate-500">
-        Free. Read the sample on the site anytime. Full playbooks are email-only — one per week,
-        unsubscribe anytime.
+        Free: one playbook every 7 days after you confirm. Issue #1 in minutes — no coding required.
+        You&apos;ll receive playbooks 1→12 in order.{" "}
+        <Link href="/season-1" className="text-brand-400 hover:text-brand-300">
+          See Season 1
+        </Link>
+        .
+      </p>
+      <p className="text-center text-xs text-slate-500">
+        Can&apos;t wait?{" "}
+        <Link href="/all-access" className="font-medium text-brand-400 hover:text-brand-300">
+          Get all access →
+        </Link>{" "}
+        — every published playbook, immediately.
       </p>
     </form>
   );

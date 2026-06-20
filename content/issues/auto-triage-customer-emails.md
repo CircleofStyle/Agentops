@@ -7,9 +7,22 @@ topic: auto-triage customer emails
 setupMinutes: 15
 publishedAt: '2026-06-09'
 visibility: sample
+difficulty: beginner
+toolRequirements:
+  - Gmail
+  - Zapier
+  - Slack (optional)
+roiImpact: Cut first-response time from 48h to same-day
+emailSubject: "Playbook #1: Cut email triage from hours to minutes"
+workflowDiagram: /workflow-diagrams/auto-triage-customer-emails-workflow.png
+workflowDiagramAlt: New customer email, auto-classify intent, urgent Slack alert, draft reply saved in Gmail
 ---
 
 Most small shops lose leads in a shared inbox. This playbook routes urgent requests, drafts replies, and logs everything — without hiring ops.
+
+## What happens
+
+![Customer email triage automation flow](/workflow-diagrams/auto-triage-customer-emails-workflow.png)
 
 ## The problem
 

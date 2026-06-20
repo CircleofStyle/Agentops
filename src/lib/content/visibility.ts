@@ -14,6 +14,11 @@ export function isPublicBody(issue: IssueDocument): boolean {
   return resolveVisibility(issue.frontmatter) === "sample";
 }
 
+export function shouldShowFullBody(issue: IssueDocument, hasAllAccess: boolean): boolean {
+  if (isPublicBody(issue)) return true;
+  return hasAllAccess && resolveVisibility(issue.frontmatter) === "email-only";
+}
+
 export function isWebVisible(issue: IssueDocument): boolean {
   return !isArchived(issue);
 }

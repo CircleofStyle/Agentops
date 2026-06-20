@@ -17,15 +17,22 @@ export function IssueEmailGate({ teaser, setupMinutes }: IssueEmailGateProps) {
           </p>
         ) : null}
         <p className="mt-6 text-slate-400">
-          Verified subscribers receive the complete step-by-step workflow every Tuesday. The site
-          keeps one free sample public — everything else is delivered by email.
+          Full step-by-step playbooks are delivered in your personal sequence after you confirm —
+          one every 7 days. Each one finishes in under 30 minutes.
+        </p>
+        <p className="mt-4 text-sm text-slate-500">
+          Can&apos;t wait?{" "}
+          <a href="/all-access" className="font-medium text-brand-500 transition hover:text-brand-400">
+            Get all access →
+          </a>{" "}
+          — every published playbook, immediately.
         </p>
       </div>
 
       <div className="rounded-xl border border-brand-500/30 bg-brand-500/5 p-6 sm:p-8">
-        <h2 className="text-xl font-bold text-white">Get the full playbook by email</h2>
+        <h2 className="text-xl font-bold text-white">Get this playbook in your inbox</h2>
         <p className="mt-2 text-slate-400">
-          Same playbook we send the list — free, one per week, unsubscribe anytime.
+          Free automation playbooks for service businesses — your sequence starts when you confirm.
         </p>
         <div className="mt-6">
           <SignupForm />

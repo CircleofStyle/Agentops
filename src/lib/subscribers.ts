@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import { logger } from "@/lib/logger";
@@ -12,6 +13,20 @@ export type SubscriberRecord = {
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
+  /** ISO timestamp when subscriber entered the drip sequence. */
+  dripEnrolledAt?: string;
+  /** Count of playbook issues sent via drip (0 = enrolled, none sent yet). */
+  dripSequenceIndex?: number;
+  /** ISO timestamp of the last drip playbook email. */
+  lastDripSentAt?: string;
+  /** Slugs delivered via drip, in send order. */
+  issuesSent?: string[];
+  /** All Access Pass — immediate archive unlock on web. */
+  allAccess?: boolean;
+  /** ISO timestamp when all-access was granted. */
+  allAccessGrantedAt?: string;
+  /** Source of all-access grant (gumroad, code, manual). */
+  allAccessSource?: "gumroad" | "code" | "manual";
 };
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -103,6 +118,99 @@ export async function confirmSubscriber(token: string): Promise<SubscriberRecord
   return confirmed;
 }
 
+export async function confirmSubscriberByEmail(email: string): Promise<SubscriberRecord | null> {
+  const subscribers = await readSubscribers();
+  const normalized = email.toLowerCase();
+  const index = subscribers.findIndex((s) => s.email === normalized);
+
+  if (index === -1) return null;
+
+  const confirmed: SubscriberRecord = {
+    ...subscribers[index],
+    status: "confirmed",
+    confirmedAt: subscribers[index].confirmedAt ?? new Date().toISOString(),
+  };
+
+  subscribers[index] = confirmed;
+  await writeSubscribers(subscribers);
+  return confirmed;
+}
+
+export async function updateSubscriber(
+  email: string,
+  updater: (record: SubscriberRecord) => SubscriberRecord,
+): Promise<SubscriberRecord | null> {
+  const subscribers = await readSubscribers();
+  const normalized = email.toLowerCase();
+  const index = subscribers.findIndex((s) => s.email === normalized);
+
+  if (index === -1) return null;
+
+  subscribers[index] = updater(subscribers[index]);
+  await writeSubscribers(subscribers);
+  return subscribers[index];
+}
+
+export async function recordDripSend(email: string, slug: string): Promise<SubscriberRecord | null> {
+  return updateSubscriber(email, (record) => ({
+    ...record,
+    dripEnrolledAt: record.dripEnrolledAt ?? new Date().toISOString(),
+    dripSequenceIndex: (record.dripSequenceIndex ?? 0) + 1,
+    lastDripSentAt: new Date().toISOString(),
+    issuesSent: [...(record.issuesSent ?? []), slug],
+  }));
+}
+
 export async function exportSubscribers(): Promise<SubscriberRecord[]> {
   return readSubscribers();
+}
+
+function newSubscriberToken(): string {
+  return randomBytes(24).toString("hex");
+}
+
+export async function grantAllAccess(
+  email: string,
+  source: SubscriberRecord["allAccessSource"] = "manual",
+): Promise<SubscriberRecord> {
+  const subscribers = await readSubscribers();
+  const normalized = email.toLowerCase();
+  const index = subscribers.findIndex((s) => s.email === normalized);
+  const now = new Date().toISOString();
+
+  if (index === -1) {
+    const record: SubscriberRecord = {
+      email: normalized,
+      status: "confirmed",
+      createdAt: now,
+      confirmedAt: now,
+      token: newSubscriberToken(),
+      allAccess: true,
+      allAccessGrantedAt: now,
+      allAccessSource: source,
+    };
+    subscribers.push(record);
+    await writeSubscribers(subscribers);
+    return record;
+  }
+
+  const updated: SubscriberRecord = {
+    ...subscribers[index],
+    status: "confirmed",
+    confirmedAt: subscribers[index].confirmedAt ?? now,
+    allAccess: true,
+    allAccessGrantedAt: subscribers[index].allAccessGrantedAt ?? now,
+    allAccessSource: source,
+  };
+
+  subscribers[index] = updated;
+  await writeSubscribers(subscribers);
+  return updated;
+}
+
+export async function revokeAllAccess(email: string): Promise<SubscriberRecord | null> {
+  return updateSubscriber(email, (record) => ({
+    ...record,
+    allAccess: false,
+  }));
 }
