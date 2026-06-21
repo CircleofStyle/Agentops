@@ -39,7 +39,7 @@ export const AFFILIATE_TOOLS: AffiliateTool[] = [
 
 const DEFAULT_AFFILIATE_URLS: Record<AffiliateToolId, string> = {
   zapier: "https://zapier.com/sign-up",
-  make: "https://www.make.com/en/register",
+  make: "https://www.make.com/en/register?pc=automatethisweek",
   openai: "https://platform.openai.com/signup",
   cursor: "https://cursor.com",
   paperclip: "https://paperclip.ing",
