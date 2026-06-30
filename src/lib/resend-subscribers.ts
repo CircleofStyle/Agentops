@@ -42,9 +42,9 @@ function contactToSubscriberRecord(contact: ResendContact): SubscriberRecord | n
 
   return {
     email: contact.email.toLowerCase(),
-    status: confirmedAt ? "confirmed" : "pending",
+    status: "confirmed",
     createdAt,
-    confirmedAt,
+    confirmedAt: confirmedAt ?? createdAt,
     token: placeholderToken(),
     dripEnrolledAt,
     dripSequenceIndex,
@@ -107,9 +107,41 @@ export async function listResendAudienceSubscribers(): Promise<SubscriberRecord[
     return [];
   }
 
-  return data.data
+  const records = data.data
     .map((contact) => contactToSubscriberRecord(contact as ResendContact))
     .filter((record): record is SubscriberRecord => record !== null);
+
+  return Promise.all(records.map((record) => hydrateResendSubscriberRecord(record)));
+}
+
+async function hydrateResendSubscriberRecord(record: SubscriberRecord): Promise<SubscriberRecord> {
+  if (record.dripSequenceIndex != null && record.lastDripSentAt && record.dripEnrolledAt) {
+    return record;
+  }
+
+  const audienceId = getAudienceId();
+  if (!getResendClient() || !audienceId) return record;
+
+  const response = await fetch(
+    `https://api.resend.com/audiences/${audienceId}/contacts/${encodeURIComponent(record.email)}`,
+    {
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}` },
+    },
+  );
+
+  if (!response.ok) return record;
+
+  const contact = (await response.json()) as ResendContact;
+  const hydrated = contactToSubscriberRecord({ ...contact, email: record.email });
+  if (!hydrated) return record;
+
+  return {
+    ...record,
+    dripEnrolledAt: record.dripEnrolledAt ?? hydrated.dripEnrolledAt,
+    dripSequenceIndex: record.dripSequenceIndex ?? hydrated.dripSequenceIndex,
+    lastDripSentAt: record.lastDripSentAt ?? hydrated.lastDripSentAt,
+    confirmedAt: record.confirmedAt ?? hydrated.confirmedAt,
+  };
 }
 
 export async function loadSubscriberFromResend(

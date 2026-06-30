@@ -7,6 +7,7 @@ import {
   loadDripStateFromResend,
   syncDripStateToResend,
 } from "@/lib/resend-drip-state";
+import { syncConfirmedAtToResend } from "@/lib/resend-subscribers";
 import {
   exportSubscribers,
   findSubscriber,
@@ -16,6 +17,11 @@ import {
 } from "@/lib/subscribers";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const DRIP_SEND_DELAY_MS = 150;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export type DripSendResult = {
   email: string;
@@ -28,6 +34,7 @@ export type DripSendResult = {
 
 export type DripSubscriberAudit = {
   email: string;
+  status: "pending" | "confirmed";
   confirmedAt?: string;
   dripEnrolledAt?: string;
   dripSequenceIndex?: number;
@@ -82,13 +89,6 @@ async function hydrateConfirmedSubscribers(
   );
 }
 
-function maskEmail(email: string): string {
-  const [local, domain] = email.split("@");
-  if (!domain) return email;
-  const visible = local.slice(0, Math.min(2, local.length));
-  return `${visible}***@${domain}`;
-}
-
 /** Legacy subscribers without drip fields: assume #1 on confirm, continue the sequence. */
 async function enrollLegacySubscriberForDrip(
   subscriber: SubscriberRecord,
@@ -101,9 +101,9 @@ async function enrollLegacySubscriberForDrip(
   const updated = await updateSubscriber(subscriber.email, (record) => ({
     ...record,
     dripEnrolledAt: record.dripEnrolledAt ?? enrolledAt,
-    dripSequenceIndex: Math.max(record.dripSequenceIndex ?? 0, firstSlug ? 1 : 0),
-    lastDripSentAt: record.lastDripSentAt ?? enrolledAt,
-    issuesSent: record.issuesSent?.length ? record.issuesSent : firstSlug ? [firstSlug] : [],
+    dripSequenceIndex: record.dripSequenceIndex ?? 0,
+    lastDripSentAt: record.lastDripSentAt,
+    issuesSent: record.issuesSent?.length ? record.issuesSent : [],
   }));
 
   if (updated) {
@@ -210,13 +210,26 @@ export async function auditDripDelivery(): Promise<DripAuditReport> {
   const sequence = await getDripSequenceSlugs();
   const cadenceDays = getDripCadenceDays();
   const subscribers = await hydrateConfirmedSubscribers(await exportSubscribers());
-  const confirmed = subscribers.filter((s) => s.status === "confirmed");
 
   const audits: DripSubscriberAudit[] = [];
   let dueCount = 0;
   let unmigratedCount = 0;
+  let confirmedCount = 0;
 
-  for (const subscriber of confirmed) {
+  for (const subscriber of subscribers) {
+    if (subscriber.status !== "confirmed") {
+      audits.push({
+        email: subscriber.email,
+        status: "pending",
+        confirmedAt: subscriber.confirmedAt,
+        dueNow: false,
+        behindBy: 0,
+        storage: "missing",
+      });
+      continue;
+    }
+
+    confirmedCount += 1;
     const hydrated = await hydrateSubscriberDripState(subscriber);
     const remote = await loadDripStateFromResend(subscriber.email);
     const storage =
@@ -236,7 +249,8 @@ export async function auditDripDelivery(): Promise<DripAuditReport> {
     if (dueNow) dueCount += 1;
 
     audits.push({
-      email: maskEmail(hydrated.email),
+      email: hydrated.email,
+      status: "confirmed",
       confirmedAt: hydrated.confirmedAt,
       dripEnrolledAt: hydrated.dripEnrolledAt,
       dripSequenceIndex: hydrated.dripSequenceIndex,
@@ -251,7 +265,7 @@ export async function auditDripDelivery(): Promise<DripAuditReport> {
   return {
     sequence,
     cadenceDays,
-    confirmedCount: confirmed.length,
+    confirmedCount,
     dueCount,
     unmigratedCount,
     subscribers: audits.sort((a, b) => (b.behindBy ?? 0) - (a.behindBy ?? 0)),
@@ -263,15 +277,31 @@ export async function catchUpSubscriberDrip(email: string): Promise<DripSendResu
   const sequence = await getDripSequenceSlugs();
   const cadenceDays = getDripCadenceDays();
   const existing = await findSubscriber(email);
-  if (!existing || existing.status !== "confirmed") {
-    return [{ email, status: "failed", error: "subscriber_not_confirmed" }];
+  if (!existing) {
+    return [{ email, status: "failed", error: "subscriber_not_found" }];
   }
 
-  let subscriber = await hydrateSubscriberDripState(existing);
+  let base = existing;
+  if (base.status !== "confirmed") {
+    const confirmedAt = base.confirmedAt ?? new Date().toISOString();
+    await syncConfirmedAtToResend(email, confirmedAt);
+    base = { ...base, status: "confirmed", confirmedAt };
+  }
+
+  let subscriber = await hydrateSubscriberDripState(base);
   if (!subscriber.dripEnrolledAt || subscriber.dripSequenceIndex == null) {
     await enrollLegacySubscriberForDrip(subscriber, sequence[0]);
     subscriber = (await findSubscriber(email)) ?? subscriber;
     subscriber = await hydrateSubscriberDripState(subscriber);
+  }
+
+  if (!subscriber.issuesSent?.length && (subscriber.dripSequenceIndex ?? 0) > 0) {
+    const reset = await updateSubscriber(email, (record) => ({
+      ...record,
+      dripSequenceIndex: 0,
+      lastDripSentAt: undefined,
+    }));
+    subscriber = reset ? await hydrateSubscriberDripState(reset) : subscriber;
   }
 
   const expected = expectedDripIndex(subscriber, cadenceDays, sequence.length);
@@ -285,6 +315,7 @@ export async function catchUpSubscriberDrip(email: string): Promise<DripSendResu
     const fresh = (await findSubscriber(email)) ?? subscriber;
     const hydrated = await hydrateSubscriberDripState(fresh);
     results.push(await sendPlaybookDripToSubscriber(hydrated, slug));
+    await sleep(DRIP_SEND_DELAY_MS);
   }
 
   if (results.length === 0) {
