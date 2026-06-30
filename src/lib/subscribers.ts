@@ -2,6 +2,12 @@ import { randomBytes } from "crypto";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import { logger } from "@/lib/logger";
+import {
+  findResendSubscriberRecord,
+  listResendSubscriberRecords,
+  mergeSubscriberRecords,
+  syncConfirmedAtToResend,
+} from "@/lib/resend-subscribers";
 import { syncDripStateToResend } from "@/lib/resend-drip-state";
 import { mergeUtmFields, type UtmParams } from "@/lib/utm";
 
@@ -79,9 +85,19 @@ async function persistDripFields(record: SubscriberRecord): Promise<void> {
   });
 }
 
+async function loadAllSubscribers(): Promise<SubscriberRecord[]> {
+  const local = await readSubscribers();
+  const remote = await listResendSubscriberRecords();
+  if (remote.length === 0) return local;
+  return mergeSubscriberRecords(local, remote);
+}
+
 export async function findSubscriber(email: string): Promise<SubscriberRecord | undefined> {
-  const subscribers = await readSubscribers();
-  return subscribers.find((s) => s.email.toLowerCase() === email.toLowerCase());
+  const normalized = email.toLowerCase();
+  const subscribers = await loadAllSubscribers();
+  const match = subscribers.find((s) => s.email.toLowerCase() === normalized);
+  if (match) return match;
+  return (await findResendSubscriberRecord(normalized)) ?? undefined;
 }
 
 export async function findSubscriberByToken(token: string): Promise<SubscriberRecord | undefined> {
@@ -141,17 +157,39 @@ export async function confirmSubscriberByEmail(email: string): Promise<Subscribe
   const subscribers = await readSubscribers();
   const normalized = email.toLowerCase();
   const index = subscribers.findIndex((s) => s.email === normalized);
+  const now = new Date().toISOString();
 
-  if (index === -1) return null;
+  if (index === -1) {
+    const remote = await findResendSubscriberRecord(normalized);
+    const confirmed: SubscriberRecord = {
+      email: normalized,
+      status: "confirmed",
+      createdAt: remote?.createdAt ?? now,
+      confirmedAt: now,
+      token: remote?.token ?? newSubscriberToken(),
+      dripEnrolledAt: remote?.dripEnrolledAt,
+      dripSequenceIndex: remote?.dripSequenceIndex,
+      lastDripSentAt: remote?.lastDripSentAt,
+      issuesSent: remote?.issuesSent,
+      utm_source: remote?.utm_source,
+      utm_medium: remote?.utm_medium,
+      utm_campaign: remote?.utm_campaign,
+    };
+
+    await writeSubscribers([...subscribers, confirmed]);
+    await syncConfirmedAtToResend(normalized, now);
+    return confirmed;
+  }
 
   const confirmed: SubscriberRecord = {
     ...subscribers[index],
     status: "confirmed",
-    confirmedAt: subscribers[index].confirmedAt ?? new Date().toISOString(),
+    confirmedAt: subscribers[index].confirmedAt ?? now,
   };
 
   subscribers[index] = confirmed;
   await writeSubscribers(subscribers);
+  await syncConfirmedAtToResend(normalized, confirmed.confirmedAt!);
   return confirmed;
 }
 
@@ -159,11 +197,16 @@ export async function updateSubscriber(
   email: string,
   updater: (record: SubscriberRecord) => SubscriberRecord,
 ): Promise<SubscriberRecord | null> {
-  const subscribers = await readSubscribers();
   const normalized = email.toLowerCase();
-  const index = subscribers.findIndex((s) => s.email === normalized);
+  const subscribers = await readSubscribers();
+  let index = subscribers.findIndex((s) => s.email === normalized);
 
-  if (index === -1) return null;
+  if (index === -1) {
+    const remote = await findResendSubscriberRecord(normalized);
+    if (!remote) return null;
+    subscribers.push(remote);
+    index = subscribers.length - 1;
+  }
 
   subscribers[index] = updater(subscribers[index]);
   const updated = subscribers[index];
@@ -183,7 +226,7 @@ export async function recordDripSend(email: string, slug: string): Promise<Subsc
 }
 
 export async function exportSubscribers(): Promise<SubscriberRecord[]> {
-  return readSubscribers();
+  return loadAllSubscribers();
 }
 
 function newSubscriberToken(): string {

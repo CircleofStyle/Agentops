@@ -294,6 +294,35 @@ export async function catchUpSubscriberDrip(email: string): Promise<DripSendResu
   return results;
 }
 
+/** Send all missed drip playbooks for every confirmed subscriber behind schedule. */
+export async function catchUpAllBehindDrip(): Promise<{
+  caughtUp: number;
+  results: DripSendResult[];
+}> {
+  const sequence = await getDripSequenceSlugs();
+  const cadenceDays = getDripCadenceDays();
+  const subscribers = await hydrateConfirmedSubscribers(await exportSubscribers());
+  const results: DripSendResult[] = [];
+  let caughtUp = 0;
+
+  for (const subscriber of subscribers) {
+    if (subscriber.status !== "confirmed") continue;
+
+    const hydrated = await hydrateSubscriberDripState(subscriber);
+    const expected = expectedDripIndex(hydrated, cadenceDays, sequence.length);
+    const actual = hydrated.dripSequenceIndex ?? 0;
+    if (expected <= actual) continue;
+
+    const sendResults = await catchUpSubscriberDrip(hydrated.email);
+    results.push(...sendResults);
+    if (sendResults.some((r) => r.status === "sent")) {
+      caughtUp += 1;
+    }
+  }
+
+  return { caughtUp, results };
+}
+
 export async function processDueDripEmails(options?: {
   dryRun?: boolean;
   limit?: number;

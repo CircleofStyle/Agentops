@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isPipelineAuthorized } from "@/lib/content/auth";
-import { auditDripDelivery, catchUpSubscriberDrip, processDueDripEmails } from "@/lib/drip";
+import { auditDripDelivery, catchUpAllBehindDrip, catchUpSubscriberDrip, processDueDripEmails } from "@/lib/drip";
 import { getDripCadenceDays, getDripSequenceSlugs } from "@/lib/drip-sequence";
 
 const bodySchema = z
@@ -10,6 +10,7 @@ const bodySchema = z
     limit: z.number().int().min(1).max(500).optional(),
     audit: z.boolean().optional(),
     catchUpEmail: z.string().email().optional(),
+    catchUpBehind: z.boolean().optional(),
   })
   .optional();
 
@@ -41,6 +42,16 @@ export async function POST(request: Request) {
     return NextResponse.json({
       email: parsed.data.catchUpEmail,
       results,
+      sequence: await getDripSequenceSlugs(),
+      cadenceDays: getDripCadenceDays(),
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  if (parsed.data?.catchUpBehind) {
+    const catchUp = await catchUpAllBehindDrip();
+    return NextResponse.json({
+      ...catchUp,
       sequence: await getDripSequenceSlugs(),
       cadenceDays: getDripCadenceDays(),
       timestamp: new Date().toISOString(),
