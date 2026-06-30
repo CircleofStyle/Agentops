@@ -1,4 +1,4 @@
-import { getGumroadAllAccessProductPermalink } from "@/lib/gumroad";
+import { getGumroadAllAccessProductPermalink, getGumroadCrownProductPermalink } from "@/lib/gumroad";
 
 export type GumroadSalePayload = {
   email: string;
@@ -51,13 +51,35 @@ export function normalizeGumroadSale(data: Record<string, string>): GumroadSaleP
   };
 }
 
-export function isAllAccessGumroadSale(sale: GumroadSalePayload): boolean {
-  const expectedPermalink = getGumroadAllAccessProductPermalink();
-  if (!expectedPermalink) return true;
+export type GumroadProductKind = "all_access" | "crown" | "unknown";
 
-  const permalink = sale.product_permalink?.toLowerCase() ?? "";
+function permalinkMatches(salePermalink: string | undefined, expectedPermalink: string): boolean {
+  const permalink = salePermalink?.toLowerCase() ?? "";
   const expected = expectedPermalink.toLowerCase();
   return permalink === expected || permalink.endsWith(`/${expected}`);
+}
+
+export function classifyGumroadSale(sale: GumroadSalePayload): GumroadProductKind {
+  const crownPermalink = getGumroadCrownProductPermalink();
+  if (crownPermalink && permalinkMatches(sale.product_permalink, crownPermalink)) {
+    return "crown";
+  }
+
+  const allAccessPermalink = getGumroadAllAccessProductPermalink();
+  if (allAccessPermalink) {
+    return permalinkMatches(sale.product_permalink, allAccessPermalink) ? "all_access" : "unknown";
+  }
+
+  // Legacy: when only all-access permalink is unset, accept sales as all-access unless crown matched.
+  return "all_access";
+}
+
+export function isAllAccessGumroadSale(sale: GumroadSalePayload): boolean {
+  return classifyGumroadSale(sale) === "all_access";
+}
+
+export function isCrownDisciplineGumroadSale(sale: GumroadSalePayload): boolean {
+  return classifyGumroadSale(sale) === "crown";
 }
 
 export function isGumroadRefund(sale: GumroadSalePayload): boolean {

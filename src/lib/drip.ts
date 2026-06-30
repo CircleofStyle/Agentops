@@ -1,9 +1,15 @@
 import { getPublishedIssue } from "@/lib/content/storage";
 import { logger } from "@/lib/logger";
-import { sendTransactionalPlaybookEmail } from "@/lib/playbook-email";
+import { PB3_DRIP_SLUG, sendTransactionalPlaybookEmail } from "@/lib/playbook-email";
 import { getDripCadenceDays, getDripSequenceSlugs } from "@/lib/drip-sequence";
 import {
+  hydrateSubscriberDripState,
+  loadDripStateFromResend,
+  syncDripStateToResend,
+} from "@/lib/resend-drip-state";
+import {
   exportSubscribers,
+  findSubscriber,
   recordDripSend,
   type SubscriberRecord,
   updateSubscriber,
@@ -20,6 +26,28 @@ export type DripSendResult = {
   messageId?: string;
 };
 
+export type DripSubscriberAudit = {
+  email: string;
+  confirmedAt?: string;
+  dripEnrolledAt?: string;
+  dripSequenceIndex?: number;
+  lastDripSentAt?: string;
+  issuesSent?: string[];
+  dueNow: boolean;
+  behindBy: number;
+  storage: "local" | "resend" | "missing";
+};
+
+export type DripAuditReport = {
+  sequence: string[];
+  cadenceDays: number;
+  confirmedCount: number;
+  dueCount: number;
+  unmigratedCount: number;
+  subscribers: DripSubscriberAudit[];
+  timestamp: string;
+};
+
 function isDueForNextIssue(subscriber: SubscriberRecord, cadenceDays: number): boolean {
   if (!subscriber.dripEnrolledAt || subscriber.dripSequenceIndex == null) return false;
   if ((subscriber.dripSequenceIndex ?? 0) === 0) return false;
@@ -30,34 +58,95 @@ function isDueForNextIssue(subscriber: SubscriberRecord, cadenceDays: number): b
   return Date.now() >= lastSent + cadenceDays * MS_PER_DAY;
 }
 
-/** Existing broadcast subscribers: mark caught up at current published count (no backfill). */
+function expectedDripIndex(
+  subscriber: SubscriberRecord,
+  cadenceDays: number,
+  sequenceLength: number,
+): number {
+  if (!subscriber.confirmedAt) return 0;
+
+  const confirmedAt = new Date(subscriber.confirmedAt).getTime();
+  const elapsedDays = Math.max(0, Math.floor((Date.now() - confirmedAt) / MS_PER_DAY));
+  const dueCount = Math.min(sequenceLength, 1 + Math.floor(elapsedDays / cadenceDays));
+  return dueCount;
+}
+
+async function hydrateConfirmedSubscribers(
+  subscribers: SubscriberRecord[],
+): Promise<SubscriberRecord[]> {
+  return Promise.all(
+    subscribers.map(async (subscriber) => {
+      if (subscriber.status !== "confirmed") return subscriber;
+      return hydrateSubscriberDripState(subscriber);
+    }),
+  );
+}
+
+function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!domain) return email;
+  const visible = local.slice(0, Math.min(2, local.length));
+  return `${visible}***@${domain}`;
+}
+
+/** Legacy subscribers without drip fields: assume #1 on confirm, continue the sequence. */
+async function enrollLegacySubscriberForDrip(
+  subscriber: SubscriberRecord,
+  firstSlug: string | undefined,
+  options?: { dryRun?: boolean },
+): Promise<void> {
+  if (options?.dryRun) return;
+
+  const enrolledAt = subscriber.confirmedAt ?? new Date().toISOString();
+  const updated = await updateSubscriber(subscriber.email, (record) => ({
+    ...record,
+    dripEnrolledAt: record.dripEnrolledAt ?? enrolledAt,
+    dripSequenceIndex: Math.max(record.dripSequenceIndex ?? 0, firstSlug ? 1 : 0),
+    lastDripSentAt: record.lastDripSentAt ?? enrolledAt,
+    issuesSent: record.issuesSent?.length ? record.issuesSent : firstSlug ? [firstSlug] : [],
+  }));
+
+  if (updated) {
+    await syncDripStateToResend(updated.email, {
+      dripEnrolledAt: updated.dripEnrolledAt,
+      dripSequenceIndex: updated.dripSequenceIndex,
+      lastDripSentAt: updated.lastDripSentAt,
+    });
+  }
+}
+
 export async function migrateExistingSubscribersToDrip(options?: {
   dryRun?: boolean;
 }): Promise<{ migrated: number; emails: string[] }> {
   const sequence = await getDripSequenceSlugs();
-  const subscribers = await exportSubscribers();
+  const subscribers = await hydrateConfirmedSubscribers(await exportSubscribers());
   const emails: string[] = [];
 
   for (const subscriber of subscribers) {
     if (subscriber.status !== "confirmed") continue;
-    if (subscriber.dripEnrolledAt) continue;
+    if (subscriber.dripEnrolledAt && subscriber.dripSequenceIndex != null) continue;
+
+    const remote = await loadDripStateFromResend(subscriber.email);
+    if (remote?.dripEnrolledAt && remote.dripSequenceIndex != null) {
+      if (!options?.dryRun) {
+        await updateSubscriber(subscriber.email, (record) => ({
+          ...record,
+          dripEnrolledAt: record.dripEnrolledAt ?? remote.dripEnrolledAt,
+          dripSequenceIndex: record.dripSequenceIndex ?? remote.dripSequenceIndex,
+          lastDripSentAt: record.lastDripSentAt ?? remote.lastDripSentAt,
+        }));
+      }
+      continue;
+    }
 
     emails.push(subscriber.email);
-    if (options?.dryRun) continue;
-
-    await updateSubscriber(subscriber.email, (record) => ({
-      ...record,
-      dripEnrolledAt: record.confirmedAt ?? new Date().toISOString(),
-      dripSequenceIndex: sequence.length,
-      lastDripSentAt: record.confirmedAt ?? new Date().toISOString(),
-      issuesSent: [...sequence],
-    }));
+    await enrollLegacySubscriberForDrip(subscriber, sequence[0], options);
   }
 
   if (emails.length > 0) {
     logger.info("Migrated existing subscribers to drip sequence", {
       count: emails.length,
-      strategy: "start_at_current_published_count",
+      strategy: "continue_from_confirm_assuming_issue_one",
       dryRun: options?.dryRun ?? false,
     });
   }
@@ -77,6 +166,7 @@ export async function sendPlaybookDripToSubscriber(
   const sendResult = await sendTransactionalPlaybookEmail({
     email: subscriber.email,
     issue,
+    includeForwardReferralPs: slug === PB3_DRIP_SLUG,
   });
 
   if (!sendResult.ok) {
@@ -116,6 +206,94 @@ export async function sendInitialDripIssue(email: string): Promise<DripSendResul
   return sendPlaybookDripToSubscriber(subscriber, sequence[0]);
 }
 
+export async function auditDripDelivery(): Promise<DripAuditReport> {
+  const sequence = await getDripSequenceSlugs();
+  const cadenceDays = getDripCadenceDays();
+  const subscribers = await hydrateConfirmedSubscribers(await exportSubscribers());
+  const confirmed = subscribers.filter((s) => s.status === "confirmed");
+
+  const audits: DripSubscriberAudit[] = [];
+  let dueCount = 0;
+  let unmigratedCount = 0;
+
+  for (const subscriber of confirmed) {
+    const hydrated = await hydrateSubscriberDripState(subscriber);
+    const remote = await loadDripStateFromResend(subscriber.email);
+    const storage =
+      hydrated.dripEnrolledAt && subscriber.dripEnrolledAt
+        ? "local"
+        : remote?.dripEnrolledAt
+          ? "resend"
+          : "missing";
+
+    if (!hydrated.dripEnrolledAt || hydrated.dripSequenceIndex == null) {
+      unmigratedCount += 1;
+    }
+
+    const expected = expectedDripIndex(hydrated, cadenceDays, sequence.length);
+    const actual = hydrated.dripSequenceIndex ?? 0;
+    const dueNow = isDueForNextIssue(hydrated, cadenceDays);
+    if (dueNow) dueCount += 1;
+
+    audits.push({
+      email: maskEmail(hydrated.email),
+      confirmedAt: hydrated.confirmedAt,
+      dripEnrolledAt: hydrated.dripEnrolledAt,
+      dripSequenceIndex: hydrated.dripSequenceIndex,
+      lastDripSentAt: hydrated.lastDripSentAt,
+      issuesSent: hydrated.issuesSent,
+      dueNow,
+      behindBy: Math.max(0, expected - actual),
+      storage,
+    });
+  }
+
+  return {
+    sequence,
+    cadenceDays,
+    confirmedCount: confirmed.length,
+    dueCount,
+    unmigratedCount,
+    subscribers: audits.sort((a, b) => (b.behindBy ?? 0) - (a.behindBy ?? 0)),
+    timestamp: new Date().toISOString(),
+  };
+}
+
+export async function catchUpSubscriberDrip(email: string): Promise<DripSendResult[]> {
+  const sequence = await getDripSequenceSlugs();
+  const cadenceDays = getDripCadenceDays();
+  const existing = await findSubscriber(email);
+  if (!existing || existing.status !== "confirmed") {
+    return [{ email, status: "failed", error: "subscriber_not_confirmed" }];
+  }
+
+  let subscriber = await hydrateSubscriberDripState(existing);
+  if (!subscriber.dripEnrolledAt || subscriber.dripSequenceIndex == null) {
+    await enrollLegacySubscriberForDrip(subscriber, sequence[0]);
+    subscriber = (await findSubscriber(email)) ?? subscriber;
+    subscriber = await hydrateSubscriberDripState(subscriber);
+  }
+
+  const expected = expectedDripIndex(subscriber, cadenceDays, sequence.length);
+  const actual = subscriber.dripSequenceIndex ?? 0;
+  const results: DripSendResult[] = [];
+
+  for (let index = actual; index < expected && index < sequence.length; index += 1) {
+    const slug = sequence[index];
+    if (!slug) break;
+
+    const fresh = (await findSubscriber(email)) ?? subscriber;
+    const hydrated = await hydrateSubscriberDripState(fresh);
+    results.push(await sendPlaybookDripToSubscriber(hydrated, slug));
+  }
+
+  if (results.length === 0) {
+    results.push({ email, status: "skipped", reason: "already_caught_up" });
+  }
+
+  return results;
+}
+
 export async function processDueDripEmails(options?: {
   dryRun?: boolean;
   limit?: number;
@@ -124,7 +302,7 @@ export async function processDueDripEmails(options?: {
   const migration = await migrateExistingSubscribersToDrip({ dryRun });
   const sequence = await getDripSequenceSlugs();
   const cadenceDays = getDripCadenceDays();
-  const subscribers = await exportSubscribers();
+  const subscribers = await hydrateConfirmedSubscribers(await exportSubscribers());
 
   const due = subscribers.filter(
     (s) =>

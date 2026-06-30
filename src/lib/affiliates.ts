@@ -1,7 +1,7 @@
 export const AFFILIATE_DISCLOSURE =
   "Some links in this playbook are affiliate links. If you sign up through them, Automate This Week may earn a small commission at no extra cost to you. We only recommend tools we use in the playbooks. Including NovaRho affiliate links where noted.";
 
-export type AffiliateToolId = "zapier" | "make" | "openai" | "cursor" | "paperclip";
+export type AffiliateToolId = "zapier" | "make" | "openai";
 
 export interface AffiliateTool {
   id: AffiliateToolId;
@@ -25,43 +25,25 @@ export const AFFILIATE_TOOLS: AffiliateTool[] = [
     name: "OpenAI API",
     description: "GPT classification step for intent and urgency labels.",
   },
-  {
-    id: "cursor",
-    name: "Cursor",
-    description: "AI-native editor for custom automations when Zapier hits its limits.",
-  },
-  {
-    id: "paperclip",
-    name: "Paperclip",
-    description: "Agent control plane for running and coordinating automation workflows.",
-  },
 ];
 
 const DEFAULT_AFFILIATE_URLS: Record<AffiliateToolId, string> = {
   zapier: "https://zapier.com/sign-up",
   make: "https://www.make.com/en/register?pc=automatethisweek",
   openai: "https://platform.openai.com/signup",
-  cursor: "https://cursor.com",
-  paperclip: "https://paperclip.ing",
 };
 
 const AFFILIATE_ENV_KEYS: Record<AffiliateToolId, string> = {
   zapier: "AFFILIATE_URL_ZAPIER",
   make: "AFFILIATE_URL_MAKE",
   openai: "AFFILIATE_URL_OPENAI",
-  cursor: "AFFILIATE_URL_CURSOR",
-  paperclip: "AFFILIATE_URL_PAPERCLIP",
 };
 
 /** Per-issue affiliate tools surfaced on full-body pages. */
 const ISSUE_AFFILIATE_TOOLS: Record<string, AffiliateToolId[]> = {
   "auto-triage-customer-emails": ["zapier", "make", "openai"],
   "quote-follow-up-workflow": ["zapier", "make"],
-  "agent-assisted-automation-stack": ["cursor", "paperclip"],
 };
-
-/** Tools page surfaces NovaRho affiliate links only. */
-export const TOOLS_PAGE_AFFILIATE_IDS: AffiliateToolId[] = ["cursor", "paperclip"];
 
 export function getAffiliateToolsForIssue(slug: string): AffiliateToolId[] {
   return ISSUE_AFFILIATE_TOOLS[slug] ?? [];

@@ -8,6 +8,8 @@ import {
   UTM_STORAGE_KEY,
   type UtmParams,
 } from "@/lib/utm";
+import { useI18n } from "@/i18n/I18nProvider";
+import { localizedPath } from "@/i18n/navigation";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -22,6 +24,8 @@ function readStoredUtm(): UtmParams {
 }
 
 export function SignupForm() {
+  const { locale, dict } = useI18n();
+  const t = dict.signup;
   const [email, setEmail] = useState("");
   const [state, setState] = useState<FormState>("idle");
   const [message, setMessage] = useState("");
@@ -60,19 +64,16 @@ export function SignupForm() {
 
       if (!response.ok) {
         setState("error");
-        setMessage(data.error ?? "Something went wrong. Please try again.");
+        setMessage(data.error ?? t.errorDefault);
         return;
       }
 
       setState("success");
-      setMessage(
-        data.message ??
-          "Check your inbox to confirm — your first automation playbook arrives right after.",
-      );
+      setMessage(data.message ?? t.successDefault);
       setEmail("");
     } catch {
       setState("error");
-      setMessage("Network error. Please check your connection and try again.");
+      setMessage(t.networkError);
     }
   }
 
@@ -83,7 +84,7 @@ export function SignupForm() {
         role="status"
         aria-live="polite"
       >
-        <p className="text-lg font-medium text-emerald-300">Almost there!</p>
+        <p className="text-lg font-medium text-emerald-300">{t.successTitle}</p>
         <p className="mt-2 text-slate-300">{message}</p>
       </div>
     );
@@ -93,7 +94,7 @@ export function SignupForm() {
     <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4" noValidate>
       <div>
         <label htmlFor="email" className="sr-only">
-          Email address
+          {t.emailLabel}
         </label>
         <input
           id="email"
@@ -103,7 +104,7 @@ export function SignupForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@company.com"
+          placeholder={t.placeholder}
           disabled={state === "loading"}
           className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 disabled:opacity-60"
           aria-invalid={state === "error"}
@@ -116,7 +117,7 @@ export function SignupForm() {
         disabled={state === "loading"}
         className="w-full rounded-lg bg-brand-500 px-6 py-3 font-semibold text-white transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {state === "loading" ? "Subscribing…" : "Get my first playbook — free"}
+        {state === "loading" ? t.submitting : t.submit}
       </button>
 
       {state === "error" && (
@@ -126,19 +127,24 @@ export function SignupForm() {
       )}
 
       <p className="text-center text-xs text-slate-500">
-        Free: one playbook every 7 days after you confirm. Issue #1 in minutes — no coding required.
-        You&apos;ll receive playbooks 1→12 in order.{" "}
-        <Link href="/season-1" className="text-brand-400 hover:text-brand-300">
-          See Season 1
+        {t.footnote}{" "}
+        <Link
+          href={localizedPath("/season-1", locale)}
+          className="text-brand-400 hover:text-brand-300"
+        >
+          {dict.common.seeSeason1}
         </Link>
         .
       </p>
       <p className="text-center text-xs text-slate-500">
-        Can&apos;t wait?{" "}
-        <Link href="/all-access" className="font-medium text-brand-400 hover:text-brand-300">
-          Get all access →
+        {t.cantWait}{" "}
+        <Link
+          href={localizedPath("/all-access", locale)}
+          className="font-medium text-brand-400 hover:text-brand-300"
+        >
+          {dict.common.getAllAccess}
         </Link>{" "}
-        — every published playbook, immediately.
+        {t.allAccessImmediate}
       </p>
     </form>
   );

@@ -1,6 +1,8 @@
 const GUMROAD_KIT_URL_ENV = "NEXT_PUBLIC_GUMROAD_KIT_URL";
 const GUMROAD_ALL_ACCESS_URL_ENV = "NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL";
 const GUMROAD_ALL_ACCESS_PRODUCT_ENV = "GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK";
+const GUMROAD_CROWN_URL_ENV = "NEXT_PUBLIC_GUMROAD_CROWN_URL";
+const GUMROAD_CROWN_PRODUCT_ENV = "GUMROAD_CROWN_PRODUCT_PERMALINK";
 
 function isValidHttpUrl(value: string): boolean {
   try {
@@ -44,5 +46,26 @@ export function buildGumroadAllAccessLink(baseUrl: string, surface: string): str
 /** Expected Gumroad product permalink for All Access sales (webhook filter). */
 export function getGumroadAllAccessProductPermalink(): string | null {
   const raw = process.env[GUMROAD_ALL_ACCESS_PRODUCT_ENV]?.trim();
+  return raw && raw.length > 0 ? raw : null;
+}
+
+/** Gumroad Crown Discipline product URL; unset or invalid values hide checkout CTAs. */
+export function getGumroadCrownUrl(): string | null {
+  const raw = process.env[GUMROAD_CROWN_URL_ENV]?.trim();
+  if (!raw || !isValidHttpUrl(raw)) return null;
+  return raw;
+}
+
+export function buildGumroadCrownLink(baseUrl: string, surface: string): string {
+  const url = new URL(baseUrl);
+  url.searchParams.set("utm_source", "atw");
+  url.searchParams.set("utm_medium", surface);
+  url.searchParams.set("utm_campaign", "crown_discipline");
+  return url.toString();
+}
+
+/** Expected Gumroad product permalink for Crown Discipline sales (webhook filter). */
+export function getGumroadCrownProductPermalink(): string | null {
+  const raw = process.env[GUMROAD_CROWN_PRODUCT_ENV]?.trim();
   return raw && raw.length > 0 ? raw : null;
 }

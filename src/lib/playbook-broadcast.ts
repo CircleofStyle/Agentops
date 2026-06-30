@@ -1,6 +1,5 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
-import type { IssueDocument } from "@/lib/content/types";
 import { getPublishedIssue } from "@/lib/content/storage";
 import { extractTeaser } from "@/lib/content/visibility";
 import { logger } from "@/lib/logger";

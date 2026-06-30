@@ -1,4 +1,6 @@
 import { PlaybookPreviewCard } from "@/components/PlaybookPreviewCard";
+import { getDictionary } from "@/i18n/get-dictionary";
+import type { Locale } from "@/i18n/config";
 import { listIssues } from "@/lib/content/storage";
 import { extractTeaser, isPublicBody, isWebVisible } from "@/lib/content/visibility";
 
@@ -17,8 +19,13 @@ function sortBySequence(issues: Awaited<ReturnType<typeof listIssues>>) {
   });
 }
 
-export async function RecentPlaybooks() {
+type RecentPlaybooksProps = {
+  locale: Locale;
+};
+
+export async function RecentPlaybooks({ locale }: RecentPlaybooksProps) {
   const issues = sortBySequence((await listIssues("published")).filter(isWebVisible)).slice(0, 4);
+  const dict = await getDictionary(locale);
 
   if (issues.length === 0) {
     return null;
@@ -28,14 +35,12 @@ export async function RecentPlaybooks() {
     <section className="mt-20 lg:mt-28">
       <div className="mx-auto max-w-2xl text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-brand-500">
-          Recent playbooks
+          {dict.recentPlaybooks.eyebrow}
         </p>
         <h2 className="mt-4 text-2xl font-bold text-white sm:text-3xl">
-          See what you&apos;ll build in your first month
+          {dict.recentPlaybooks.title}
         </h2>
-        <p className="mt-4 text-slate-400">
-          One new workflow every 7 days after you confirm.
-        </p>
+        <p className="mt-4 text-slate-400">{dict.recentPlaybooks.subtitle}</p>
       </div>
 
       <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
@@ -48,6 +53,7 @@ export async function RecentPlaybooks() {
               slug={issue.frontmatter.slug}
               isSample={isPublicBody(issue)}
               frontmatter={issue.frontmatter}
+              locale={locale}
             />
           </li>
         ))}

@@ -7,6 +7,10 @@ export type SubscriberMetrics = {
     pending: number;
     confirmed: number;
     total: number;
+    allAccess: number;
+    crownAccess: number;
+    gumroadAllAccess: number;
+    gumroadCrown: number;
   };
   attribution: {
     bySource: Record<string, number>;
@@ -23,6 +27,14 @@ export async function getSubscriberMetrics(): Promise<SubscriberMetrics> {
   const subscribers = await exportSubscribers();
   const pending = subscribers.filter((s) => s.status === "pending").length;
   const confirmed = subscribers.filter((s) => s.status === "confirmed").length;
+  const allAccess = subscribers.filter((s) => s.allAccess).length;
+  const crownAccess = subscribers.filter((s) => s.crownAccess).length;
+  const gumroadAllAccess = subscribers.filter(
+    (s) => s.allAccess && s.allAccessSource === "gumroad",
+  ).length;
+  const gumroadCrown = subscribers.filter(
+    (s) => s.crownAccess && s.crownAccessSource === "gumroad",
+  ).length;
 
   const bySource: Record<string, number> = {};
   for (const subscriber of subscribers) {
@@ -48,6 +60,10 @@ export async function getSubscriberMetrics(): Promise<SubscriberMetrics> {
       pending,
       confirmed,
       total: pending + confirmed,
+      allAccess,
+      crownAccess,
+      gumroadAllAccess,
+      gumroadCrown,
     },
     attribution: { bySource },
     monetization,

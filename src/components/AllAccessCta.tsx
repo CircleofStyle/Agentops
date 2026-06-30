@@ -33,7 +33,7 @@ export function AllAccessCta({ surface, className = "" }: AllAccessCtaProps) {
       rel="noopener noreferrer"
       className={`inline-flex items-center justify-center rounded-lg bg-brand-500 px-6 py-3 font-semibold text-white transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 ${className}`}
     >
-      Get All Access — €49
+      Get All Access — €29
     </a>
   );
 }

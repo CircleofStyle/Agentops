@@ -3,6 +3,7 @@ import {
   FOUNDING_SPONSOR_FOLLOW_UP_TEXT,
   sendFoundingSponsorFollowUp,
   sendFoundingSponsorOutreach,
+  sendFoundingSponsorWave2Outreach,
 } from "@/lib/founding-sponsor-outreach";
 import { isMetricsAuthorized } from "@/lib/metrics-auth";
 
@@ -11,6 +12,7 @@ type OutreachBody = {
   skipIds?: string[];
   dryRun?: boolean;
   mode?: "initial" | "followUp";
+  wave?: 1 | 2;
 };
 
 export async function POST(request: Request) {
@@ -26,23 +28,31 @@ export async function POST(request: Request) {
   }
 
   const mode = body.mode ?? "initial";
+  const wave = body.wave ?? 1;
   const results =
     mode === "followUp"
       ? await sendFoundingSponsorFollowUp({
           targetIds: body.targetIds,
           skipIds: body.skipIds,
           dryRun: body.dryRun,
+          wave,
         })
-      : await sendFoundingSponsorOutreach({
-          targetIds: body.targetIds,
-          dryRun: body.dryRun,
-        });
+      : wave === 2
+        ? await sendFoundingSponsorWave2Outreach({
+            targetIds: body.targetIds,
+            dryRun: body.dryRun,
+          })
+        : await sendFoundingSponsorOutreach({
+            targetIds: body.targetIds,
+            dryRun: body.dryRun,
+          });
 
   const sent = results.filter((r) => r.status === "sent").length;
   const failed = results.filter((r) => r.status === "failed").length;
 
   return NextResponse.json({
     experiment: "B",
+    wave,
     mode,
     sent,
     failed,

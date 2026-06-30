@@ -16,9 +16,9 @@ The 7-day drip is the **default free path** — it builds habit and trust. Board
 | Tier | Price (CMO proposal) | What they get | Who it's for |
 |------|------------------------|---------------|--------------|
 | **Free sequence** | €0 | Drip: 1 playbook every 7 days from confirm; 1 web sample | Patient builders who want one thing at a time |
-| **All Access Pass** | **€49 one-time** (launch) | Immediate access to full published archive + every new playbook on publish | Impatient implementers, agency owners, "just give me the library" |
+| **All Access Pass** | **€29 one-time** (launch) | Immediate access to full published archive + every new playbook on publish | Impatient implementers, agency owners, "just give me the library" |
 
-### Why one-time €49 (not subscription) at launch
+### Why one-time €29 (not subscription) at launch
 
 - Matches "copy-paste playbook" product — feels like buying a toolkit, not another SaaS bill
 - Easier to ship on **Gumroad** (infrastructure already planned for kit sales)
@@ -69,11 +69,11 @@ Give subscribers a **visible arc** so the drip feels intentional, not random.
 | 9 | `weekly-ops-dashboard` | One Google Sheet dashboard for open quotes/jobs | **Ops** | 📋 Planned |
 | 10 | `slack-team-alerts` | Route urgent jobs to the right person in Slack | **Ops** | 📋 Planned |
 | 11 | `review-response-templates` | Draft replies to Google reviews in one click | **Reputation** | 📋 Planned |
-| 12 | `agent-assisted-automation-stack` | When to use Zapier vs Cursor + Paperclip for custom flows | **Meta / tools** | 📋 Planned |
+| 12 | `crown-discipline-ai-ceo` | Crown discipline — run automations as a system | **Lead** | 💎 Paid add-on (not in drip) |
 
-**Publishing cadence:** 1 issue / 7 days in drip (aligned with spec). Season 1 completes in ~12 weeks from subscriber confirm.
+**Publishing cadence:** 1 issue / 7 days in drip for playbooks **#1–11** only. Free drip does **not** include #12. Crown Discipline is a separate paid purchase.
 
-**After Season 1:** Season 2 (HR, hiring, seasonal promos) — subscribers see "Season 1 complete" email; all-access holders get Season 2 included.
+**After playbook #11:** Subscribers see "Season 1 complete" email with Crown Discipline upsell; all-access holders get playbooks #1–11 immediately but **not** crown content.
 
 ### Where to show the frame
 
@@ -86,33 +86,51 @@ Give subscribers a **visible arc** so the drip feels intentional, not random.
 
 ---
 
-## 3. Cursor + Paperclip referral links
+## 3. Crown discipline — paid Season 1 finale (board decision 2026-06-21)
 
-### CMO recommendation: **Yes, scoped — not site-wide**
+**Supersedes** prior `/tools` builder-transparency plan ([NOV-144](/NOV/issues/NOV-144)). Board direction on [NOV-142](/NOV/issues/NOV-142): sell **crown discipline** as a paid AI CEO operating model — no public tool disclosure.
 
-| Fit | Rationale |
-|-----|-----------|
-| ✅ Issue #12 (meta stack) | Natural place — compares no-code vs agent-assisted builds |
-| ✅ Footer "Tools we use" page | Optional secondary surface with disclosure |
-| ❌ Issues #1–3 (Zapier/Gmail/Sheets) | Wrong audience moment — reader needs Zapier, not Cursor |
-| ❌ Every email | Feels like referral spam; erodes trust |
+### Three-tier model (updated)
 
-### Implementation (CTO, after board drops URLs)
+| Tier | Price (CMO proposal) | What they get |
+|------|------------------------|---------------|
+| **Free sequence** | €0 | Drip: playbooks **#1–11** every 7 days |
+| **All Access Pass** | €29 one-time | Immediate access to published playbooks **#1–11** + future Season 1 issues as shipped |
+| **Crown Discipline** | **€59 one-time** (board confirms SKU) | Playbook **#12** only — AI CEO orchestration playbook |
 
-Extend existing `src/lib/affiliates.ts` pattern:
+**Distinction:** All Access = skip drip timer for the no-code library. Crown = operating-model upgrade (AI CEO + specialist agents). Crown does **not** unlock #1–11; All Access does **not** include #12.
 
-| Env key | Tool |
-|---------|------|
-| `AFFILIATE_URL_CURSOR` | Board referral link |
-| `AFFiliate_URL_PAPERCLIP` | Board referral link |
+### Season 1 #12 listing
 
-Add to `ISSUE_AFFILIATE_TOOLS` for `agent-assisted-automation-stack` only.
+| Field | Value |
+|-------|-------|
+| Slug | `crown-discipline-ai-ceo` |
+| Title | Crown discipline — run automations as a system |
+| Pillar | **Lead** |
+| Badge | Paid add-on · not in free drip |
+| Promise | Install an AI CEO that orchestrates specialist agents so your playbooks run as one operating system — not scattered Zaps. |
 
-**Disclosure (already in codebase):** `AFFILIATE_DISCLOSURE` — extend once: "Including NovaRho affiliate links where noted."
+Full copy blocks: [crown-discipline-copy](/NOV/issues/NOV-146#document-crown-discipline-copy) · CMO issue [NOV-146](/NOV/issues/NOV-146)
 
-### Side project angle
+### Retire `/tools` (CMO + CEO agree)
 
-A separate **"Automate with Agents"** mini-newsletter is viable later — different ICP (technical founders). For ATW Season 1, keep Cursor/Paperclip to **issue #12 + tools page** so the main brand stays "no dev team required."
+| Action | Rationale |
+|--------|-----------|
+| Hide/remove `/tools` route | Board does not want public disclosure of internal builder stack |
+| Strip footer/nav links | No subscriber path to Cursor/Paperclip affiliates |
+| Keep affiliate env keys dormant | Board may use privately; never surface on public pages |
+
+Implementation: [NOV-147](/NOV/issues/NOV-147) (CTO)
+
+### Voice guardrails
+
+- Sell **AI CEO orchestrating specialist agents** — no Cursor, Paperclip, or NovaRho stack names
+- Frame as **operating model upgrade**, not "when Zapier fails"
+- Crown is **paid**, **not in drip**, **not included in All Access**
+
+### Side project angle (unchanged)
+
+A separate **"Automate with Agents"** mini-newsletter remains viable later — different ICP (technical founders). For ATW Season 1 public brand, stay **"no dev team required"** for #1–11; crown is the optional orchestration layer for ready operators.
 
 ---
 
@@ -151,10 +169,11 @@ Correct model: board films (authentic SMB-adjacent face), CMO writes scripts + o
 
 | # | Decision | CMO recommendation |
 |---|----------|-------------------|
-| A | All-access price | €49 one-time launch; revisit at 8 issues |
+| A | All-access price | €29 one-time launch; revisit at 8 issues |
 | B | Season 1 frame | Approve 12-issue map above (titles can shift) |
-| C | Cursor/Paperclip links | Add env URLs; surface on issue #12 + `/tools` only |
-| D | TikTok | Green-light after issue #3 publish; board films, CMO scripts |
+| C | Crown Discipline tier | €59 one-time launch SKU; board creates Gumroad product |
+| D | Retire `/tools` | Hide public builder-stack page per board direction |
+| E | TikTok | Green-light after issue #3 publish; board films, CMO scripts |
 
 ---
 
@@ -162,7 +181,7 @@ Correct model: board films (authentic SMB-adjacent face), CMO writes scripts + o
 
 | Owner | Next action |
 |-------|-------------|
-| **Board** | Confirm decisions A–D; paste Cursor + Paperclip referral URLs (env only, not in Paperclip comments) |
-| **CEO** | Approve monetization tier + Season 1 frame |
-| **CMO** | Landing `/season-1` + `/all-access` copy after approval |
-| **CTO** | Gumroad all-access product + archive gating; affiliate env keys |
+| **Board** | Confirm decisions A–E; create Crown Discipline Gumroad SKU (name + price) |
+| **CEO** | Approve crown copy + three-tier model |
+| **CMO** | Crown copy delivered — [NOV-146](/NOV/issues/NOV-146) |
+| **CTO** | Implement crown gate, `/crown`, season-1 #12, hide `/tools` — [NOV-147](/NOV/issues/NOV-147) |

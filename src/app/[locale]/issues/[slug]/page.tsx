@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { ALL_ACCESS_COOKIE, resolveAllAccessFromCookie } from "@/lib/all-access";
+
 import { AffiliateDisclosure } from "@/components/AffiliateDisclosure";
 import { AffiliateToolLinks } from "@/components/AffiliateToolLinks";
 import { GumroadKitCta } from "@/components/GumroadKitCta";
 import { IssueEmailGate } from "@/components/IssueEmailGate";
 import { IssueMetadataBadges } from "@/components/IssueMetadataBadges";
+import { isLocale, type Locale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { localizedPath } from "@/i18n/navigation";
+import { ALL_ACCESS_COOKIE, resolveAllAccessFromCookie } from "@/lib/all-access";
 import { issueHasAffiliateTools } from "@/lib/affiliates";
 import { markdownToHtml } from "@/lib/content/markdown";
 import { getPublishedIssue } from "@/lib/content/storage";
@@ -21,7 +25,7 @@ import {
 } from "@/lib/content/visibility";
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -36,7 +40,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function IssuePage({ params }: PageProps) {
-  const { slug } = await params;
+  const { locale: raw, slug } = await params;
+  if (!isLocale(raw)) notFound();
+  const locale = raw as Locale;
+  const dict = await getDictionary(locale);
+
   const issue = await getPublishedIssue(slug);
   if (!issue || !isWebVisible(issue)) notFound();
 
@@ -53,19 +61,19 @@ export default async function IssuePage({ params }: PageProps) {
 
       <article className="relative mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
         <Link
-          href="/"
+          href={localizedPath("/", locale)}
           className="text-sm font-medium text-brand-500 transition hover:text-brand-400"
         >
-          ← Automate This Week
+          {dict.issue.back}
         </Link>
 
         <header className="mt-8">
           <p className="text-xs font-semibold uppercase tracking-wider text-brand-500">
-            Issue · {issue.frontmatter.date}
+            {dict.issue.issuePrefix} {issue.frontmatter.date}
             {showFullBody && !isPublicBody(issue)
-              ? " · All Access"
+              ? ` · ${dict.issue.allAccessBadge}`
               : !showFullBody
-                ? " · Email subscribers"
+                ? ` · ${dict.issue.emailBadge}`
                 : null}
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">

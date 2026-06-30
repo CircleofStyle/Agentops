@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isPipelineAuthorized } from "@/lib/content/auth";
+import { auditDripDelivery, catchUpSubscriberDrip, processDueDripEmails } from "@/lib/drip";
 import { getDripCadenceDays, getDripSequenceSlugs } from "@/lib/drip-sequence";
-import { processDueDripEmails } from "@/lib/drip";
 
 const bodySchema = z
   .object({
     dryRun: z.boolean().optional(),
     limit: z.number().int().min(1).max(500).optional(),
+    audit: z.boolean().optional(),
+    catchUpEmail: z.string().email().optional(),
   })
   .optional();
 
@@ -29,6 +31,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
+  if (parsed.data?.audit) {
+    const audit = await auditDripDelivery();
+    return NextResponse.json(audit);
+  }
+
+  if (parsed.data?.catchUpEmail) {
+    const results = await catchUpSubscriberDrip(parsed.data.catchUpEmail);
+    return NextResponse.json({
+      email: parsed.data.catchUpEmail,
+      results,
+      sequence: await getDripSequenceSlugs(),
+      cadenceDays: getDripCadenceDays(),
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   const sequence = await getDripSequenceSlugs();
   const result = await processDueDripEmails(parsed.data);
 
@@ -40,7 +58,7 @@ export async function POST(request: Request) {
   });
 }
 
-/** Vercel Cron invokes GET; require the same pipeline secret via Authorization header. */
+/** Vercel Cron invokes GET; require pipeline or CRON_SECRET via Authorization header. */
 export async function GET(request: Request) {
   return POST(request);
 }

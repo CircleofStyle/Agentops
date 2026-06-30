@@ -1,15 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import {
-  isAllAccessGumroadSale,
+  classifyGumroadSale,
   isGumroadRefund,
   normalizeGumroadSale,
   parseGumroadWebhookPayload,
   verifyGumroadWebhookSecret,
 } from "@/lib/gumroad-webhook";
-import { grantAllAccess, revokeAllAccess } from "@/lib/subscribers";
+import {
+  grantAllAccess,
+  grantCrownAccess,
+  revokeAllAccess,
+  revokeCrownAccess,
+} from "@/lib/subscribers";
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   if (!verifyGumroadWebhookSecret(request)) {
     logger.warn("Gumroad webhook rejected", { reason: "invalid_secret" });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -30,22 +35,42 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing required sale fields" }, { status: 400 });
   }
 
-  if (!isAllAccessGumroadSale(sale)) {
+  const productKind = classifyGumroadSale(sale);
+  if (productKind === "unknown") {
     logger.info("Gumroad webhook ignored", {
-      reason: "not_all_access_product",
+      reason: "unknown_product",
       sale_id: sale.sale_id,
       product_permalink: sale.product_permalink,
     });
-    return NextResponse.json({ ok: true, ignored: "not_all_access_product" });
+    return NextResponse.json({ ok: true, ignored: "unknown_product" });
   }
 
   if (isGumroadRefund(sale)) {
+    if (productKind === "crown") {
+      await revokeCrownAccess(sale.email);
+      logger.info("Crown access revoked from Gumroad refund", {
+        email: sale.email,
+        sale_id: sale.sale_id,
+      });
+      return NextResponse.json({ ok: true, action: "crown_revoked" });
+    }
+
     await revokeAllAccess(sale.email);
     logger.info("All access revoked from Gumroad refund", {
       email: sale.email,
       sale_id: sale.sale_id,
     });
-    return NextResponse.json({ ok: true, action: "revoked" });
+    return NextResponse.json({ ok: true, action: "all_access_revoked" });
+  }
+
+  if (productKind === "crown") {
+    await grantCrownAccess(sale.email, "gumroad");
+    logger.info("Crown access granted from Gumroad sale", {
+      email: sale.email,
+      sale_id: sale.sale_id,
+      product_permalink: sale.product_permalink,
+    });
+    return NextResponse.json({ ok: true, action: "crown_granted" });
   }
 
   await grantAllAccess(sale.email, "gumroad");
@@ -55,5 +80,5 @@ export async function POST(request: NextRequest) {
     product_permalink: sale.product_permalink,
   });
 
-  return NextResponse.json({ ok: true, action: "granted" });
+  return NextResponse.json({ ok: true, action: "all_access_granted" });
 }

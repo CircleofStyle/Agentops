@@ -53,7 +53,7 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
 - `POST /api/content/draft` — agent content draft (auth: `CONTENT_PIPELINE_SECRET`)
 - `POST /api/content/publish` — publish draft (auth: `CONTENT_PIPELINE_SECRET`); optional `{ "broadcast": true }` to email audience after publish
 - `POST /api/content/broadcast` — send playbook email for an already-published issue (auth: `CONTENT_PIPELINE_SECRET`; skipped when drip sequence is active unless `catchUp: true`)
-- `GET|POST /api/pipeline/drip` — advance due drip emails + migrate legacy subscribers (auth: `CONTENT_PIPELINE_SECRET`; Vercel cron daily 14:00 UTC)
+- `GET|POST /api/pipeline/drip` — advance due drip emails + migrate legacy subscribers (auth: `CONTENT_PIPELINE_SECRET` or Vercel `CRON_SECRET`; Vercel cron daily 14:00 UTC). Body flags: `audit: true`, `catchUpEmail`, `dryRun`.
 
 ### Weekly playbook broadcast
 
@@ -63,7 +63,7 @@ When a playbook publishes, email verified subscribers via Resend **broadcast** t
 
 ### Signup drip sequence
 
-On confirm: welcome email + issue #1 (transactional). Issue #2+ sends on `DRIP_CADENCE_DAYS` (default 7) via daily cron `GET /api/pipeline/drip`. Subscriber state: `dripSequenceIndex`, `lastDripSentAt`, `issuesSent[]` in `data/subscribers.json`. Existing confirmed subscribers without drip fields are migrated to current published count (no backfill).
+On confirm: welcome email + issue #1 (transactional). Issue #2+ sends on `DRIP_CADENCE_DAYS` (default 7) via daily cron `GET /api/pipeline/drip`. Subscriber state: `dripSequenceIndex`, `lastDripSentAt`, `issuesSent[]` in `data/subscribers.json` locally; on Vercel, drip fields also sync to Resend contact properties so cron can advance the sequence. Set `CRON_SECRET` in Vercel equal to `CONTENT_PIPELINE_SECRET` so cron auth succeeds.
 
 **Dry-run drip advance:**
 
@@ -162,11 +162,14 @@ Monetization values resolve in order: **env override** → **`data/monetization.
    | `NEXT_PUBLIC_SITE_URL` | Yes | Production URL (e.g. `https://automate-this-week.vercel.app`) |
    | `NEXT_PUBLIC_GUMROAD_KIT_URL` | Optional | Gumroad product URL; issue-page kit CTA hidden until set |
    | `NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL` | Optional | All Access Pass checkout URL; `/all-access` CTA hidden until set |
-   | `GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK` | Optional | Filter Gumroad webhook to this product permalink |
+   | `GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK` | Optional | Filter Gumroad webhook to All Access product permalink |
+   | `NEXT_PUBLIC_GUMROAD_CROWN_URL` | Optional | Crown Discipline checkout URL; `/crown` CTA hidden until set |
+   | `GUMROAD_CROWN_PRODUCT_PERMALINK` | Optional | Filter Gumroad webhook to Crown Discipline product permalink |
    | `GUMROAD_WEBHOOK_SECRET` | Optional (prod) | Query param secret on `/api/webhooks/gumroad` |
-   | `ALL_ACCESS_CODES` | Optional | Comma-separated manual unlock codes |
-   | `AFFILIATE_URL_CURSOR` | Optional | Board referral URL for `/tools` + issue #12 |
-   | `AFFILIATE_URL_PAPERCLIP` | Optional | Board referral URL for `/tools` + issue #12 |
+   | `ALL_ACCESS_CODES` | Optional | Comma-separated manual All Access unlock codes |
+   | `CROWN_ACCESS_CODES` | Optional | Comma-separated manual Crown Discipline unlock codes |
+   | `AFFILIATE_URL_CURSOR` | Optional | Dormant — board private use only; `/tools` retired |
+   | `AFFILIATE_URL_PAPERCLIP` | Optional | Dormant — board private use only; `/tools` retired |
    | `CONTENT_PIPELINE_SECRET` | Yes (prod) | Bearer token for content API and metrics API |
    | `METRICS_SECRET` | Optional | Override bearer token for `/api/metrics` only |
    | `OPENAI_API_KEY` | For content | LLM draft generation |

@@ -6,6 +6,11 @@ import { logger } from "@/lib/logger";
 import { confirmSubscriber, confirmSubscriberByEmail } from "@/lib/subscribers";
 import { getSiteUrl } from "@/lib/resend";
 
+function confirmedPathForRequest(request: NextRequest): string {
+  const locale = request.cookies.get("NEXT_LOCALE")?.value;
+  return locale === "de" ? "/de/confirmed" : "/confirmed";
+}
+
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
 
@@ -33,5 +38,5 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  return NextResponse.redirect(new URL("/confirmed", getSiteUrl()));
+  return NextResponse.redirect(new URL(confirmedPathForRequest(request), getSiteUrl()));
 }

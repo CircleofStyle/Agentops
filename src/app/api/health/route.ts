@@ -29,7 +29,32 @@ export async function GET() {
       route: "/api/webhooks/gumroad",
       webhookSecretConfigured: Boolean(process.env.GUMROAD_WEBHOOK_SECRET),
       allAccessProductConfigured: Boolean(process.env.GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK),
+      crownProductConfigured: Boolean(process.env.GUMROAD_CROWN_PRODUCT_PERMALINK),
       checkoutUrlConfigured: Boolean(process.env.NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL),
+      crownCheckoutUrlConfigured: Boolean(process.env.NEXT_PUBLIC_GUMROAD_CROWN_URL),
+      kitCheckoutUrlConfigured: Boolean(process.env.NEXT_PUBLIC_GUMROAD_KIT_URL),
+      missingPublic: [
+        !process.env.NEXT_PUBLIC_GUMROAD_KIT_URL && "NEXT_PUBLIC_GUMROAD_KIT_URL",
+        !process.env.NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL && "NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL",
+        !process.env.NEXT_PUBLIC_GUMROAD_CROWN_URL && "NEXT_PUBLIC_GUMROAD_CROWN_URL",
+      ].filter(Boolean),
+      missingServer: [
+        !process.env.GUMROAD_WEBHOOK_SECRET && "GUMROAD_WEBHOOK_SECRET",
+        !process.env.GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK && "GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK",
+        !process.env.GUMROAD_CROWN_PRODUCT_PERMALINK && "GUMROAD_CROWN_PRODUCT_PERMALINK",
+      ].filter(Boolean),
+    },
+    dripPipeline: {
+      route: "/api/pipeline/drip",
+      cronSchedule: "0 14 * * *",
+      pipelineSecretConfigured: Boolean(process.env.CONTENT_PIPELINE_SECRET),
+      cronSecretConfigured: Boolean(process.env.CRON_SECRET),
+      cronAuthReady:
+        Boolean(process.env.CONTENT_PIPELINE_SECRET) &&
+        Boolean(process.env.CRON_SECRET) &&
+        process.env.CRON_SECRET === process.env.CONTENT_PIPELINE_SECRET,
+      dripSequenceEnabled: process.env.DRIP_SEQUENCE_ENABLED !== "false",
+      cadenceDays: Number(process.env.DRIP_CADENCE_DAYS ?? 7),
     },
   });
 }

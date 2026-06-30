@@ -1,18 +1,29 @@
+"use client";
+
 import Link from "next/link";
 
-const footerLinks = [
-  { href: "/season-1", label: "Season 1" },
-  { href: "/all-access", label: "All access" },
-  { href: "/issues", label: "Playbooks" },
-  { href: "/legal#privacy-policy", label: "Privacy policy" },
-  { href: "/legal#cookies", label: "Cookies" },
-  { href: "/legal#data-protection", label: "Data protection" },
-  { href: "/legal#terms-of-use", label: "Terms of use" },
-];
+import { useI18n } from "@/i18n/I18nProvider";
+import { localizedPath } from "@/i18n/navigation";
 
 export function LegalFooterLinks() {
+  const { locale, dict } = useI18n();
+  const t = dict.legal;
+
+  const footerLinks = [
+    { href: localizedPath("/season-1", locale), label: t.footerSeason1 },
+    { href: localizedPath("/all-access", locale), label: t.footerAllAccess },
+    { href: localizedPath("/issues", locale), label: t.footerPlaybooks },
+    { href: localizedPath("/legal#privacy-policy", locale), label: t.footerPrivacy },
+    { href: localizedPath("/legal#cookies", locale), label: t.footerCookies },
+    { href: localizedPath("/legal#data-protection", locale), label: t.footerDataProtection },
+    { href: localizedPath("/legal#terms-of-use", locale), label: t.footerTerms },
+  ];
+
   return (
-    <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+    <nav
+      aria-label="Legal"
+      className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400"
+    >
       {footerLinks.map((link) => (
         <Link
           key={link.href}

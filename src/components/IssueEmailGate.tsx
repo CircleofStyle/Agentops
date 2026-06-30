@@ -1,4 +1,10 @@
+"use client";
+
+import Link from "next/link";
+
 import { SignupForm } from "@/components/SignupForm";
+import { useI18n } from "@/i18n/I18nProvider";
+import { localizedPath } from "@/i18n/navigation";
 
 type IssueEmailGateProps = {
   teaser: string;
@@ -6,34 +12,35 @@ type IssueEmailGateProps = {
 };
 
 export function IssueEmailGate({ teaser, setupMinutes }: IssueEmailGateProps) {
+  const { locale, dict } = useI18n();
+  const t = dict.issueGate;
+
   return (
     <div className="mt-10 space-y-8">
       <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8">
-        <p className="text-sm font-medium text-brand-500">Teaser · full playbook by email</p>
+        <p className="text-sm font-medium text-brand-500">{t.teaserLabel}</p>
         <p className="mt-4 text-lg leading-relaxed text-slate-300">{teaser}</p>
         {setupMinutes ? (
           <p className="mt-4 text-sm text-slate-500">
-            Estimated setup time: {setupMinutes} minutes
+            {t.setupTime} {setupMinutes} {dict.common.min}
           </p>
         ) : null}
-        <p className="mt-6 text-slate-400">
-          Full step-by-step playbooks are delivered in your personal sequence after you confirm —
-          one every 7 days. Each one finishes in under 30 minutes.
-        </p>
+        <p className="mt-6 text-slate-400">{t.body}</p>
         <p className="mt-4 text-sm text-slate-500">
-          Can&apos;t wait?{" "}
-          <a href="/all-access" className="font-medium text-brand-500 transition hover:text-brand-400">
-            Get all access →
-          </a>{" "}
-          — every published playbook, immediately.
+          {t.cantWait}{" "}
+          <Link
+            href={localizedPath("/all-access", locale)}
+            className="font-medium text-brand-500 transition hover:text-brand-400"
+          >
+            {dict.common.getAllAccess}
+          </Link>{" "}
+          {dict.signup.allAccessImmediate}
         </p>
       </div>
 
       <div className="rounded-xl border border-brand-500/30 bg-brand-500/5 p-6 sm:p-8">
-        <h2 className="text-xl font-bold text-white">Get this playbook in your inbox</h2>
-        <p className="mt-2 text-slate-400">
-          Free automation playbooks for service businesses — your sequence starts when you confirm.
-        </p>
+        <h2 className="text-xl font-bold text-white">{t.title}</h2>
+        <p className="mt-2 text-slate-400">{t.subtitle}</p>
         <div className="mt-6">
           <SignupForm />
         </div>

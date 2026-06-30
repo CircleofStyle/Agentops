@@ -1,3 +1,9 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+
+import { isLocale, type Locale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/get-dictionary";
+
 const LEGAL_ENTITY =
   "Nova Rho, S.A. Krizevac, Luzernerstrasse 110, 6333 Hünenberg See";
 
@@ -34,19 +40,36 @@ const COOKIES = [
   },
 ];
 
-export default function LegalPage() {
+type PageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale: raw } = await params;
+  if (!isLocale(raw)) return {};
+  const dict = await getDictionary(raw);
+  return { title: dict.legal.metaTitle };
+}
+
+export default async function LegalPage({ params }: PageProps) {
+  const { locale: raw } = await params;
+  if (!isLocale(raw)) notFound();
+  const locale = raw as Locale;
+  const dict = await getDictionary(locale);
+  const t = dict.legal;
+
   return (
     <main className="bg-slate-950 min-h-screen text-slate-200">
       <div className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
         <header className="space-y-3 text-center">
-          <p className="text-sm uppercase tracking-[0.4em] text-brand-500">Legal framework</p>
-          <h1 className="text-4xl font-bold text-white sm:text-5xl">NovaRho legal resources</h1>
-          <p className="mx-auto max-w-3xl text-base text-slate-400 sm:text-lg">
-            Every NovaRho website ships with transparent privacy, cookies, data protection, and
-            Terms of Use statements that comply with EU GDPR and the Swiss Federal Act on Data
-            Protection (FADP). This page collects the complete framework so regulators, customers,
-            and partners can rely on a single reference.
-          </p>
+          <p className="text-sm uppercase tracking-[0.4em] text-brand-500">{t.frameworkEyebrow}</p>
+          <h1 className="text-4xl font-bold text-white sm:text-5xl">{t.frameworkTitle}</h1>
+          <p className="mx-auto max-w-3xl text-base text-slate-400 sm:text-lg">{t.frameworkIntro}</p>
+          {t.deNotice ? (
+            <p className="mx-auto max-w-3xl rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+              {t.deNotice}
+            </p>
+          ) : null}
         </header>
 
         <section
@@ -54,8 +77,8 @@ export default function LegalPage() {
           className="space-y-6 rounded-3xl border border-slate-800/80 bg-slate-900/60 p-8 shadow-xl shadow-brand-500/10"
         >
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-white">Privacy policy</h2>
-            <p className="text-sm uppercase tracking-[0.4em] text-slate-500">GDPR + Swiss FADP</p>
+            <h2 className="text-2xl font-bold text-white">{t.privacyTitle}</h2>
+            <p className="text-sm uppercase tracking-[0.4em] text-slate-500">{t.privacyTag}</p>
           </div>
           <p className="text-slate-300">
             {LEGAL_ENTITY}, Switzerland, is the data controller for the

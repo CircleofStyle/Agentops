@@ -60,7 +60,7 @@ echo "$issue1_page" | grep -qi "Step-by-step" || {
   echo "FAIL: issue #1 should show full playbook body (sample visibility)"
   exit 1
 }
-echo "$issue1_page" | grep -qi "Get this playbook in your inbox" && {
+echo "$issue1_page" | grep -qi "Get this playbook in your inbox</h2>" && {
   echo "FAIL: issue #1 should not show email gate (sample visibility)"
   exit 1
 }
@@ -69,7 +69,7 @@ echo "==> Published issue #2 (email-only gating, if published)"
 issue2_status=$(curl -s -o /tmp/issue2-smoke.html -w "%{http_code}" "${BASE_URL}/issues/quote-follow-up-workflow")
 if [[ "$issue2_status" == "200" ]]; then
   issue2_page=$(cat /tmp/issue2-smoke.html)
-  echo "$issue2_page" | grep -qi "Get this playbook in your inbox" || {
+  echo "$issue2_page" | grep -qi "Get this playbook in your inbox</h2>" || {
     echo "FAIL: issue #2 should show email gate when published"
     exit 1
   }
@@ -89,7 +89,7 @@ echo "==> Published issue #3 (email-only gating, if published)"
 issue3_status=$(curl -s -o /tmp/issue3-smoke.html -w "%{http_code}" "${BASE_URL}/issues/google-review-request-workflow")
 if [[ "$issue3_status" == "200" ]]; then
   issue3_page=$(cat /tmp/issue3-smoke.html)
-  echo "$issue3_page" | grep -qi "Get this playbook in your inbox" || {
+  echo "$issue3_page" | grep -qi "Get this playbook in your inbox</h2>" || {
     echo "FAIL: issue #3 should show email gate when published"
     exit 1
   }
@@ -111,7 +111,7 @@ echo "$all_access" | grep -qi "All Access Pass" || {
   echo "FAIL: /all-access missing expected heading"
   exit 1
 }
-echo "$all_access" | grep -qi "€49" || {
+echo "$all_access" | grep -qi "€29" || {
   echo "FAIL: /all-access missing pricing"
   exit 1
 }
@@ -126,27 +126,72 @@ if [[ "${ALL_ACCESS_LAUNCH:-0}" == "1" ]]; then
   }
 fi
 
-echo "==> Tools page (Cursor + Paperclip affiliates)"
-tools=$(curl -fsS "${BASE_URL}/tools")
-echo "$tools" | grep -qi "Tools we use" || {
-  echo "FAIL: /tools missing expected heading"
+echo "==> /tools retired (expect 404)"
+tools_status=$(curl -sS -o /dev/null -w "%{http_code}" "${BASE_URL}/tools")
+if [[ "${tools_status}" != "404" ]]; then
+  echo "FAIL: /tools should return 404 (retired), got ${tools_status}"
+  exit 1
+fi
+echo "OK: /tools returns 404"
+
+echo "==> Crown Discipline landing"
+crown=$(curl -fsS "${BASE_URL}/crown")
+echo "$crown" | grep -qi "Crown discipline" || {
+  echo "FAIL: /crown missing expected heading"
   exit 1
 }
-echo "$tools" | grep -qi "Cursor" || {
-  echo "FAIL: /tools missing Cursor affiliate"
+echo "$crown" | grep -qi "€59" || {
+  echo "FAIL: /crown missing pricing"
+  exit 1
+}
+echo "$crown" | grep -qi "Separate from All Access" || {
+  echo "FAIL: /crown missing tier distinction copy"
   exit 1
 }
 
-echo "==> Gumroad webhook (missing sale fields → 400)"
-gumroad_status=$(curl -sS -o /tmp/atw-gumroad-body.txt -w "%{http_code}" -X POST \
-  "${BASE_URL}/api/webhooks/gumroad" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "email=")
-gumroad_body=$(cat /tmp/atw-gumroad-body.txt)
-echo "status=${gumroad_status} body=${gumroad_body}"
-if [[ "${gumroad_status}" != "400" ]]; then
-  echo "FAIL: expected 400 for invalid Gumroad payload, got ${gumroad_status}"
+echo "==> Season 1 crown listing"
+season1=$(curl -fsS "${BASE_URL}/season-1")
+echo "$season1" | grep -qi "Paid add-on" || {
+  echo "FAIL: /season-1 missing crown paid badge"
   exit 1
+}
+echo "$season1" | grep -qi "crown-discipline-ai-ceo" && {
+  echo "FAIL: /season-1 should not expose internal slug in HTML"
+  exit 1
+}
+echo "$season1" | grep -qi "Crown discipline" || {
+  echo "FAIL: /season-1 missing crown discipline title"
+  exit 1
+}
+
+echo "==> Gumroad webhook"
+webhook_secret_configured=false
+echo "$health" | grep -q '"webhookSecretConfigured"[[:space:]]*:[[:space:]]*true' && webhook_secret_configured=true
+
+if [[ "${webhook_secret_configured}" == "true" ]]; then
+  echo "Gumroad webhook secret configured — expect 401 without secret"
+  gumroad_status=$(curl -sS -o /tmp/atw-gumroad-body.txt -w "%{http_code}" -X POST \
+    "${BASE_URL}/api/webhooks/gumroad" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "email=")
+  gumroad_body=$(cat /tmp/atw-gumroad-body.txt)
+  echo "status=${gumroad_status} body=${gumroad_body}"
+  if [[ "${gumroad_status}" != "401" ]]; then
+    echo "FAIL: expected 401 without webhook secret, got ${gumroad_status}"
+    exit 1
+  fi
+else
+  echo "Gumroad webhook secret unset — expect 400 for invalid payload"
+  gumroad_status=$(curl -sS -o /tmp/atw-gumroad-body.txt -w "%{http_code}" -X POST \
+    "${BASE_URL}/api/webhooks/gumroad" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "email=")
+  gumroad_body=$(cat /tmp/atw-gumroad-body.txt)
+  echo "status=${gumroad_status} body=${gumroad_body}"
+  if [[ "${gumroad_status}" != "400" ]]; then
+    echo "FAIL: expected 400 for invalid Gumroad payload, got ${gumroad_status}"
+    exit 1
+  fi
 fi
 
 echo "==> Resend inbound webhook (unconfigured → 503, or 400 without signature)"
@@ -164,6 +209,13 @@ else
   echo "FAIL: expected 503 (unconfigured) or 400 (unsigned), got ${webhook_status}"
   exit 1
 fi
+
+echo "==> German landing page (/de)"
+de_landing=$(curl -fsS "${BASE_URL}/de")
+echo "$de_landing" | grep -qi "Spare jede Woche" || {
+  echo "FAIL: German landing page missing expected de-CH hero copy"
+  exit 1
+}
 
 echo "PASS: smoke test completed for ${BASE_URL}"
 echo "Manual: confirm email flow requires RESEND_API_KEY + inbox access."

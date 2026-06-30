@@ -12,14 +12,26 @@ import {
   readConsentCookie,
   writeConsentCookie,
 } from "@/lib/compliance/consent";
-
-const ESSENTIAL_EXPLANATION =
-  "Essential cookies keep the site secure, keep your signup preferences, and balance load.";
+import { useI18n } from "@/i18n/I18nProvider";
+import { localizedPath } from "@/i18n/navigation";
 
 export function CookieConsentBanner() {
+  const { locale, dict } = useI18n();
+  const t = dict.cookies;
   const [preferences, setPreferences] = useState<ConsentPreferences>({ ...DEFAULT_CONSENT });
   const [isVisible, setIsVisible] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  const categoryLabels: Record<ConsentCategory, { label: string; description: string }> = {
+    analytics: {
+      label: t.analyticsLabel,
+      description: t.analyticsDescription,
+    },
+    marketing: {
+      label: t.marketingLabel,
+      description: t.marketingDescription,
+    },
+  };
 
   useEffect(() => {
     const stored = readConsentCookie();
@@ -62,14 +74,11 @@ export function CookieConsentBanner() {
     <div className="fixed inset-x-4 bottom-6 z-50 rounded-3xl border border-slate-800/70 bg-slate-950/95 p-6 shadow-2xl shadow-black/60 backdrop-blur-xl md:inset-x-8 md:bottom-8">
       <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
         <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.4em] text-slate-500">Cookies</p>
-          <h2 className="text-lg font-bold text-white">We respect your privacy</h2>
-          <p className="text-sm text-slate-300">
-            We only drop analytics and marketing cookies after you choose. Essential cookies stay
-            active so the site and your preferences keep working.
-          </p>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Essential</p>
-          <p className="text-sm text-slate-400">{ESSENTIAL_EXPLANATION}</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.4em] text-slate-500">{t.eyebrow}</p>
+          <h2 className="text-lg font-bold text-white">{t.title}</h2>
+          <p className="text-sm text-slate-300">{t.body}</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{t.essentialLabel}</p>
+          <p className="text-sm text-slate-400">{t.essentialBody}</p>
         </div>
         <div className="flex flex-col gap-3">
           <button
@@ -77,27 +86,27 @@ export function CookieConsentBanner() {
             className="rounded-full bg-brand-500 px-4 py-2 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-brand-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-300"
             onClick={handleAcceptAll}
           >
-            Accept all
+            {t.acceptAll}
           </button>
           <button
             type="button"
             className="rounded-full border border-slate-700 px-4 py-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-200 transition hover:border-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-300"
             onClick={handleSavePreferences}
           >
-            Save preferences
+            {t.savePreferences}
           </button>
           <Link
             className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400 transition hover:text-white"
-            href="/legal#cookies"
+            href={localizedPath("/legal#cookies", locale)}
           >
-            Manage cookies
+            {t.manageCookies}
           </Link>
         </div>
       </div>
 
       <div className="mt-6 grid gap-3 md:grid-cols-2">
         {OPTIONAL_CONSENT_CATEGORIES.map((category) => {
-          const definition = COOKIE_CATEGORY_DEFINITIONS[category];
+          const definition = categoryLabels[category] ?? COOKIE_CATEGORY_DEFINITIONS[category];
           const enabled = preferences[category];
           return (
             <div

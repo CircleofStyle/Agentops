@@ -13,6 +13,29 @@ import { extractTeaser } from "@/lib/content/visibility";
 import { logger } from "@/lib/logger";
 import { getFromEmail, getResendClient, getSiteUrl } from "@/lib/resend";
 
+/** Playbook #3 in the free drip sequence — google review request workflow. */
+export const PB3_DRIP_SLUG = "google-review-request-workflow";
+
+export function buildPb3ForwardReferralSignupUrl(siteUrl?: string): string {
+  const url = new URL(siteUrl ?? getSiteUrl());
+  url.pathname = "/";
+  url.search = "";
+  url.searchParams.set("utm_source", "referral");
+  url.searchParams.set("utm_medium", "email_forward");
+  url.searchParams.set("utm_campaign", "pb3");
+  return url.toString();
+}
+
+function buildPb3ForwardReferralPostscript(siteUrl?: string): { html: string; text: string } {
+  const signupUrl = buildPb3ForwardReferralSignupUrl(siteUrl);
+  const signupDisplay = signupUrl.replace(/^https?:\/\//, "");
+
+  return {
+    html: `<p style="color: #64748b; font-size: 14px; line-height: 1.6; margin: 24px 0 0;"><strong>P.S.</strong> Know someone who'd use this? Forward this email — signup link: <a href="${signupUrl}" style="color: #0ea5e9;">${signupDisplay}</a></p>`,
+    text: `P.S. Know someone who'd use this? Forward this email — signup link: ${signupDisplay}`,
+  };
+}
+
 export function buildPlaybookSubject(issue: IssueDocument): string {
   if (issue.frontmatter.emailSubject) {
     return issue.frontmatter.emailSubject;
@@ -45,7 +68,7 @@ export function buildPlaybookEmailHtml(
   summary: string,
   issueUrl: string,
   bodyHtml: string,
-  options?: { includeUnsubscribe?: boolean },
+  options?: { includeUnsubscribe?: boolean; includeForwardReferralPs?: boolean },
 ): string {
   const unsubscribe = options?.includeUnsubscribe !== false
     ? '<a href="{{{RESEND_UNSUBSCRIBE_URL}}}">Unsubscribe</a>'
@@ -80,6 +103,7 @@ export function buildPlaybookEmailHtml(
         <a href="${issueUrl}" style="display: inline-block; background: #0ea5e9; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none;">Open full playbook →</a>
       </p>
       <p style="color: #64748b; font-size: 14px;">Or copy this link: ${issueUrl}</p>
+      ${options?.includeForwardReferralPs ? buildPb3ForwardReferralPostscript().html : ""}
       <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
       <p style="color: #64748b; font-size: 12px;">
         ${unsubscribe}
@@ -88,13 +112,21 @@ export function buildPlaybookEmailHtml(
   `.trim();
 }
 
-export function buildPlaybookEmailText(issue: IssueDocument, summary: string, issueUrl: string): string {
-  return `${issue.frontmatter.title}\n\n${summary}\n\n${issue.body}\n\nOpen full playbook: ${issueUrl}`;
+export function buildPlaybookEmailText(
+  issue: IssueDocument,
+  summary: string,
+  issueUrl: string,
+  options?: { includeForwardReferralPs?: boolean },
+): string {
+  const postscript = options?.includeForwardReferralPs
+    ? `\n\n${buildPb3ForwardReferralPostscript().text}`
+    : "";
+  return `${issue.frontmatter.title}\n\n${summary}\n\n${issue.body}\n\nOpen full playbook: ${issueUrl}${postscript}`;
 }
 
 export async function buildPlaybookEmailContent(
   issue: IssueDocument,
-  options?: { includeUnsubscribe?: boolean },
+  options?: { includeUnsubscribe?: boolean; includeForwardReferralPs?: boolean },
 ): Promise<{
   subject: string;
   summary: string;
@@ -107,7 +139,7 @@ export async function buildPlaybookEmailContent(
   const issueUrl = buildIssueUrl(issue.frontmatter.slug);
   const bodyHtml = await markdownToHtml(issue.body);
   const html = buildPlaybookEmailHtml(issue, summary, issueUrl, bodyHtml, options);
-  const text = buildPlaybookEmailText(issue, summary, issueUrl);
+  const text = buildPlaybookEmailText(issue, summary, issueUrl, options);
 
   return { subject, summary, issueUrl, html, text };
 }
@@ -116,6 +148,7 @@ export async function sendTransactionalPlaybookEmail(options: {
   email: string;
   issue: IssueDocument;
   subjectPrefix?: string;
+  includeForwardReferralPs?: boolean;
 }): Promise<{ ok: boolean; messageId?: string; error?: string }> {
   const resend = getResendClient();
   if (!resend) {
@@ -124,6 +157,7 @@ export async function sendTransactionalPlaybookEmail(options: {
 
   const { subject, html, text } = await buildPlaybookEmailContent(options.issue, {
     includeUnsubscribe: false,
+    includeForwardReferralPs: options.includeForwardReferralPs,
   });
   const prefix = options.subjectPrefix ?? "";
 

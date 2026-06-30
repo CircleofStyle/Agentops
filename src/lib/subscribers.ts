@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import { logger } from "@/lib/logger";
+import { syncDripStateToResend } from "@/lib/resend-drip-state";
 import { mergeUtmFields, type UtmParams } from "@/lib/utm";
 
 export type SubscriberRecord = {
@@ -27,6 +28,12 @@ export type SubscriberRecord = {
   allAccessGrantedAt?: string;
   /** Source of all-access grant (gumroad, code, manual). */
   allAccessSource?: "gumroad" | "code" | "manual";
+  /** Crown Discipline — playbook #12 unlock on web. */
+  crownAccess?: boolean;
+  /** ISO timestamp when crown access was granted. */
+  crownAccessGrantedAt?: string;
+  /** Source of crown grant (gumroad, code, manual). */
+  crownAccessSource?: "gumroad" | "code" | "manual";
 };
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -58,6 +65,18 @@ async function writeSubscribers(subscribers: SubscriberRecord[]): Promise<boolea
     });
     return false;
   }
+}
+
+async function persistDripFields(record: SubscriberRecord): Promise<void> {
+  if (record.dripEnrolledAt == null && record.dripSequenceIndex == null && !record.lastDripSentAt) {
+    return;
+  }
+
+  await syncDripStateToResend(record.email, {
+    dripEnrolledAt: record.dripEnrolledAt,
+    dripSequenceIndex: record.dripSequenceIndex,
+    lastDripSentAt: record.lastDripSentAt,
+  });
 }
 
 export async function findSubscriber(email: string): Promise<SubscriberRecord | undefined> {
@@ -147,8 +166,10 @@ export async function updateSubscriber(
   if (index === -1) return null;
 
   subscribers[index] = updater(subscribers[index]);
+  const updated = subscribers[index];
   await writeSubscribers(subscribers);
-  return subscribers[index];
+  await persistDripFields(updated);
+  return updated;
 }
 
 export async function recordDripSend(email: string, slug: string): Promise<SubscriberRecord | null> {
@@ -212,5 +233,51 @@ export async function revokeAllAccess(email: string): Promise<SubscriberRecord |
   return updateSubscriber(email, (record) => ({
     ...record,
     allAccess: false,
+  }));
+}
+
+export async function grantCrownAccess(
+  email: string,
+  source: SubscriberRecord["crownAccessSource"] = "manual",
+): Promise<SubscriberRecord> {
+  const subscribers = await readSubscribers();
+  const normalized = email.toLowerCase();
+  const index = subscribers.findIndex((s) => s.email === normalized);
+  const now = new Date().toISOString();
+
+  if (index === -1) {
+    const record: SubscriberRecord = {
+      email: normalized,
+      status: "confirmed",
+      createdAt: now,
+      confirmedAt: now,
+      token: newSubscriberToken(),
+      crownAccess: true,
+      crownAccessGrantedAt: now,
+      crownAccessSource: source,
+    };
+    subscribers.push(record);
+    await writeSubscribers(subscribers);
+    return record;
+  }
+
+  const updated: SubscriberRecord = {
+    ...subscribers[index],
+    status: "confirmed",
+    confirmedAt: subscribers[index].confirmedAt ?? now,
+    crownAccess: true,
+    crownAccessGrantedAt: subscribers[index].crownAccessGrantedAt ?? now,
+    crownAccessSource: source,
+  };
+
+  subscribers[index] = updated;
+  await writeSubscribers(subscribers);
+  return updated;
+}
+
+export async function revokeCrownAccess(email: string): Promise<SubscriberRecord | null> {
+  return updateSubscriber(email, (record) => ({
+    ...record,
+    crownAccess: false,
   }));
 }

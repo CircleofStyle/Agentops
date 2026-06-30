@@ -1,0 +1,20 @@
+export const locales = ["en", "de"] as const;
+
+export type Locale = (typeof locales)[number];
+
+export const defaultLocale: Locale = "en";
+
+export const localeLabels: Record<Locale, string> = {
+  en: "English",
+  de: "Deutsch",
+};
+
+/** BCP-47 lang attribute — de maps to Swiss German copy (de-CH). */
+export const localeHtmlLang: Record<Locale, string> = {
+  en: "en",
+  de: "de-CH",
+};
+
+export function isLocale(value: string): value is Locale {
+  return locales.includes(value as Locale);
+}

@@ -1,11 +1,18 @@
 export type SeasonIssueStatus = "published" | "planned";
 
+export type SeasonIssueTier = "standard" | "crown";
+
 export type SeasonIssue = {
   number: number;
   slug: string | null;
   title: string;
   pillar: string;
   status: SeasonIssueStatus;
+  /** Paid add-on — excluded from free drip and All Access. */
+  paidOnly?: boolean;
+  tier?: SeasonIssueTier;
+  /** Short teaser shown on the Season 1 roadmap for paid-only playbooks. */
+  teaser?: string;
 };
 
 export const SEASON_1_TITLE = "Season 1";
@@ -13,6 +20,10 @@ export const SEASON_1_SUBTITLE = "12 playbooks, one operating system";
 
 export const SEASON_1_PROMISE =
   "12 practical automations that turn a 1–10 person service business into a calm, follow-up-proof operation — inbox, quotes, reviews, scheduling, invoices, and client comms.";
+
+export const FREE_DRIP_ISSUE_COUNT = 11;
+
+export const CROWN_DISCIPLINE_SLUG = "crown-discipline-ai-ceo";
 
 export const SEASON_1_ISSUES: SeasonIssue[] = [
   {
@@ -94,14 +105,26 @@ export const SEASON_1_ISSUES: SeasonIssue[] = [
   },
   {
     number: 12,
-    slug: "agent-assisted-automation-stack",
-    title: "When to use Zapier vs Cursor + Paperclip for custom flows",
-    pillar: "Meta / tools",
+    slug: CROWN_DISCIPLINE_SLUG,
+    title: "Crown discipline — run automations as a system",
+    pillar: "Lead",
     status: "planned",
+    paidOnly: true,
+    tier: "crown",
+    teaser:
+      "You've wired inbox, quotes, reviews, and ops. Playbook #12 is the operating-model upgrade: an AI CEO who delegates to specialist agents and keeps automations running as a disciplined system. Paid add-on — separate from All Access.",
   },
 ];
 
 export function season1Progress(): { published: number; total: number } {
   const published = SEASON_1_ISSUES.filter((issue) => issue.status === "published").length;
   return { published, total: SEASON_1_ISSUES.length };
+}
+
+export function getCrownDisciplineIssue(): SeasonIssue {
+  const crown = SEASON_1_ISSUES.find((issue) => issue.tier === "crown");
+  if (!crown) {
+    throw new Error("Crown discipline issue missing from Season 1 data");
+  }
+  return crown;
 }
