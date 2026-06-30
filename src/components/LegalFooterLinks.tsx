@@ -11,6 +11,7 @@ export function LegalFooterLinks() {
 
   const footerLinks = [
     { href: localizedPath("/season-1", locale), label: t.footerSeason1 },
+    { href: localizedPath("/season-2", locale), label: t.footerSeason2 },
     { href: localizedPath("/all-access", locale), label: t.footerAllAccess },
     { href: localizedPath("/issues", locale), label: t.footerPlaybooks },
     { href: localizedPath("/legal#privacy-policy", locale), label: t.footerPrivacy },

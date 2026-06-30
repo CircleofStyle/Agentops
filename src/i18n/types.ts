@@ -115,7 +115,9 @@ export type Dictionary = {
     metaDescription: string;
     progressLabel: string;
     progressCount: string;
+    progressHeadline: string;
     progressBody: string;
+    season2TeaserEyebrow: string;
     arcTitle: string;
     arcBody: string;
     listTitle: string;
@@ -141,6 +143,24 @@ export type Dictionary = {
     startFreeCantWait: string;
     startFreeAllAccess: string;
     allAccessPrompt: string;
+  };
+  season2: {
+    metaTitle: string;
+    metaDescription: string;
+    progressLabel: string;
+    progressCount: string;
+    progressHeadline: string;
+    progressBody: string;
+    arcTitle: string;
+    arcBody: string;
+    playbookLabel: string;
+    live: string;
+    comingSoon: string;
+    published: string;
+    planned: string;
+    season1LinkTitle: string;
+    season1LinkBody: string;
+    season1LinkCta: string;
   };
   allAccess: {
     metaTitle: string;
@@ -189,6 +209,7 @@ export type Dictionary = {
     footerDataProtection: string;
     footerTerms: string;
     footerSeason1: string;
+    footerSeason2: string;
     footerAllAccess: string;
     footerPlaybooks: string;
   };

@@ -8,6 +8,7 @@ import {
   syncDripStateToResend,
 } from "@/lib/resend-drip-state";
 import { syncConfirmedAtToResend } from "@/lib/resend-subscribers";
+import { resolveSubscriberLocale } from "@/lib/subscriber-locale";
 import {
   exportSubscribers,
   findSubscriber,
@@ -17,9 +18,9 @@ import {
 } from "@/lib/subscribers";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-const DRIP_SEND_DELAY_MS = 150;
+const DRIP_SEND_DELAY_MS = 600;
 
-function sleep(ms: number): Promise<void> {
+function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -158,7 +159,8 @@ export async function sendPlaybookDripToSubscriber(
   subscriber: SubscriberRecord,
   slug: string,
 ): Promise<DripSendResult> {
-  const issue = await getPublishedIssue(slug);
+  const locale = resolveSubscriberLocale(subscriber);
+  const issue = await getPublishedIssue(slug, locale);
   if (!issue) {
     return { email: subscriber.email, slug, status: "failed", error: `Published issue not found: ${slug}` };
   }
@@ -166,8 +168,24 @@ export async function sendPlaybookDripToSubscriber(
   const sendResult = await sendTransactionalPlaybookEmail({
     email: subscriber.email,
     issue,
+    locale,
     includeForwardReferralPs: slug === PB3_DRIP_SLUG,
   });
+
+  if (!sendResult.ok && sendResult.error?.toLowerCase().includes("too many requests")) {
+    await delay(2000);
+    const retry = await sendTransactionalPlaybookEmail({
+      email: subscriber.email,
+      issue,
+      locale,
+      includeForwardReferralPs: slug === PB3_DRIP_SLUG,
+    });
+    if (retry.ok) {
+      await recordDripSend(subscriber.email, slug);
+      return { email: subscriber.email, slug, status: "sent", messageId: retry.messageId };
+    }
+    return { email: subscriber.email, slug, status: "failed", error: retry.error };
+  }
 
   if (!sendResult.ok) {
     return { email: subscriber.email, slug, status: "failed", error: sendResult.error };
@@ -315,7 +333,9 @@ export async function catchUpSubscriberDrip(email: string): Promise<DripSendResu
     const fresh = (await findSubscriber(email)) ?? subscriber;
     const hydrated = await hydrateSubscriberDripState(fresh);
     results.push(await sendPlaybookDripToSubscriber(hydrated, slug));
-    await sleep(DRIP_SEND_DELAY_MS);
+    if (index + 1 < expected) {
+      await delay(DRIP_SEND_DELAY_MS);
+    }
   }
 
   if (results.length === 0) {

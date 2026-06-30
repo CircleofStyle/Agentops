@@ -110,7 +110,7 @@ export async function sendPlaybookBroadcast(options: {
     };
   }
 
-  const { subject, summary, issueUrl, html, text } = await buildPlaybookEmailContent(issue, {
+  const { subject, summary, issueUrl, html, text } = await buildPlaybookEmailContent(issue, "en", {
     includeUnsubscribe: !testEmail,
   });
 

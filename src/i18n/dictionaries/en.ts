@@ -143,8 +143,10 @@ const en: Dictionary = {
       "11 free playbooks from inbox triage to reviews — one practical automation every 7 days. Crown Discipline (#12) is a separate paid upgrade.",
     progressLabel: "Progress",
     progressCount: "of",
+    progressHeadline: "{published} of {total} playbooks published",
     progressBody:
-      "playbooks published. Free subscribers receive playbooks 1→{freeCount} in order — one every 7 days after you confirm. Playbook #12 (Crown Discipline) is a paid add-on, not part of the free drip.",
+      "Free subscribers receive playbooks 1→{freeCount} in order — one every 7 days after you confirm. Playbook #12 (Crown Discipline) is a paid add-on, not part of the free drip.",
+    season2TeaserEyebrow: "Season 2",
     arcTitle: "The Season 1 arc",
     arcBody:
       "Each playbook targets a real operator bottleneck — capture, convert, deliver, and grow — with a measurable outcome you can track in week one.",
@@ -173,6 +175,28 @@ const en: Dictionary = {
     startFreeCantWait: "Can't wait for the drip?",
     startFreeAllAccess: "— playbooks #1–11 immediately as we publish them.",
     allAccessPrompt: "Want playbooks #1–11 now?",
+  },
+  season2: {
+    metaTitle: "Season 2 roadmap — Automate This Week",
+    metaDescription:
+      "12 Make-native playbooks for Season 1 graduates — visual orchestration, branching logic, and connected client journeys.",
+    progressLabel: "Progress",
+    progressCount: "of",
+    progressHeadline: "{published} of {total} playbooks published",
+    progressBody:
+      "Season 2 launches after Season 1 — Make.com-native playbooks for operators ready to graduate. Not part of the free drip.",
+    arcTitle: "The Season 2 arc",
+    arcBody:
+      "Multi-step scenarios, branching logic, and connected workflows — the operating graph for businesses that outgrew simple Zaps.",
+    playbookLabel: "Playbook",
+    live: "Live",
+    comingSoon: "Coming soon",
+    published: "Published",
+    planned: "Planned",
+    season1LinkTitle: "New here? Start with Season 1",
+    season1LinkBody:
+      "Season 2 is for graduates. Season 1 builds your calm ops foundation with 11 free Zapier playbooks.",
+    season1LinkCta: "View Season 1 roadmap →",
   },
   allAccess: {
     metaTitle: "All Access Pass — Automate This Week",
@@ -230,6 +254,7 @@ const en: Dictionary = {
     footerDataProtection: "Data protection",
     footerTerms: "Terms of use",
     footerSeason1: "Season 1",
+    footerSeason2: "Season 2",
     footerAllAccess: "All access",
     footerPlaybooks: "Playbooks",
   },

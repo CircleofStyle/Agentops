@@ -23,6 +23,8 @@ Two days after you mark a job complete, your customer automatically gets a frien
 
 **Setup time: 25 minutes.**
 
+> **Already on Klaviyo or Mailchimp?** Post-purchase review flows are a core ESP feature — if your jobs already live there, use their template. **Wire this playbook instead** when your completion signal is a Google Sheet (or job app) that your ESP can't see without Zapier.
+
 Pairs well with [issue #2](/issues/quote-follow-up-workflow): win the quote first, then let this workflow turn delivered work into social proof.
 
 ## The problem

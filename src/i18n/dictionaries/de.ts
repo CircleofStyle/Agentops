@@ -14,9 +14,9 @@ const de: Dictionary = {
   common: {
     brandName: "Automate This Week",
     backToHome: "← Automate This Week",
-    backToSeason1: "← Season 1",
+    backToSeason1: "← Serie 1",
     min: "Min.",
-    seeSeason1: "Season 1 ansehen",
+    seeSeason1: "Serie 1 ansehen",
     getAllAccess: "All Access holen →",
     emailUs: "schreib uns",
   },
@@ -29,11 +29,11 @@ const de: Dictionary = {
     titleAccent: "mit einer Automatisierung, die du in unter 30 Minuten baust",
     subtitle:
       "Schritt-für-Schritt-Playbooks für Gmail, Sheets und Zapier — ohne Programmieren, ohne Berater, ohne Hype. Das erste Playbook kommt Minuten nach deiner Bestätigung; das nächste alle 7 Tage.",
-    seasonEyebrow: "Season 1",
+    seasonEyebrow: "Serie 1",
     seasonTitle: "12 Playbooks vom Posteingang bis zu Bewertungen — eines alle 7 Tage",
     seasonBody:
-      "Ein klarer Bogen, keine Zufallsthemen. Du erhältst die Playbooks 1→12 der Reihe nach nach deiner Bestätigung — in deinem Tempo, während die Serie weiterläuft.",
-    seasonLink: "Ganze Season-1-Liste ansehen →",
+      "Ein klarer roter Faden, keine Zufallsthemen. Du erhältst die Playbooks 1→12 der Reihe nach nach deiner Bestätigung — in deinem Tempo, während die Serie weiterläuft.",
+    seasonLink: "Alle Playbooks der Serie 1 ansehen →",
     browseAll: "Alle Playbooks durchstöbern →",
   },
   signup: {
@@ -61,7 +61,7 @@ const de: Dictionary = {
   startHere: {
     heading: "Hier starten",
     subtitle:
-      "Wähle den Engpass, der dich diese Woche Zeit kostet — jedes Playbook ist in unter 30 Minuten fertig.",
+      "Was frisst diese Woche am meisten Zeit? — jedes Playbook ist in unter 30 Minuten fertig.",
     cards: [
       {
         label: "Hier starten · Leads erfassen",
@@ -100,7 +100,7 @@ const de: Dictionary = {
     eyebrow: "Automate This Week",
     title: "Du bist dabei — prüfe dein Postfach",
     body: "Playbook #1 — Kunden-E-Mails automatisch sortieren — ist unterwegs. Rechne mit 2–5 gesparten Stunden pro Woche, sobald es läuft. Das nächste Playbook folgt in 7 Tagen.",
-    seasonLink: "Deine Season-1-Roadmap ansehen",
+    seasonLink: "Deine Übersicht Serie 1 ansehen",
     sampleLink: "Gratis-Beispiel",
     backHome: "Zur Startseite",
   },
@@ -139,21 +139,23 @@ const de: Dictionary = {
       "Gratis Automatisierungs-Playbooks für Dienstleister — deine Serie startet mit der Bestätigung.",
   },
   season1: {
-    metaTitle: "Season-1-Roadmap — Automate This Week",
+    metaTitle: "Übersicht Serie 1 — Automate This Week",
     metaDescription:
       "11 gratis Playbooks vom Posteingang bis zu Bewertungen — eine praktische Automatisierung alle 7 Tage. Crown Discipline (#12) ist ein separates Upgrade.",
     progressLabel: "Fortschritt",
     progressCount: "von",
+    progressHeadline: "{published} von {total} Playbooks veröffentlicht",
     progressBody:
-      "Playbooks veröffentlicht. Gratis-Abonnentinnen erhalten die Playbooks 1→{freeCount} der Reihe nach — eines alle 7 Tage nach der Bestätigung. Playbook #12 (Crown Discipline) ist ein kostenpflichtiges Add-on, nicht Teil der Gratis-Serie.",
-    arcTitle: "Der Season-1-Bogen",
+      "Gratis-Abonnentinnen erhalten die Playbooks 1→{freeCount} der Reihe nach — eines alle 7 Tage nach der Bestätigung. Playbook #12 (Crown Discipline) ist ein kostenpflichtiges Add-on, nicht Teil der Gratis-Serie.",
+    season2TeaserEyebrow: "Serie 2",
+    arcTitle: "So hängt Serie 1 zusammen",
     arcBody:
-      "Jedes Playbook adressiert einen echten Engpass — erfassen, konvertieren, liefern, wachsen — mit einem messbaren Ergebnis in Woche eins.",
-    listTitle: "Alle Season-1-Playbooks",
+      "Jedes Playbook löst ein echtes Alltagsproblem — Leads erfassen, Aufträge gewinnen, sauber liefern, weiter wachsen — mit einem spürbaren Ergebnis schon in der ersten Woche.",
+    listTitle: "Alle Playbooks in Serie 1",
     paidAddon: "Kostenpflichtiges Add-on",
     freeDrip: "Gratis-Serie",
     crownTitle: "Crown Discipline",
-    crownTeaser: "Season-1-Finale — ein KI-CEO-Betriebssystem installieren",
+    crownTeaser: "Abschluss von Serie 1 — ein KI-CEO-Betriebssystem installieren",
     crownCta: "Mehr zu Crown Discipline →",
     signupTitle: "Gratis-Serie starten",
     signupBody: "Ein Playbook alle 7 Tage nach der Bestätigung — keine Kreditkarte nötig.",
@@ -164,16 +166,38 @@ const de: Dictionary = {
     planned: "Geplant",
     crownSectionTitle: "Bereit für das Betriebsmodell-Upgrade?",
     crownSectionBody:
-      "Playbooks #1–11 verbinden Posteingang, Angebote, Bewertungen und Ops. Crown Discipline (#12) ist das kostenpflichtige Finale: Installiere einen KI-CEO, der an Spezialistinnen delegiert und alles als ein System am Laufen hält.",
+      "Playbooks #1–11 verbinden Posteingang, Angebote, Bewertungen und Tagesgeschäft. Crown Discipline (#12) ist das kostenpflichtige Finale: Installiere einen KI-CEO, der Aufgaben verteilt und alles als ein System am Laufen hält.",
     crownSectionNote: "Nicht in der Gratis-Serie. Nicht in All Access enthalten.",
     crownSectionCta: "Crown Discipline holen →",
     crownSectionCompare: "was enthalten ist →",
     startFreeTitle: "Deine Serie starten — gratis",
     startFreeBody:
-      "Bestätige deine E-Mail und Playbook #1 kommt in Minuten. Playbooks #2–{freeCount} folgen alle 7 Tage der Reihe nach — kein Dienstags-Blast, keine Zufallsthemen.",
+      "Bestätige deine E-Mail und Playbook #1 kommt in Minuten. Playbooks #2–{freeCount} folgen alle 7 Tage der Reihe nach — kein Stapel auf einmal, keine Zufallsthemen.",
     startFreeCantWait: "Keine Geduld auf die Serie?",
     startFreeAllAccess: "— Playbooks #1–11 sofort, sobald wir sie veröffentlichen.",
     allAccessPrompt: "Playbooks #1–11 jetzt?",
+  },
+  season2: {
+    metaTitle: "Übersicht Serie 2 — Automate This Week",
+    metaDescription:
+      "12 Playbooks mit Make.com für alle, die Serie 1 durch haben — mehrstufige Abläufe, klare Verzweigungen und verbundene Kundenwege.",
+    progressLabel: "Fortschritt",
+    progressCount: "von",
+    progressHeadline: "{published} von {total} Playbooks veröffentlicht",
+    progressBody:
+      "Serie 2 startet nach Serie 1 — Playbooks mit Make.com für Betriebe, die bereit für den nächsten Schritt sind. Nicht Teil der Gratis-Serie.",
+    arcTitle: "So baut Serie 2 auf",
+    arcBody:
+      "Mehrstufige Abläufe, klare Verzweigungen und verbundene Workflows — für Unternehmen, die einfache Zaps überwachsen haben.",
+    playbookLabel: "Playbook",
+    live: "Live",
+    comingSoon: "Demnächst",
+    published: "Veröffentlicht",
+    planned: "Geplant",
+    season1LinkTitle: "Neu hier? Starte mit Serie 1",
+    season1LinkBody:
+      "Serie 2 ist für alle, die Serie 1 durch haben. Serie 1 legt dein stabiles Tagesgeschäft mit 11 gratis Zapier-Playbooks.",
+    season1LinkCta: "Übersicht Serie 1 ansehen →",
   },
   allAccess: {
     metaTitle: "All Access Pass — Automate This Week",
@@ -193,15 +217,15 @@ const de: Dictionary = {
     ctaEyebrow: "All Access Pass",
     price: "€29 einmalig",
     ctaBody:
-      "Playbooks #1–11 sofort — plus künftige Season-1-No-Code-Issues, sobald wir sie veröffentlichen. Crown Discipline (#12) ist ein separater Kauf.",
+      "Playbooks #1–11 sofort — plus künftige Playbooks aus Serie 1, sobald wir sie veröffentlichen. Crown Discipline (#12) ist ein separater Kauf.",
     ctaButton: "All Access auf Gumroad holen",
     checkoutSoon: "Checkout folgt bald —",
   },
   crown: {
     metaTitle: "Crown Discipline — Automate This Week",
     metaDescription:
-      "Season-1-Finale: Installiere einen KI-CEO, der Spezialistinnen-Agenten orchestriert, damit deine Playbooks als ein Betriebssystem laufen.",
-    eyebrow: "Season-1-Finale · Kostenpflichtiges Add-on",
+      "Abschluss von Serie 1: Installiere einen KI-CEO, der Aufgaben an Spezialistinnen verteilt, damit deine Playbooks als ein Betriebssystem laufen.",
+    eyebrow: "Abschluss von Serie 1 · Kostenpflichtiges Add-on",
     title: "Crown Discipline — dein KI-CEO-Betriebssystem",
     subtitle:
       "Du hast die Automatisierungen gebaut. Jetzt installiere die Rolle, die sie steuert: ein KI-CEO, der Ziele setzt, an Spezialistinnen delegiert und deinen Betrieb im Takt hält.",
@@ -210,7 +234,7 @@ const de: Dictionary = {
     ctaEyebrow: "Crown Discipline",
     price: "€59 einmalig",
     ctaBody:
-      "Das Season-1-Finale — installiere einen KI-CEO, der Spezialistinnen-Agenten orchestriert, damit deine Playbooks als ein Betriebssystem laufen.",
+      "Der Abschluss von Serie 1 — installiere einen KI-CEO, der Aufgaben an Spezialistinnen verteilt, damit deine Playbooks als ein Betriebssystem laufen.",
     ctaButton: "Crown Discipline auf Gumroad holen",
     checkoutSoon: "Checkout folgt bald —",
   },
@@ -231,7 +255,8 @@ const de: Dictionary = {
     footerCookies: "Cookies",
     footerDataProtection: "Datenschutz",
     footerTerms: "Nutzungsbedingungen",
-    footerSeason1: "Season 1",
+    footerSeason1: "Serie 1",
+    footerSeason2: "Serie 2",
     footerAllAccess: "All Access",
     footerPlaybooks: "Playbooks",
   },

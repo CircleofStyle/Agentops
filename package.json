@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "i18n:parity": "tsx scripts/check-i18n-parity.ts",
     "content:draft": "tsx scripts/content.ts draft",
     "content:publish": "tsx scripts/content.ts publish",
     "content:broadcast": "tsx scripts/content.ts broadcast",
@@ -17,7 +18,10 @@
     "smoke": "bash scripts/smoke-test.sh http://localhost:3000",
     "smoke:launch": "ALL_ACCESS_LAUNCH=1 bash scripts/smoke-test.sh",
     "verify:inbound": "tsx scripts/verify-inbound-webhook.ts",
-    "verify:gumroad": "tsx scripts/verify-gumroad-webhook.ts"
+    "verify:gumroad": "tsx scripts/verify-gumroad-webhook.ts",
+    "kits:export": "tsx scripts/export-kit-templates.ts",
+    "tiktok:render": "node scripts/tiktok-video/pipeline.mjs",
+    "tiktok:render:v2-batch": "pnpm tiktok:render content/tiktok-scripts/v2-short1-inbox-kit.json && pnpm tiktok:render content/tiktok-scripts/v2-short2-quote-kit.json && pnpm tiktok:render content/tiktok-scripts/v2-short3-starter-bundle.json"
   },
   "dependencies": {
     "next": "^15.5.19",
@@ -32,8 +36,10 @@
     "@types/node": "^22.19.20",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "edge-tts-universal": "^1.4.0",
     "eslint": "^9.39.4",
     "eslint-config-next": "^15.5.19",
+    "ffmpeg-static": "^5.3.0",
     "gray-matter": "^4.0.3",
     "playwright": "^1.61.0",
     "postcss": "^8.5.3",

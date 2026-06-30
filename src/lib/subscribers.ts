@@ -3,17 +3,22 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import { logger } from "@/lib/logger";
 import {
-  findResendSubscriberRecord,
-  listResendSubscriberRecords,
+  listResendAudienceSubscribers,
+  loadSubscriberFromResend,
   mergeSubscriberRecords,
   syncConfirmedAtToResend,
 } from "@/lib/resend-subscribers";
 import { syncDripStateToResend } from "@/lib/resend-drip-state";
+import type { Locale } from "@/i18n/config";
+import { defaultLocale } from "@/i18n/config";
+import { syncPreferredLocaleToResend } from "@/lib/resend-subscribers";
 import { mergeUtmFields, type UtmParams } from "@/lib/utm";
 
 export type SubscriberRecord = {
   email: string;
   status: "pending" | "confirmed";
+  /** Preferred language for transactional and drip emails. */
+  preferredLocale?: Locale;
   createdAt: string;
   confirmedAt?: string;
   token: string;
@@ -85,9 +90,14 @@ async function persistDripFields(record: SubscriberRecord): Promise<void> {
   });
 }
 
+async function persistPreferredLocale(record: SubscriberRecord): Promise<void> {
+  if (!record.preferredLocale) return;
+  await syncPreferredLocaleToResend(record.email, record.preferredLocale);
+}
+
 async function loadAllSubscribers(): Promise<SubscriberRecord[]> {
   const local = await readSubscribers();
-  const remote = await listResendSubscriberRecords();
+  const remote = await listResendAudienceSubscribers();
   if (remote.length === 0) return local;
   return mergeSubscriberRecords(local, remote);
 }
@@ -97,7 +107,7 @@ export async function findSubscriber(email: string): Promise<SubscriberRecord | 
   const subscribers = await loadAllSubscribers();
   const match = subscribers.find((s) => s.email.toLowerCase() === normalized);
   if (match) return match;
-  return (await findResendSubscriberRecord(normalized)) ?? undefined;
+  return (await loadSubscriberFromResend(normalized)) ?? undefined;
 }
 
 export async function findSubscriberByToken(token: string): Promise<SubscriberRecord | undefined> {
@@ -109,6 +119,7 @@ export async function upsertPendingSubscriber(
   email: string,
   token: string,
   utm?: UtmParams,
+  preferredLocale: Locale = defaultLocale,
 ): Promise<SubscriberRecord> {
   const subscribers = await readSubscribers();
   const normalized = email.toLowerCase();
@@ -125,6 +136,7 @@ export async function upsertPendingSubscriber(
     status: "pending",
     createdAt: existing?.createdAt ?? new Date().toISOString(),
     token,
+    preferredLocale: existing?.preferredLocale ?? preferredLocale,
     ...attribution,
   };
 
@@ -133,6 +145,7 @@ export async function upsertPendingSubscriber(
     : [...subscribers, record];
 
   await writeSubscribers(next);
+  await persistPreferredLocale(record);
   return record;
 }
 
@@ -150,6 +163,7 @@ export async function confirmSubscriber(token: string): Promise<SubscriberRecord
 
   subscribers[index] = confirmed;
   await writeSubscribers(subscribers);
+  await syncConfirmedAtToResend(confirmed.email, confirmed.confirmedAt!);
   return confirmed;
 }
 
@@ -160,7 +174,7 @@ export async function confirmSubscriberByEmail(email: string): Promise<Subscribe
   const now = new Date().toISOString();
 
   if (index === -1) {
-    const remote = await findResendSubscriberRecord(normalized);
+    const remote = await loadSubscriberFromResend(normalized);
     const confirmed: SubscriberRecord = {
       email: normalized,
       status: "confirmed",
@@ -174,6 +188,7 @@ export async function confirmSubscriberByEmail(email: string): Promise<Subscribe
       utm_source: remote?.utm_source,
       utm_medium: remote?.utm_medium,
       utm_campaign: remote?.utm_campaign,
+      preferredLocale: remote?.preferredLocale,
     };
 
     await writeSubscribers([...subscribers, confirmed]);
@@ -202,7 +217,7 @@ export async function updateSubscriber(
   let index = subscribers.findIndex((s) => s.email === normalized);
 
   if (index === -1) {
-    const remote = await findResendSubscriberRecord(normalized);
+    const remote = await loadSubscriberFromResend(normalized);
     if (!remote) return null;
     subscribers.push(remote);
     index = subscribers.length - 1;
@@ -212,6 +227,7 @@ export async function updateSubscriber(
   const updated = subscribers[index];
   await writeSubscribers(subscribers);
   await persistDripFields(updated);
+  await persistPreferredLocale(updated);
   return updated;
 }
 

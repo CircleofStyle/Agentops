@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { localizedPath } from "@/i18n/navigation";
 import { verifyConfirmationToken } from "@/lib/confirm-token";
 import { sendInitialDripIssue } from "@/lib/drip";
 import { addToResendAudience, sendWelcomeEmail } from "@/lib/email";
 import { logger } from "@/lib/logger";
-import { confirmSubscriber, confirmSubscriberByEmail } from "@/lib/subscribers";
+import { confirmSubscriber, confirmSubscriberByEmail, type SubscriberRecord } from "@/lib/subscribers";
+import { resolveSubscriberLocale } from "@/lib/subscriber-locale";
 import { getSiteUrl } from "@/lib/resend";
 
-function confirmedPathForRequest(request: NextRequest): string {
-  const locale = request.cookies.get("NEXT_LOCALE")?.value;
-  return locale === "de" ? "/de/confirmed" : "/confirmed";
+function confirmedPathForSubscriber(subscriber: SubscriberRecord, request: NextRequest): string {
+  const locale = resolveSubscriberLocale(subscriber);
+  if (locale !== "en") {
+    return localizedPath("/confirmed", locale);
+  }
+
+  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+  return cookieLocale === "de" ? "/de/confirmed" : "/confirmed";
 }
 
 export async function GET(request: NextRequest) {
@@ -27,16 +34,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/?error=invalid-token", getSiteUrl()));
   }
 
-  await addToResendAudience(subscriber.email);
-  await sendWelcomeEmail(subscriber.email);
+  const locale = resolveSubscriberLocale(subscriber);
+
+  await addToResendAudience(subscriber.email, locale);
+  await sendWelcomeEmail(subscriber.email, locale);
 
   const dripResult = await sendInitialDripIssue(subscriber.email);
   if (dripResult.status === "failed") {
     logger.error("Initial drip issue failed on confirm", {
       email: subscriber.email,
+      locale,
       error: dripResult.error,
     });
   }
 
-  return NextResponse.redirect(new URL(confirmedPathForRequest(request), getSiteUrl()));
+  return NextResponse.redirect(
+    new URL(confirmedPathForSubscriber(subscriber, request), getSiteUrl()),
+  );
 }

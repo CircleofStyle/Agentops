@@ -20,5 +20,6 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      - run: pnpm i18n:parity
       - run: pnpm typecheck
       - run: pnpm build

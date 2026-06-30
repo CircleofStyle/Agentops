@@ -48,7 +48,7 @@ export function SignupForm() {
     setMessage("");
 
     try {
-      const payload: Record<string, string> = { email };
+      const payload: Record<string, string> = { email, preferredLocale: locale };
       for (const key of UTM_PARAM_KEYS) {
         const value = utm[key];
         if (value) payload[key] = value;

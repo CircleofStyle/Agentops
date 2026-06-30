@@ -23,6 +23,23 @@ export const SEASON_1_SUBTITLE = "12 playbooks, one operating system";
 export const SEASON_1_PROMISE =
   "12 practical automations that turn a 1–10 person service business into a calm, follow-up-proof operation — inbox, quotes, reviews, scheduling, invoices, and client comms.";
 
+const SEASON_1_TITLE_DE = "Serie 1";
+const SEASON_1_SUBTITLE_DE = "12 Playbooks für deinen Alltag — Schritt für Schritt";
+const SEASON_1_PROMISE_DE =
+  "12 praktische Automatisierungen für kleine Dienstleistungsbetriebe: Posteingang, Angebote, Bewertungen, Termine, Rechnungen und Kundenkontakt — ruhig und zuverlässig im Alltag.";
+
+export function season1Title(locale: Locale): string {
+  return locale === "de" ? SEASON_1_TITLE_DE : SEASON_1_TITLE;
+}
+
+export function season1Subtitle(locale: Locale): string {
+  return locale === "de" ? SEASON_1_SUBTITLE_DE : SEASON_1_SUBTITLE;
+}
+
+export function season1Promise(locale: Locale): string {
+  return locale === "de" ? SEASON_1_PROMISE_DE : SEASON_1_PROMISE;
+}
+
 export const FREE_DRIP_ISSUE_COUNT = 11;
 
 export const CROWN_DISCIPLINE_SLUG = "crown-discipline-ai-ceo";
@@ -51,56 +68,56 @@ export const SEASON_1_ISSUES: SeasonIssue[] = [
   },
   {
     number: 4,
-    slug: null,
+    slug: "appointment-reminder-workflow",
     title: "Cut no-shows with automated reminders",
     pillar: "Deliver",
     status: "planned",
   },
   {
     number: 5,
-    slug: null,
+    slug: "invoice-chase-workflow",
     title: "Friendly payment reminders without awkward calls",
     pillar: "Cash",
     status: "planned",
   },
   {
     number: 6,
-    slug: null,
+    slug: "new-lead-welcome-sequence",
     title: "Instant welcome + intake for new inquiries",
     pillar: "Capture",
     status: "planned",
   },
   {
     number: 7,
-    slug: null,
+    slug: "job-completion-checklist",
     title: "Auto-send completion summary + upsell prompt",
     pillar: "Deliver",
     status: "planned",
   },
   {
     number: 8,
-    slug: null,
+    slug: "referral-ask-workflow",
     title: "Ask happy clients for referrals on schedule",
     pillar: "Grow",
     status: "planned",
   },
   {
     number: 9,
-    slug: null,
+    slug: "weekly-ops-dashboard",
     title: "One Google Sheet dashboard for open quotes/jobs",
     pillar: "Ops",
     status: "planned",
   },
   {
     number: 10,
-    slug: null,
+    slug: "slack-team-alerts",
     title: "Route urgent jobs to the right person in Slack",
     pillar: "Ops",
     status: "planned",
   },
   {
     number: 11,
-    slug: null,
+    slug: "review-response-templates",
     title: "Draft replies to Google reviews in one click",
     pillar: "Reputation",
     status: "planned",
@@ -135,19 +152,47 @@ const SEASON_1_TITLES_DE: Record<string, string> = {
   "auto-triage-customer-emails": "Kunden-E-Mails automatisch sortieren",
   "quote-follow-up-workflow": "Nie wieder ein Angebot vergessen nachzufassen",
   "google-review-request-workflow": "Abgeschlossene Aufträge in Google-Bewertungen verwandeln",
+  "appointment-reminder-workflow":
+    "Terminausfälle mit automatischen Erinnerungen reduzieren",
+  "invoice-chase-workflow":
+    "Freundliche Zahlungserinnerungen ohne unangenehme Anrufe",
+  "new-lead-welcome-sequence":
+    "Sofortige Begrüßung und Aufnahme bei neuen Anfragen",
+  "job-completion-checklist":
+    "Abschlusszusammenfassung und Upsell automatisch senden",
+  "referral-ask-workflow": "Zufriedene Kunden planmässig um Empfehlungen bitten",
+  "weekly-ops-dashboard":
+    "Ein Google-Sheet-Dashboard für offene Angebote und Aufträge",
+  "slack-team-alerts":
+    "Dringende Aufträge an die richtige Person in Slack leiten",
+  "review-response-templates":
+    "Google-Bewertungen mit einem Klick beantworten",
   "crown-discipline-ai-ceo": "Crown Discipline — Automatisierungen als System betreiben",
 };
 
 const SEASON_1_PILLARS_DE: Record<string, string> = {
-  Capture: "Erfassen",
-  Convert: "Konvertieren",
-  Reputation: "Reputation",
-  Deliver: "Liefern",
-  Cash: "Cashflow",
-  Grow: "Wachsen",
-  Ops: "Ops",
-  Lead: "Führung",
+  Capture: "Leads erfassen",
+  Convert: "Mehr Aufträge",
+  Reputation: "Bewertungen",
+  Deliver: "Sauber liefern",
+  Cash: "Geld rein",
+  Grow: "Weiter wachsen",
+  Ops: "Betrieb",
+  Lead: "Überblick",
 };
+
+const SEASON_1_TEASERS_DE: Record<string, string> = {
+  "crown-discipline-ai-ceo":
+    "Du hast Posteingang, Angebote, Bewertungen und Betrieb verbunden. Playbook #12 ist das Upgrade: ein KI-CEO, der Aufgaben verteilt und deine Automatisierungen als ein System am Laufen hält. Kostenpflichtiges Add-on — separat von All Access.",
+};
+
+export function season1IssueTeaser(issue: SeasonIssue, locale: Locale): string | undefined {
+  if (!issue.teaser) return undefined;
+  if (locale === "de" && issue.slug && SEASON_1_TEASERS_DE[issue.slug]) {
+    return SEASON_1_TEASERS_DE[issue.slug];
+  }
+  return issue.teaser;
+}
 
 export function season1IssueTitle(issue: SeasonIssue, locale: Locale): string {
   if (locale === "de" && issue.slug && SEASON_1_TITLES_DE[issue.slug]) {

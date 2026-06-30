@@ -10,12 +10,13 @@ import { localizedPath } from "@/i18n/navigation";
 import {
   FREE_DRIP_ISSUE_COUNT,
   SEASON_1_ISSUES,
-  SEASON_1_PROMISE,
-  SEASON_1_SUBTITLE,
-  SEASON_1_TITLE,
   season1IssuePillar,
+  season1IssueTeaser,
   season1IssueTitle,
+  season1Promise,
   season1Progress,
+  season1Subtitle,
+  season1Title,
 } from "@/lib/season-1";
 
 type PageProps = {
@@ -55,12 +56,12 @@ export default async function Season1Page({ params }: PageProps) {
 
         <header className="mt-8">
           <p className="text-sm font-semibold uppercase tracking-widest text-brand-500">
-            {SEASON_1_TITLE}
+            {season1Title(locale)}
           </p>
           <h1 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            {SEASON_1_SUBTITLE}
+            {season1Subtitle(locale)}
           </h1>
-          <p className="mt-4 text-lg text-slate-400">{SEASON_1_PROMISE}</p>
+          <p className="mt-4 text-lg text-slate-400">{season1Promise(locale)}</p>
         </header>
 
         <section className="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
@@ -68,7 +69,9 @@ export default async function Season1Page({ params }: PageProps) {
             {t.progressLabel}
           </p>
           <p className="mt-3 text-2xl font-bold text-white">
-            {published} {t.progressCount} {total} playbooks published
+            {t.progressHeadline
+              .replace("{published}", String(published))
+              .replace("{total}", String(total))}
           </p>
           <p className="mt-2 text-slate-400">
             {t.progressBody.replace("{freeCount}", String(FREE_DRIP_ISSUE_COUNT))}
@@ -105,8 +108,10 @@ export default async function Season1Page({ params }: PageProps) {
                       season1IssueTitle(issue, locale)
                     )}
                   </h3>
-                  {issue.teaser ? (
-                    <p className="mt-2 text-sm text-slate-400">{issue.teaser}</p>
+                  {season1IssueTeaser(issue, locale) ? (
+                    <p className="mt-2 text-sm text-slate-400">
+                      {season1IssueTeaser(issue, locale)}
+                    </p>
                   ) : null}
                 </div>
                 <span
@@ -127,6 +132,19 @@ export default async function Season1Page({ params }: PageProps) {
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className="mt-12 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+          <p className="text-sm font-semibold uppercase tracking-wider text-brand-500">
+            {t.season2TeaserEyebrow}
+          </p>
+          <p className="mt-3 text-slate-400">{dict.season2.season1LinkBody}</p>
+          <Link
+            href={localizedPath("/season-2", locale)}
+            className="mt-4 inline-block text-sm font-medium text-brand-400 transition hover:text-brand-300"
+          >
+            {dict.season2.metaTitle} →
+          </Link>
         </section>
 
         <section id="crown" className="mt-16 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-8">

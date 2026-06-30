@@ -1,9 +1,13 @@
 import { randomBytes } from "crypto";
+import type { Locale } from "@/i18n/config";
+import { defaultLocale } from "@/i18n/config";
 import { logger } from "@/lib/logger";
 import { getAudienceId, getResendClient } from "@/lib/resend";
+import { normalizePreferredLocale } from "@/lib/subscriber-locale";
 import type { SubscriberRecord } from "@/lib/subscribers";
 
 export const CONFIRMED_AT_KEY = "confirmed_at";
+export const PREFERRED_LOCALE_KEY = "preferred_locale";
 
 type ResendContact = {
   email: string;
@@ -38,6 +42,8 @@ function contactToSubscriberRecord(contact: ResendContact): SubscriberRecord | n
     typeof props.last_drip_sent_at === "string" ? props.last_drip_sent_at : undefined;
   const dripEnrolledAt =
     typeof props.drip_enrolled_at === "string" ? props.drip_enrolled_at : undefined;
+  const preferredLocale =
+    normalizePreferredLocale(props[PREFERRED_LOCALE_KEY]) ?? defaultLocale;
   const createdAt = contact.created_at ?? confirmedAt ?? new Date().toISOString();
 
   return {
@@ -49,6 +55,7 @@ function contactToSubscriberRecord(contact: ResendContact): SubscriberRecord | n
     dripEnrolledAt,
     dripSequenceIndex,
     lastDripSentAt,
+    preferredLocale,
   };
 }
 
@@ -88,6 +95,7 @@ export function mergeSubscriberRecords(
       crownAccess: record.crownAccess ?? existing.crownAccess,
       crownAccessGrantedAt: record.crownAccessGrantedAt ?? existing.crownAccessGrantedAt,
       crownAccessSource: record.crownAccessSource ?? existing.crownAccessSource,
+      preferredLocale: record.preferredLocale ?? existing.preferredLocale,
       token: record.token || existing.token,
       createdAt: record.createdAt || existing.createdAt,
     });
@@ -141,6 +149,7 @@ async function hydrateResendSubscriberRecord(record: SubscriberRecord): Promise<
     dripSequenceIndex: record.dripSequenceIndex ?? hydrated.dripSequenceIndex,
     lastDripSentAt: record.lastDripSentAt ?? hydrated.lastDripSentAt,
     confirmedAt: record.confirmedAt ?? hydrated.confirmedAt,
+    preferredLocale: record.preferredLocale ?? hydrated.preferredLocale,
   };
 }
 
@@ -176,6 +185,40 @@ export async function syncConfirmedAtToResend(
   if (!response.ok) {
     logger.warn("Resend confirmed_at sync failed", {
       email,
+      status: response.status,
+      body: await response.text(),
+    });
+    return false;
+  }
+
+  return true;
+}
+
+export async function syncPreferredLocaleToResend(
+  email: string,
+  preferredLocale: Locale,
+): Promise<boolean> {
+  const audienceId = getAudienceId();
+  if (!getResendClient() || !audienceId) return false;
+
+  const response = await fetch(
+    `https://api.resend.com/audiences/${audienceId}/contacts/${encodeURIComponent(email.toLowerCase())}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        properties: { [PREFERRED_LOCALE_KEY]: preferredLocale },
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    logger.warn("Resend preferred_locale sync failed", {
+      email,
+      preferredLocale,
       status: response.status,
       body: await response.text(),
     });
