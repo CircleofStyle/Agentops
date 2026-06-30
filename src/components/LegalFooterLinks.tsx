@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useI18n } from "@/i18n/I18nProvider";
 import { localizedPath } from "@/i18n/navigation";
+import { isAllAccessCommerceVisible } from "@/lib/commerce-visibility";
 
 export function LegalFooterLinks() {
   const { locale, dict } = useI18n();
@@ -12,7 +13,9 @@ export function LegalFooterLinks() {
   const footerLinks = [
     { href: localizedPath("/season-1", locale), label: t.footerSeason1 },
     { href: localizedPath("/season-2", locale), label: t.footerSeason2 },
-    { href: localizedPath("/all-access", locale), label: t.footerAllAccess },
+    ...(isAllAccessCommerceVisible()
+      ? [{ href: localizedPath("/all-access", locale), label: t.footerAllAccess }]
+      : []),
     { href: localizedPath("/issues", locale), label: t.footerPlaybooks },
     { href: localizedPath("/legal#privacy-policy", locale), label: t.footerPrivacy },
     { href: localizedPath("/legal#cookies", locale), label: t.footerCookies },

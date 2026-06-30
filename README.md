@@ -63,7 +63,11 @@ When a playbook publishes, email verified subscribers via Resend **broadcast** t
 
 ### Signup drip sequence
 
-On confirm: welcome email + issue #1 (transactional). Issue #2+ sends on `DRIP_CADENCE_DAYS` (default 7) via daily cron `GET /api/pipeline/drip`. Subscriber state: `dripSequenceIndex`, `lastDripSentAt`, `issuesSent[]` in `data/subscribers.json` locally; on Vercel, drip fields also sync to Resend contact properties so cron can advance the sequence. Set `CRON_SECRET` in Vercel equal to `CONTENT_PIPELINE_SECRET` so cron auth succeeds.
+On confirm: welcome email + issue #1 (transactional). Issue #2+ sends on `DRIP_CADENCE_DAYS` (default 7) via daily cron `GET /api/pipeline/drip`. Each subscriber's sequence is anchored to their own `confirmedAt` — not a shared Tuesday broadcast.
+
+**Timing inputs:** `DRIP_CADENCE_DAYS` (env, default 7) sets the gap between playbooks. Per-subscriber state: `confirmedAt` (anchor), `dripSequenceIndex` (count sent), `lastDripSentAt` (next due = last send + cadence). Full CMO-facing reference: `docs/drip-sequence-spec-nov120.md` § CTO timing implementation.
+
+Subscriber state persists in `data/subscribers.json` locally; on Vercel, drip fields also sync to Resend contact properties so cron can advance the sequence. Set `CRON_SECRET` in Vercel equal to `CONTENT_PIPELINE_SECRET` so cron auth succeeds.
 
 **Dry-run drip advance:**
 
@@ -194,7 +198,7 @@ Monetization values resolve in order: **env override** → **`data/monetization.
   1. lint → typecheck → build
   2. Post-deploy health check on `PRODUCTION_URL/api/health` (optional bypass header)
 
-**Current production deployment:** `https://agentops-circleofstyles-projects.vercel.app` (Vercel production alias; `agentops-git-main-*` also tracks `main`). Update `PRODUCTION_URL` GitHub secret to this URL — stale per-deployment URLs (e.g. `agentops-c0cn9dd5b-*`) can serve older builds.
+**Current production deployment:** `https://automatethisweek.com` (canonical public domain). Vercel alias `https://agentops-circleofstyles-projects.vercel.app` serves the same `main` build — use the custom domain in board comms and set `NEXT_PUBLIC_SITE_URL` / `PRODUCTION_URL` to `https://automatethisweek.com`.
 
 ### Smoke test
 

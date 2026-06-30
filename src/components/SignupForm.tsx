@@ -10,6 +10,7 @@ import {
 } from "@/lib/utm";
 import { useI18n } from "@/i18n/I18nProvider";
 import { localizedPath } from "@/i18n/navigation";
+import { isAllAccessCommerceVisible } from "@/lib/commerce-visibility";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -26,6 +27,7 @@ function readStoredUtm(): UtmParams {
 export function SignupForm() {
   const { locale, dict } = useI18n();
   const t = dict.signup;
+  const showAllAccessCommerce = isAllAccessCommerceVisible();
   const [email, setEmail] = useState("");
   const [state, setState] = useState<FormState>("idle");
   const [message, setMessage] = useState("");
@@ -136,16 +138,18 @@ export function SignupForm() {
         </Link>
         .
       </p>
-      <p className="text-center text-xs text-slate-500">
-        {t.cantWait}{" "}
-        <Link
-          href={localizedPath("/all-access", locale)}
-          className="font-medium text-brand-400 hover:text-brand-300"
-        >
-          {dict.common.getAllAccess}
-        </Link>{" "}
-        {t.allAccessImmediate}
-      </p>
+      {showAllAccessCommerce ? (
+        <p className="text-center text-xs text-slate-500">
+          {t.cantWait}{" "}
+          <Link
+            href={localizedPath("/all-access", locale)}
+            className="font-medium text-brand-400 hover:text-brand-300"
+          >
+            {dict.common.getAllAccess}
+          </Link>{" "}
+          {t.allAccessImmediate}
+        </p>
+      ) : null}
     </form>
   );
 }

@@ -178,6 +178,8 @@ export type Dictionary = {
     ctaBody: string;
     ctaButton: string;
     checkoutSoon: string;
+    comingSoonEyebrow: string;
+    comingSoonBody: string;
   };
   crown: {
     metaTitle: string;
@@ -192,6 +194,8 @@ export type Dictionary = {
     ctaBody: string;
     ctaButton: string;
     checkoutSoon: string;
+    comingSoonEyebrow: string;
+    comingSoonBody: string;
   };
   legal: {
     metaTitle: string;

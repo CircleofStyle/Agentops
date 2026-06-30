@@ -1,4 +1,5 @@
 import { buildGumroadAllAccessLink, getGumroadAllAccessUrl } from "@/lib/gumroad";
+import { isAllAccessCommerceVisible } from "@/lib/commerce-visibility";
 
 type AllAccessCtaProps = {
   surface: string;
@@ -6,6 +7,10 @@ type AllAccessCtaProps = {
 };
 
 export function AllAccessCta({ surface, className = "" }: AllAccessCtaProps) {
+  if (!isAllAccessCommerceVisible()) {
+    return null;
+  }
+
   const allAccessUrl = getGumroadAllAccessUrl();
 
   if (!allAccessUrl) {

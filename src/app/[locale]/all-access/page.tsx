@@ -7,6 +7,7 @@ import { GumroadAllAccessCta } from "@/components/GumroadAllAccessCta";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localizedPath } from "@/i18n/navigation";
+import { isAllAccessCommerceVisible, isCrownCommerceVisible } from "@/lib/commerce-visibility";
 
 type PageProps = {
   params: Promise<{ locale: string }>;
@@ -28,6 +29,8 @@ export default async function AllAccessPage({ params }: PageProps) {
   const locale = raw as Locale;
   const dict = await getDictionary(locale);
   const t = dict.allAccess;
+  const showCommerce = isAllAccessCommerceVisible();
+  const showCrownHint = isCrownCommerceVisible();
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -48,27 +51,39 @@ export default async function AllAccessPage({ params }: PageProps) {
         </header>
 
         <div className="mt-10 space-y-8">
-          <GumroadAllAccessCta />
+          {showCommerce ? (
+            <>
+              <GumroadAllAccessCta />
+              <AllAccessUnlockForm />
+            </>
+          ) : (
+            <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 sm:p-8">
+              <p className="text-xs font-semibold uppercase tracking-wider text-brand-500">
+                {t.comingSoonEyebrow}
+              </p>
+              <p className="mt-3 text-slate-400">{t.comingSoonBody}</p>
+            </section>
+          )}
 
           <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-6 text-sm text-slate-400">
             <p className="font-medium text-slate-300">{t.freePathTitle}</p>
             <p className="mt-2">{t.freePathBody}</p>
           </div>
 
-          <AllAccessUnlockForm />
-
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-6 text-sm text-slate-400">
-            <p className="font-medium text-slate-300">{t.crownHintTitle}</p>
-            <p className="mt-2">
-              {t.crownHintBody}{" "}
-              <Link
-                href={localizedPath("/crown", locale)}
-                className="text-amber-400 hover:text-amber-300"
-              >
-                {t.crownLink}
-              </Link>
-            </p>
-          </div>
+          {showCrownHint ? (
+            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-6 text-sm text-slate-400">
+              <p className="font-medium text-slate-300">{t.crownHintTitle}</p>
+              <p className="mt-2">
+                {t.crownHintBody}{" "}
+                <Link
+                  href={localizedPath("/crown", locale)}
+                  className="text-amber-400 hover:text-amber-300"
+                >
+                  {t.crownLink}
+                </Link>
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
     </main>

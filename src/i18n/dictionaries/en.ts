@@ -219,6 +219,9 @@ const en: Dictionary = {
       "Playbooks #1–11 immediately — plus future Season 1 no-code issues as we ship them. Crown Discipline (#12) is a separate purchase.",
     ctaButton: "Get all access on Gumroad",
     checkoutSoon: "Checkout opens soon —",
+    comingSoonEyebrow: "Opens with more playbooks",
+    comingSoonBody:
+      "All Access unlocks when at least five free Season 1 playbooks are live — so the pass delivers real value on day one. Until then, the free drip is the best path.",
   },
   crown: {
     metaTitle: "Crown Discipline — Automate This Week",
@@ -236,6 +239,9 @@ const en: Dictionary = {
       "The Season 1 finale — install an AI CEO that orchestrates specialist agents so your playbooks run as one operating system.",
     ctaButton: "Get Crown Discipline on Gumroad",
     checkoutSoon: "Checkout opens soon —",
+    comingSoonEyebrow: "Playbook #12 not published yet",
+    comingSoonBody:
+      "Crown Discipline is on the Season 1 roadmap as the paid finale. Checkout stays hidden until the full playbook ships — no selling an empty upgrade.",
   },
   legal: {
     metaTitle: "Legal — Automate This Week",

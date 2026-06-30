@@ -8,6 +8,7 @@ import { GumroadCrownCta } from "@/components/GumroadCrownCta";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localizedPath } from "@/i18n/navigation";
+import { isCrownCommerceVisible } from "@/lib/commerce-visibility";
 import { resolveCrownAccessFromCookie } from "@/lib/crown";
 import { getCrownDisciplineIssue } from "@/lib/season-1";
 
@@ -35,6 +36,7 @@ export default async function CrownPage({ params }: PageProps) {
   const cookieStore = await cookies();
   const hasAccess = await resolveCrownAccessFromCookie(cookieStore.get("atw_crown")?.value);
   const crown = getCrownDisciplineIssue();
+  const showCommerce = isCrownCommerceVisible();
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -65,11 +67,18 @@ export default async function CrownPage({ params }: PageProps) {
               the full operating-model playbook, delegation templates, and weekly heartbeat ritual.
             </p>
           </section>
-        ) : (
+        ) : showCommerce ? (
           <div className="mt-10 space-y-8">
             <GumroadCrownCta surface="crown_page" />
             <CrownUnlockForm />
           </div>
+        ) : (
+          <section className="mt-10 rounded-2xl border border-slate-800 bg-slate-900/40 p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+              {t.comingSoonEyebrow}
+            </p>
+            <p className="mt-3 text-slate-400">{t.comingSoonBody}</p>
+          </section>
         )}
 
         <section

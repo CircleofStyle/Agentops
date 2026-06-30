@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { IssueMetadataBadges } from "@/components/IssueMetadataBadges";
 import { ALL_ACCESS_COOKIE, resolveAllAccessFromCookie } from "@/lib/all-access";
+import { isAllAccessCommerceVisible } from "@/lib/commerce-visibility";
 import { listIssues } from "@/lib/content/storage";
 import { getSetupMinutes } from "@/lib/content/metadata";
 import { isPublicBody, isWebVisible, issueDescription } from "@/lib/content/visibility";
@@ -36,6 +37,7 @@ export default async function IssuesArchivePage({ params }: PageProps) {
   const issues = (await listIssues("published", locale)).filter(isWebVisible);
   const cookieStore = await cookies();
   const hasAllAccess = await resolveAllAccessFromCookie(cookieStore.get(ALL_ACCESS_COOKIE)?.value);
+  const showAllAccessCommerce = isAllAccessCommerceVisible();
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -58,7 +60,7 @@ export default async function IssuesArchivePage({ params }: PageProps) {
                 {" "}
                 <span className="text-brand-300">{t.allAccessUnlocked}</span>
               </>
-            ) : (
+            ) : showAllAccessCommerce ? (
               <>
                 {" "}
                 <Link
@@ -68,7 +70,7 @@ export default async function IssuesArchivePage({ params }: PageProps) {
                   {dict.common.getAllAccess}
                 </Link>
               </>
-            )}
+            ) : null}
           </p>
         </header>
 

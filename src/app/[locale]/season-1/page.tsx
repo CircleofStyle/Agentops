@@ -8,6 +8,10 @@ import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { localizedPath } from "@/i18n/navigation";
 import {
+  isAllAccessCommerceVisible,
+  isCrownCommerceVisible,
+} from "@/lib/commerce-visibility";
+import {
   FREE_DRIP_ISSUE_COUNT,
   SEASON_1_ISSUES,
   season1IssuePillar,
@@ -41,6 +45,8 @@ export default async function Season1Page({ params }: PageProps) {
   const t = dict.season1;
 
   const { published, total } = season1Progress();
+  const showCrownCommerce = isCrownCommerceVisible();
+  const showAllAccessCommerce = isAllAccessCommerceVisible();
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -147,27 +153,29 @@ export default async function Season1Page({ params }: PageProps) {
           </Link>
         </section>
 
-        <section id="crown" className="mt-16 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-8">
-          <h2 className="text-2xl font-bold text-white">{t.crownSectionTitle}</h2>
-          <p className="mt-4 text-slate-400">{t.crownSectionBody}</p>
-          <p className="mt-3 text-sm text-slate-500">{t.crownSectionNote}</p>
-          <div className="mt-6">
-            <Link
-              href={localizedPath("/crown", locale)}
-              className="inline-flex items-center justify-center rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-400"
-            >
-              {t.crownSectionCta}
-            </Link>
-          </div>
-          <p className="mt-4 text-sm text-slate-500">
-            <Link
-              href={localizedPath("/crown#compare", locale)}
-              className="font-medium text-amber-400 hover:text-amber-300"
-            >
-              {t.crownSectionCompare}
-            </Link>
-          </p>
-        </section>
+        {showCrownCommerce ? (
+          <section id="crown" className="mt-16 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-8">
+            <h2 className="text-2xl font-bold text-white">{t.crownSectionTitle}</h2>
+            <p className="mt-4 text-slate-400">{t.crownSectionBody}</p>
+            <p className="mt-3 text-sm text-slate-500">{t.crownSectionNote}</p>
+            <div className="mt-6">
+              <Link
+                href={localizedPath("/crown", locale)}
+                className="inline-flex items-center justify-center rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-400"
+              >
+                {t.crownSectionCta}
+              </Link>
+            </div>
+            <p className="mt-4 text-sm text-slate-500">
+              <Link
+                href={localizedPath("/crown#compare", locale)}
+                className="font-medium text-amber-400 hover:text-amber-300"
+              >
+                {t.crownSectionCompare}
+              </Link>
+            </p>
+          </section>
+        ) : null}
 
         <section className="mt-16 rounded-2xl border border-brand-500/20 bg-brand-500/5 p-8 text-center">
           <h2 className="text-2xl font-bold text-white">{t.startFreeTitle}</h2>
@@ -177,24 +185,28 @@ export default async function Season1Page({ params }: PageProps) {
           <div className="mt-8 flex flex-col items-center">
             <SignupForm />
           </div>
-          <p className="mt-6 text-sm text-slate-500">
-            {t.startFreeCantWait}{" "}
-            <Link
-              href={localizedPath("/all-access", locale)}
-              className="font-medium text-brand-400 hover:text-brand-300"
-            >
-              {dict.common.getAllAccess}
-            </Link>{" "}
-            {t.startFreeAllAccess}
-          </p>
+          {showAllAccessCommerce ? (
+            <p className="mt-6 text-sm text-slate-500">
+              {t.startFreeCantWait}{" "}
+              <Link
+                href={localizedPath("/all-access", locale)}
+                className="font-medium text-brand-400 hover:text-brand-300"
+              >
+                {dict.common.getAllAccess}
+              </Link>{" "}
+              {t.startFreeAllAccess}
+            </p>
+          ) : null}
         </section>
 
-        <section className="mt-12 text-center">
-          <p className="text-slate-400">{t.allAccessPrompt}</p>
-          <div className="mt-4">
-            <AllAccessCta surface="season_1_page" />
-          </div>
-        </section>
+        {showAllAccessCommerce ? (
+          <section className="mt-12 text-center">
+            <p className="text-slate-400">{t.allAccessPrompt}</p>
+            <div className="mt-4">
+              <AllAccessCta surface="season_1_page" />
+            </div>
+          </section>
+        ) : null}
       </div>
     </main>
   );

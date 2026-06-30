@@ -220,6 +220,9 @@ const de: Dictionary = {
       "Playbooks #1–11 sofort — plus künftige Playbooks aus Serie 1, sobald wir sie veröffentlichen. Crown Discipline (#12) ist ein separater Kauf.",
     ctaButton: "All Access auf Gumroad holen",
     checkoutSoon: "Checkout folgt bald —",
+    comingSoonEyebrow: "Startet mit mehr Playbooks",
+    comingSoonBody:
+      "All Access schalten wir frei, sobald mindestens fünf gratis Playbooks aus Serie 1 live sind — damit der Pass vom ersten Tag an echten Wert liefert. Bis dahin ist die Gratis-Serie der beste Weg.",
   },
   crown: {
     metaTitle: "Crown Discipline — Automate This Week",
@@ -237,6 +240,9 @@ const de: Dictionary = {
       "Der Abschluss von Serie 1 — installiere einen KI-CEO, der Aufgaben an Spezialistinnen verteilt, damit deine Playbooks als ein Betriebssystem laufen.",
     ctaButton: "Crown Discipline auf Gumroad holen",
     checkoutSoon: "Checkout folgt bald —",
+    comingSoonEyebrow: "Playbook #12 noch nicht veröffentlicht",
+    comingSoonBody:
+      "Crown Discipline steht auf der Serie-1-Roadmap als kostenpflichtiger Abschluss. Checkout bleibt ausgeblendet, bis das vollständige Playbook da ist — kein Verkauf eines leeren Upgrades.",
   },
   legal: {
     metaTitle: "Rechtliches — Automate This Week",

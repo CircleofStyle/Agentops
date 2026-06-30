@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SignupForm } from "@/components/SignupForm";
 import { useI18n } from "@/i18n/I18nProvider";
 import { localizedPath } from "@/i18n/navigation";
+import { isAllAccessCommerceVisible } from "@/lib/commerce-visibility";
 
 type IssueEmailGateProps = {
   teaser: string;
@@ -14,6 +15,7 @@ type IssueEmailGateProps = {
 export function IssueEmailGate({ teaser, setupMinutes }: IssueEmailGateProps) {
   const { locale, dict } = useI18n();
   const t = dict.issueGate;
+  const showAllAccessCommerce = isAllAccessCommerceVisible();
 
   return (
     <div className="mt-10 space-y-8">
@@ -26,16 +28,18 @@ export function IssueEmailGate({ teaser, setupMinutes }: IssueEmailGateProps) {
           </p>
         ) : null}
         <p className="mt-6 text-slate-400">{t.body}</p>
-        <p className="mt-4 text-sm text-slate-500">
-          {t.cantWait}{" "}
-          <Link
-            href={localizedPath("/all-access", locale)}
-            className="font-medium text-brand-500 transition hover:text-brand-400"
-          >
-            {dict.common.getAllAccess}
-          </Link>{" "}
-          {dict.signup.allAccessImmediate}
-        </p>
+        {showAllAccessCommerce ? (
+          <p className="mt-4 text-sm text-slate-500">
+            {t.cantWait}{" "}
+            <Link
+              href={localizedPath("/all-access", locale)}
+              className="font-medium text-brand-500 transition hover:text-brand-400"
+            >
+              {dict.common.getAllAccess}
+            </Link>{" "}
+            {dict.signup.allAccessImmediate}
+          </p>
+        ) : null}
       </div>
 
       <div className="rounded-xl border border-brand-500/30 bg-brand-500/5 p-6 sm:p-8">
