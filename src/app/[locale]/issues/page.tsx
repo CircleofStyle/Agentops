@@ -33,7 +33,7 @@ export default async function IssuesArchivePage({ params }: PageProps) {
   const dict = await getDictionary(locale);
   const t = dict.issues;
 
-  const issues = (await listIssues("published")).filter(isWebVisible);
+  const issues = (await listIssues("published", locale)).filter(isWebVisible);
   const cookieStore = await cookies();
   const hasAllAccess = await resolveAllAccessFromCookie(cookieStore.get(ALL_ACCESS_COOKIE)?.value);
 
@@ -126,7 +126,7 @@ export default async function IssuesArchivePage({ params }: PageProps) {
                     </div>
 
                     <p className="mt-3 hidden text-slate-400 sm:block">{description}</p>
-                    <IssueMetadataBadges frontmatter={issue.frontmatter} className="mt-4" />
+                    <IssueMetadataBadges frontmatter={issue.frontmatter} className="mt-4" locale={locale} />
                     <Link
                       href={localizedPath(`/issues/${issue.frontmatter.slug}`, locale)}
                       className="mt-4 inline-block text-sm font-medium text-brand-500 transition hover:text-brand-400"

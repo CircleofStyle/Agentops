@@ -13,6 +13,8 @@ import {
   SEASON_1_PROMISE,
   SEASON_1_SUBTITLE,
   SEASON_1_TITLE,
+  season1IssuePillar,
+  season1IssueTitle,
   season1Progress,
 } from "@/lib/season-1";
 
@@ -85,22 +87,22 @@ export default async function Season1Page({ params }: PageProps) {
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    {t.playbookLabel} #{issue.number} · {issue.pillar}
+                    {t.playbookLabel} #{issue.number} · {season1IssuePillar(issue.pillar, locale)}
                     {issue.paidOnly ? ` · ${t.paidAddon}` : ""}
                     {issue.status === "published" ? ` · ${t.live}` : ` · ${t.comingSoon}`}
                   </p>
                   <h3 className="mt-2 text-lg font-semibold text-white">
                     {issue.paidOnly ? (
-                      issue.title
+                      season1IssueTitle(issue, locale)
                     ) : issue.slug ? (
                       <Link
                         href={localizedPath(`/issues/${issue.slug}`, locale)}
                         className="transition hover:text-brand-400"
                       >
-                        {issue.title}
+                        {season1IssueTitle(issue, locale)}
                       </Link>
                     ) : (
-                      issue.title
+                      season1IssueTitle(issue, locale)
                     )}
                   </h3>
                   {issue.teaser ? (

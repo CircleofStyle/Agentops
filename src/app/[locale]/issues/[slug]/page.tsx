@@ -29,8 +29,10 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const issue = await getPublishedIssue(slug);
+  const { locale: raw, slug } = await params;
+  if (!isLocale(raw)) return { title: "Issue not found" };
+  const locale = raw as Locale;
+  const issue = await getPublishedIssue(slug, locale);
   if (!issue || !isWebVisible(issue)) return { title: "Issue not found" };
 
   return {
@@ -45,7 +47,7 @@ export default async function IssuePage({ params }: PageProps) {
   const locale = raw as Locale;
   const dict = await getDictionary(locale);
 
-  const issue = await getPublishedIssue(slug);
+  const issue = await getPublishedIssue(slug, locale);
   if (!issue || !isWebVisible(issue)) notFound();
 
   const cookieStore = await cookies();
@@ -79,7 +81,7 @@ export default async function IssuePage({ params }: PageProps) {
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
             {issue.frontmatter.title}
           </h1>
-          <IssueMetadataBadges frontmatter={issue.frontmatter} className="mt-4" />
+          <IssueMetadataBadges frontmatter={issue.frontmatter} className="mt-4" locale={locale} />
         </header>
 
         {showFullBody && html ? (

@@ -38,7 +38,7 @@ export function extractTeaser(body: string, maxSentences = 2): string {
 }
 
 export function extractProblemSection(body: string): string | null {
-  const match = body.match(/^## The problem\s*\n+([\s\S]*?)(?=\n## |\s*$)/m);
+  const match = body.match(/^## (?:The problem|Das Problem)\s*\n+([\s\S]*?)(?=\n## |\s*$)/im);
   if (!match) return null;
   return match[1].trim();
 }

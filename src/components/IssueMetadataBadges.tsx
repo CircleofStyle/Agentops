@@ -1,4 +1,5 @@
 import type { IssueFrontmatter } from "@/lib/content/types";
+import type { Locale } from "@/i18n/config";
 import {
   formatIssueMetadataLine,
   formatToolRequirements,
@@ -10,13 +11,19 @@ import {
 interface IssueMetadataBadgesProps {
   frontmatter: IssueFrontmatter;
   className?: string;
+  locale?: Locale;
 }
 
-export function IssueMetadataBadges({ frontmatter, className = "" }: IssueMetadataBadgesProps) {
+export function IssueMetadataBadges({
+  frontmatter,
+  className = "",
+  locale = "en",
+}: IssueMetadataBadgesProps) {
   const minutes = getSetupMinutes(frontmatter);
-  const difficultyLabel = getDifficultyLabel(frontmatter.difficulty);
+  const difficultyLabel = getDifficultyLabel(frontmatter.difficulty, locale);
   const difficultyEmoji = getDifficultyEmoji(frontmatter.difficulty);
   const tools = formatToolRequirements(frontmatter.toolRequirements);
+  const minLabel = locale === "de" ? "Min." : "min";
 
   if (!minutes && !difficultyLabel && !tools && !frontmatter.roiImpact) {
     return null;
@@ -32,7 +39,7 @@ export function IssueMetadataBadges({ frontmatter, className = "" }: IssueMetada
       ) : null}
       {minutes ? (
         <span className="inline-flex items-center rounded-full border border-slate-700 bg-slate-800/60 px-2.5 py-1 text-xs font-medium text-slate-200">
-          ~{minutes} min
+          ~{minutes} {minLabel}
         </span>
       ) : null}
       {tools ? (

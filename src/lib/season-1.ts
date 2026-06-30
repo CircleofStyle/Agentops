@@ -1,3 +1,5 @@
+import type { Locale } from "@/i18n/config";
+
 export type SeasonIssueStatus = "published" | "planned";
 
 export type SeasonIssueTier = "standard" | "crown";
@@ -127,4 +129,36 @@ export function getCrownDisciplineIssue(): SeasonIssue {
     throw new Error("Crown discipline issue missing from Season 1 data");
   }
   return crown;
+}
+
+const SEASON_1_TITLES_DE: Record<string, string> = {
+  "auto-triage-customer-emails": "Kunden-E-Mails automatisch sortieren",
+  "quote-follow-up-workflow": "Nie wieder ein Angebot vergessen nachzufassen",
+  "google-review-request-workflow": "Abgeschlossene Aufträge in Google-Bewertungen verwandeln",
+  "crown-discipline-ai-ceo": "Crown Discipline — Automatisierungen als System betreiben",
+};
+
+const SEASON_1_PILLARS_DE: Record<string, string> = {
+  Capture: "Erfassen",
+  Convert: "Konvertieren",
+  Reputation: "Reputation",
+  Deliver: "Liefern",
+  Cash: "Cashflow",
+  Grow: "Wachsen",
+  Ops: "Ops",
+  Lead: "Führung",
+};
+
+export function season1IssueTitle(issue: SeasonIssue, locale: Locale): string {
+  if (locale === "de" && issue.slug && SEASON_1_TITLES_DE[issue.slug]) {
+    return SEASON_1_TITLES_DE[issue.slug];
+  }
+  return issue.title;
+}
+
+export function season1IssuePillar(pillar: string, locale: Locale): string {
+  if (locale === "de") {
+    return SEASON_1_PILLARS_DE[pillar] ?? pillar;
+  }
+  return pillar;
 }

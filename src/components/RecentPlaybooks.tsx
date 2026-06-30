@@ -24,7 +24,7 @@ type RecentPlaybooksProps = {
 };
 
 export async function RecentPlaybooks({ locale }: RecentPlaybooksProps) {
-  const issues = sortBySequence((await listIssues("published")).filter(isWebVisible)).slice(0, 4);
+  const issues = sortBySequence((await listIssues("published", locale)).filter(isWebVisible)).slice(0, 4);
   const dict = await getDictionary(locale);
 
   if (issues.length === 0) {

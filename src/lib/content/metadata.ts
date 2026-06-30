@@ -1,3 +1,4 @@
+import type { Locale } from "@/i18n/config";
 import type { IssueFrontmatter } from "./types";
 
 export type IssueDifficulty = "beginner" | "intermediate" | "advanced";
@@ -6,6 +7,12 @@ const DIFFICULTY_LABEL: Record<IssueDifficulty, string> = {
   beginner: "Beginner",
   intermediate: "Intermediate",
   advanced: "Advanced",
+};
+
+const DIFFICULTY_LABEL_DE: Record<IssueDifficulty, string> = {
+  beginner: "Anfänger",
+  intermediate: "Mittel",
+  advanced: "Fortgeschritten",
 };
 
 const DIFFICULTY_EMOJI: Record<IssueDifficulty, string> = {
@@ -18,8 +25,13 @@ export function getSetupMinutes(frontmatter: IssueFrontmatter): number | undefin
   return frontmatter.setupMinutes ?? frontmatter.setupTimeMinutes;
 }
 
-export function getDifficultyLabel(difficulty: IssueDifficulty | undefined): string | undefined {
-  return difficulty ? DIFFICULTY_LABEL[difficulty] : undefined;
+export function getDifficultyLabel(
+  difficulty: IssueDifficulty | undefined,
+  locale: Locale = "en",
+): string | undefined {
+  if (!difficulty) return undefined;
+  const labels = locale === "de" ? DIFFICULTY_LABEL_DE : DIFFICULTY_LABEL;
+  return labels[difficulty];
 }
 
 export function getDifficultyEmoji(difficulty: IssueDifficulty | undefined): string | undefined {
