@@ -52,8 +52,8 @@ const de: Dictionary = {
     allAccessImmediate: "— jedes veröffentlichte Playbook sofort.",
   },
   socialProof: {
-    heading: "Schliesse dich Betrieben an, die Playbooks einsetzen",
-    empty: "Gehör zu den ersten Dienstleistern, die Playbook #1 umsetzen",
+    heading: "Was andere Dienstleister schon automatisieren",
+    empty: "Starte als einer der Ersten mit Playbook #1",
     subscribers: "verifizierte Abonnentinnen und Abonnenten",
     playbooksReady: "Schritt-für-Schritt-Playbooks bereit zum Einsatz",
     playbookReady: "Schritt-für-Schritt-Playbook bereit zum Einsatz",
@@ -286,6 +286,43 @@ const de: Dictionary = {
   affiliate: {
     disclosure:
       "Einige Links in diesem Playbook sind Affiliate-Links. Wenn du darüber buchst, kann Automate This Week eine kleine Provision erhalten — ohne Mehrkosten für dich. Wir empfehlen nur Tools, die wir in den Playbooks nutzen. Einschliesslich NovaRho-Affiliate-Links, wo angegeben.",
+  },
+  kits: {
+    metaTitle: "Workflow-Kits — Automate This Week",
+    metaDescription:
+      "Fertige Zapier-Exports, Prompt-Dokumente und Checklisten für Playbooks aus Serie 1 — schneller deployen ohne Copy-Paste.",
+    eyebrow: "Workflow-Kits",
+    title: "Fertige Kits für Playbooks aus Serie 1",
+    subtitle:
+      "Jedes Kit bündelt Zapier-Blueprint, Vorlagen und Prompts aus einem veröffentlichten Playbook — damit du in einer Sitzung deployen kannst statt Schritt für Schritt abzutippen.",
+    catalogTitle: "Kits aus Serie 1",
+    catalogBody:
+      "Drei Kits passen zu Playbooks #1–#3. Die Newsletter-Serie bleibt gratis; Kits sind optionale Beschleuniger für Teams, die importfertige Dateien wollen.",
+    kitLabel: "Kit",
+    setupLabel: "Setup",
+    checkoutEyebrow: "Kit holen",
+    checkoutBody:
+      "Sofortiger Gumroad-Download — Zapier-Blueprint, Vorlagen und Setup-Checkliste. Einmaliger Kauf, für immer deins.",
+    checkoutCta: "Kit holen — {price}",
+    previewCheckoutNote:
+      "Vorschau-Checkout-URL — live Gumroad-SKU folgt, sobald der Store bereitsteht.",
+    bundleEyebrow: "Bundle & sparen",
+    bundleCta: "Starter-Bundle holen — {price}",
+    backToCatalog: "← Alle Workflow-Kits",
+    includesTitle: "Was drin ist",
+    includesItems: [
+      "Zapier-Blueprint-JSON zum Nachbauen",
+      "E-Mail- oder Tabellen-Vorlagen aus dem Playbook",
+      "GPT-Klassifizierungs- oder Text-Prompts wo passend",
+      "Setup-Checkliste passend zum veröffentlichten Playbook",
+    ],
+    freePathTitle: "Lieber das gratis Playbook?",
+    freePathBody:
+      "Jedes Kit gehört zu einem gratis Playbook aus der Serie. Abonnieren und Schritt für Schritt bauen — Kits sparen Copy-Paste-Zeit.",
+    freePlaybookTitle: "Zuerst das gratis Playbook lesen",
+    freePlaybookBody:
+      "Der vollständige Schritt-für-Schritt-Workflow ist gratis auf der Website oder per E-Mail. Kaufe das Kit, wenn du importfertige Dateien willst.",
+    freePlaybookLink: "Gratis Playbook lesen",
   },
 };
 
