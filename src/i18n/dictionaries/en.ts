@@ -137,6 +137,10 @@ const en: Dictionary = {
     subtitle:
       "Free automation playbooks for service businesses — your sequence starts when you confirm.",
   },
+  seoShell: {
+    faqHeading: "Frequently asked questions",
+    relatedLinksHeading: "Related playbooks and resources",
+  },
   season1: {
     metaTitle: "Season 1 roadmap — Automate This Week",
     metaDescription:
@@ -284,6 +288,43 @@ const en: Dictionary = {
   affiliate: {
     disclosure:
       "Some links in this playbook are affiliate links. If you sign up through them, Automate This Week may earn a small commission at no extra cost to you. We only recommend tools we use in the playbooks. Including NovaRho affiliate links where noted.",
+  },
+  kits: {
+    metaTitle: "Workflow Kits — Automate This Week",
+    metaDescription:
+      "Done-for-you Zapier exports, prompt docs, and checklists for Season 1 playbooks — skip the setup and deploy faster.",
+    eyebrow: "Workflow Kits",
+    title: "Done-for-you kits for Season 1 playbooks",
+    subtitle:
+      "Each kit bundles the Zapier blueprint, templates, and prompts from a published playbook — so you can deploy in one sitting instead of copying steps by hand.",
+    catalogTitle: "Season 1 kits",
+    catalogBody:
+      "Three kits match playbooks #1–#3. The newsletter stays free; kits are optional accelerators for teams who want files ready to import.",
+    kitLabel: "Kit",
+    setupLabel: "setup",
+    checkoutEyebrow: "Get the kit",
+    checkoutBody:
+      "Instant Gumroad download — Zapier blueprint, templates, and setup checklist. One-time purchase, yours forever.",
+    checkoutCta: "Get kit — {price}",
+    previewCheckoutNote:
+      "Preview checkout URL — live Gumroad SKU wiring lands when store provisioning completes.",
+    bundleEyebrow: "Bundle & save",
+    bundleCta: "Get starter bundle — {price}",
+    backToCatalog: "← All workflow kits",
+    includesTitle: "What's inside",
+    includesItems: [
+      "Zapier blueprint JSON for one-click recreation",
+      "Email or sheet templates from the playbook",
+      "GPT classification or copy prompts where applicable",
+      "Setup checklist aligned to the published playbook",
+    ],
+    freePathTitle: "Prefer the free playbook?",
+    freePathBody:
+      "Every kit maps to a free drip playbook. Subscribe and build step-by-step — kits just save copy-paste time.",
+    freePlaybookTitle: "Read the free playbook first",
+    freePlaybookBody:
+      "The full step-by-step workflow is free on the site or via email. Buy the kit when you want import-ready files.",
+    freePlaybookLink: "Read free playbook",
   },
 };
 

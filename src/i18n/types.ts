@@ -110,6 +110,10 @@ export type Dictionary = {
     title: string;
     subtitle: string;
   };
+  seoShell: {
+    faqHeading: string;
+    relatedLinksHeading: string;
+  };
   season1: {
     metaTitle: string;
     metaDescription: string;
@@ -233,5 +237,30 @@ export type Dictionary = {
   };
   affiliate: {
     disclosure: string;
+  };
+  kits: {
+    metaTitle: string;
+    metaDescription: string;
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    catalogTitle: string;
+    catalogBody: string;
+    kitLabel: string;
+    setupLabel: string;
+    checkoutEyebrow: string;
+    checkoutBody: string;
+    checkoutCta: string;
+    previewCheckoutNote: string;
+    bundleEyebrow: string;
+    bundleCta: string;
+    backToCatalog: string;
+    includesTitle: string;
+    includesItems: string[];
+    freePathTitle: string;
+    freePathBody: string;
+    freePlaybookTitle: string;
+    freePlaybookBody: string;
+    freePlaybookLink: string;
   };
 };
