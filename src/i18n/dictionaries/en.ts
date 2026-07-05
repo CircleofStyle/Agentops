@@ -137,10 +137,6 @@ const en: Dictionary = {
     subtitle:
       "Free automation playbooks for service businesses — your sequence starts when you confirm.",
   },
-  seoShell: {
-    faqHeading: "Frequently asked questions",
-    relatedLinksHeading: "Related playbooks and resources",
-  },
   season1: {
     metaTitle: "Season 1 roadmap — Automate This Week",
     metaDescription:

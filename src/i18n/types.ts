@@ -110,10 +110,6 @@ export type Dictionary = {
     title: string;
     subtitle: string;
   };
-  seoShell: {
-    faqHeading: string;
-    relatedLinksHeading: string;
-  };
   season1: {
     metaTitle: string;
     metaDescription: string;
