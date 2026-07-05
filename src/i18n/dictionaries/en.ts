@@ -38,6 +38,15 @@ const en: Dictionary = {
   signup: {
     emailLabel: "Email address",
     placeholder: "you@company.com",
+    referralLabel: "How did you hear about us? (optional)",
+    referralPlaceholder: "Select one…",
+    referralOptions: {
+      search: "Search engine",
+      reddit: "Reddit",
+      social: "Social media",
+      friend: "Friend or colleague",
+      other: "Other",
+    },
     submit: "Get my first playbook — free",
     submitting: "Subscribing…",
     successTitle: "Almost there!",
@@ -136,6 +145,10 @@ const en: Dictionary = {
     title: "Get this playbook in your inbox",
     subtitle:
       "Free automation playbooks for service businesses — your sequence starts when you confirm.",
+  },
+  seoShell: {
+    faqHeading: "Frequently asked questions",
+    relatedLinksHeading: "Related playbooks and resources",
   },
   season1: {
     metaTitle: "Season 1 roadmap — Automate This Week",
@@ -319,8 +332,8 @@ const en: Dictionary = {
       "Every kit maps to a free drip playbook. Subscribe and build step-by-step — kits just save copy-paste time.",
     freePlaybookTitle: "Read the free playbook first",
     freePlaybookBody:
-      "The full step-by-step workflow is free on the site or via email. Buy the kit when you want import-ready files.",
-    freePlaybookLink: "Read free playbook",
+      "The full step-by-step workflow is free on the site or by email. Buy the kit when you want import-ready files.",
+    freePlaybookLink: "Read the free playbook",
   },
 };
 

@@ -11,6 +11,7 @@ import {
 import { useI18n } from "@/i18n/I18nProvider";
 import { localizedPath } from "@/i18n/navigation";
 import { isAllAccessCommerceVisible } from "@/lib/commerce-visibility";
+import { REFERRAL_SOURCE_OPTIONS, type ReferralSource } from "@/lib/referral-source";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -29,6 +30,7 @@ export function SignupForm() {
   const t = dict.signup;
   const showAllAccessCommerce = isAllAccessCommerceVisible();
   const [email, setEmail] = useState("");
+  const [referralSource, setReferralSource] = useState<ReferralSource | "">("");
   const [state, setState] = useState<FormState>("idle");
   const [message, setMessage] = useState("");
   const [utm, setUtm] = useState<UtmParams>({});
@@ -55,6 +57,7 @@ export function SignupForm() {
         const value = utm[key];
         if (value) payload[key] = value;
       }
+      if (referralSource) payload.referralSource = referralSource;
 
       const response = await fetch("/api/subscribe", {
         method: "POST",
@@ -73,6 +76,7 @@ export function SignupForm() {
       setState("success");
       setMessage(data.message ?? t.successDefault);
       setEmail("");
+      setReferralSource("");
     } catch {
       setState("error");
       setMessage(t.networkError);
@@ -112,6 +116,27 @@ export function SignupForm() {
           aria-invalid={state === "error"}
           aria-describedby={state === "error" ? "signup-error" : undefined}
         />
+      </div>
+
+      <div>
+        <label htmlFor="referralSource" className="mb-1.5 block text-sm text-slate-400">
+          {t.referralLabel}
+        </label>
+        <select
+          id="referralSource"
+          name="referralSource"
+          value={referralSource}
+          onChange={(e) => setReferralSource(e.target.value as ReferralSource | "")}
+          disabled={state === "loading"}
+          className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-slate-100 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 disabled:opacity-60"
+        >
+          <option value="">{t.referralPlaceholder}</option>
+          {REFERRAL_SOURCE_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {t.referralOptions[option]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <button

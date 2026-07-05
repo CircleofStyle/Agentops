@@ -31,6 +31,15 @@ export type Dictionary = {
   signup: {
     emailLabel: string;
     placeholder: string;
+    referralLabel: string;
+    referralPlaceholder: string;
+    referralOptions: {
+      search: string;
+      reddit: string;
+      social: string;
+      friend: string;
+      other: string;
+    };
     submit: string;
     submitting: string;
     successTitle: string;
@@ -109,6 +118,10 @@ export type Dictionary = {
     cantWait: string;
     title: string;
     subtitle: string;
+  };
+  seoShell: {
+    faqHeading: string;
+    relatedLinksHeading: string;
   };
   season1: {
     metaTitle: string;

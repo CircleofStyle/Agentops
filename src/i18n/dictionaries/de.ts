@@ -39,6 +39,15 @@ const de: Dictionary = {
   signup: {
     emailLabel: "E-Mail-Adresse",
     placeholder: "du@firma.ch",
+    referralLabel: "Wie hast du von uns erfahren? (optional)",
+    referralPlaceholder: "Bitte wählen…",
+    referralOptions: {
+      search: "Suchmaschine",
+      reddit: "Reddit",
+      social: "Social Media",
+      friend: "Freund oder Kollege",
+      other: "Andere",
+    },
     submit: "Mein erstes Playbook holen — gratis",
     submitting: "Wird angemeldet…",
     successTitle: "Fast geschafft!",
@@ -137,6 +146,10 @@ const de: Dictionary = {
     title: "Dieses Playbook in dein Postfach",
     subtitle:
       "Gratis Automatisierungs-Playbooks für Dienstleister — deine Serie startet mit der Bestätigung.",
+  },
+  seoShell: {
+    faqHeading: "Häufig gestellte Fragen",
+    relatedLinksHeading: "Verwandte Playbooks und Ressourcen",
   },
   season1: {
     metaTitle: "Übersicht Serie 1 — Automate This Week",

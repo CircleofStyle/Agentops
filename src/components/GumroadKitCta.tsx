@@ -1,13 +1,15 @@
-import { buildGumroadKitLink, getGumroadKitUrl } from "@/lib/gumroad";
+import { buildGumroadKitLink, getGumroadKitUrlForSlug } from "@/lib/gumroad";
+import { kitByPlaybookSlug } from "@/lib/kit-catalog";
 
 interface GumroadKitCtaProps {
   issueSlug: string;
 }
 
 export function GumroadKitCta({ issueSlug }: GumroadKitCtaProps) {
-  const kitUrl = getGumroadKitUrl();
+  const kitUrl = getGumroadKitUrlForSlug(issueSlug);
   if (!kitUrl) return null;
 
+  const kit = kitByPlaybookSlug(issueSlug);
   const href = buildGumroadKitLink(kitUrl, issueSlug);
 
   return (
@@ -22,8 +24,8 @@ export function GumroadKitCta({ issueSlug }: GumroadKitCtaProps) {
         Want the done-for-you kit?
       </h2>
       <p className="mt-3 text-slate-400">
-        Zapier export + prompt doc + checklist — €12. The newsletter stays free; this is for teams
-        who want a head start.
+        Zapier export + prompt doc + checklist — €{kit ? (kit.priceCents / 100).toFixed(0) : "19"}.
+        The newsletter stays free; this is for teams who want a head start.
       </p>
       <a
         href={href}

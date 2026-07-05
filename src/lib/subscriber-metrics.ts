@@ -14,6 +14,7 @@ export type SubscriberMetrics = {
   };
   attribution: {
     bySource: Record<string, number>;
+    byReferralSource: Record<string, number>;
   };
   monetization: MonetizationMetrics;
   resend: {
@@ -37,9 +38,15 @@ export async function getSubscriberMetrics(): Promise<SubscriberMetrics> {
   ).length;
 
   const bySource: Record<string, number> = {};
+  const byReferralSource: Record<string, number> = {};
   for (const subscriber of subscribers) {
-    if (!subscriber.utm_source) continue;
-    bySource[subscriber.utm_source] = (bySource[subscriber.utm_source] ?? 0) + 1;
+    if (subscriber.utm_source) {
+      bySource[subscriber.utm_source] = (bySource[subscriber.utm_source] ?? 0) + 1;
+    }
+    if (subscriber.referralSource) {
+      byReferralSource[subscriber.referralSource] =
+        (byReferralSource[subscriber.referralSource] ?? 0) + 1;
+    }
   }
 
   const resend = getResendClient();
@@ -65,7 +72,7 @@ export async function getSubscriberMetrics(): Promise<SubscriberMetrics> {
       gumroadAllAccess,
       gumroadCrown,
     },
-    attribution: { bySource },
+    attribution: { bySource, byReferralSource },
     monetization,
     resend: {
       configured: Boolean(resend && audienceId),

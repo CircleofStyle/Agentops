@@ -61,7 +61,7 @@ Give subscribers a **visible arc** so the drip feels intentional, not random.
 | 1 | `auto-triage-customer-emails` | Auto-triage customer emails | **Capture** | ✅ Published |
 | 2 | `quote-follow-up-workflow` | Never forget to follow up on a quote | **Convert** | ✅ Published |
 | 3 | `google-review-request-workflow` | Turn finished jobs into Google reviews | **Reputation** | ✅ Draft approved |
-| 4 | `appointment-reminder-workflow` | Cut no-shows with automated reminders | **Deliver** | 📋 Planned |
+| 4 | `appointment-reminder-workflow` | Cut no-shows with automated reminders | **Deliver** | ✅ Published 2026-07-01 |
 | 5 | `invoice-chase-workflow` | Friendly payment reminders without awkward calls | **Cash** | 📋 Planned |
 | 6 | `new-lead-welcome-sequence` | Instant welcome + intake for new inquiries | **Capture** | 📋 Planned |
 | 7 | `job-completion-checklist` | Auto-send completion summary + upsell prompt | **Deliver** | 📋 Planned |
@@ -134,7 +134,24 @@ A separate **"Automate with Agents"** mini-newsletter remains viable later — d
 
 ---
 
-## 4. TikTok — CMO view
+## 4. Workflow Architecture series (added 2026-06-30)
+
+**Issue:** [NOV-216](/NOV/issues/NOV-216) · **Framing doc:** [workflow-architecture-series](/NOV/issues/NOV-216#document-workflow-architecture-series)
+
+CEO-approved compromise: keep **ATW** + **AI Workflow Agent** brands; launch **Workflow Architecture** as a content series for premium system-design episodes (not a rebrand).
+
+| Ep | Title | Playbook tie-in |
+|----|-------|-----------------|
+| WA-01 | Inbox as intake gate | S1 #1 triage |
+| WA-02 | Quote-to-cash loop | S1 #2 + #5 |
+| WA-03 | Reputation flywheel | S1 #3 + #11 |
+| WA-04 | Graduation to Make graph | S2 #11 + #1 tease |
+
+**Shorts lanes:** (A) scripted faceless via `content/tiktok-scripts/` + `pnpm tiktok:render`; (B) Ssemble clips from NovaRho-owned long-form only — see [ssemble-runbook](/NOV/issues/NOV-216#document-ssemble-runbook). **No** `@itsmake` clip mining.
+
+---
+
+## 5. TikTok — CMO view
 
 ### Verdict: **Strong channel, right product — launch after issue #3 publishes**
 
@@ -165,7 +182,7 @@ Correct model: board films (authentic SMB-adjacent face), CMO writes scripts + o
 
 ---
 
-## 5. Decisions needed from board
+## 6. Decisions needed from board
 
 | # | Decision | CMO recommendation |
 |---|----------|-------------------|

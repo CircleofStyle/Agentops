@@ -19,6 +19,7 @@
     "smoke:launch": "ALL_ACCESS_LAUNCH=1 bash scripts/smoke-test.sh",
     "verify:inbound": "tsx scripts/verify-inbound-webhook.ts",
     "verify:gumroad": "tsx scripts/verify-gumroad-webhook.ts",
+    "verify:kit-drip-promo": "tsx scripts/verify-kit-drip-promo.ts",
     "kits:export": "tsx scripts/export-kit-templates.ts",
     "tiktok:render": "node scripts/tiktok-video/pipeline.mjs",
     "tiktok:render:v2-batch": "pnpm tiktok:render content/tiktok-scripts/v2-short1-inbox-kit.json && pnpm tiktok:render content/tiktok-scripts/v2-short2-quote-kit.json && pnpm tiktok:render content/tiktok-scripts/v2-short3-starter-bundle.json"

@@ -122,3 +122,57 @@ Sequence order = **`publishedAt` ascending** (oldest first). Slug is the stable 
 | **CTO** ([NOV-119](/NOV/issues/NOV-119)) | Implement confirm → welcome + issue #1; 7-day scheduler; sequence state on subscriber |
 | **CEO** | Approve updated sequence spec + copy (confirmation on this issue) |
 | **Board** | Add Google Sheet template link in issue #3 playbook before first drip send |
+
+---
+
+## CTO timing implementation ([NOV-196](/NOV/issues/NOV-196))
+
+Per-subscriber drip is live. Each subscriber's sequence is anchored to their own `confirmedAt` — not a shared calendar send.
+
+### Environment inputs (marketing-adjustable)
+
+| Variable | Default | Effect |
+|----------|---------|--------|
+| `DRIP_CADENCE_DAYS` | `7` | Calendar days between playbook emails after issue #1 |
+| `DRIP_SEQUENCE_ENABLED` | `true` | When `false`, reverts to legacy Tuesday broadcast on publish |
+
+Change cadence by setting `DRIP_CADENCE_DAYS` in Vercel env (or `.env.local`). No code change required unless marketing wants a non-day-based interval.
+
+### Subscriber fields that drive send timing
+
+| Field | Set when | Drives |
+|-------|----------|--------|
+| `confirmedAt` | Email confirm | Catch-up schedule anchor; issue #1 send window |
+| `dripEnrolledAt` | Confirm or first drip send | Sequence enrollment timestamp |
+| `dripSequenceIndex` | After each drip send | Count of playbooks sent (`0` = enrolled, issue #1 pending/sent) |
+| `lastDripSentAt` | After each drip send | Next issue due at `lastDripSentAt + DRIP_CADENCE_DAYS` |
+| `issuesSent[]` | After each drip send | Audit trail of slugs delivered |
+
+On Vercel (read-only filesystem), drip fields sync to Resend contact properties (`drip_enrolled_at`, `drip_sequence_index`, `last_drip_sent_at`) so the daily cron can advance sequences without local file writes.
+
+### Send pipeline
+
+| Step | Trigger | Code path |
+|------|---------|-----------|
+| Welcome | Confirm click | `sendWelcomeEmail` in `src/lib/email.ts` |
+| Issue #1 | Same confirm heartbeat | `sendInitialDripIssue` → `sendPlaybookDripToSubscriber` |
+| Issue #2+ | Daily cron 14:00 UTC | `GET /api/pipeline/drip` → `processDueDripEmails` |
+| Catch-up | Manual / audit | `catchUpSubscriberDrip` or `catchUpAllBehindDrip` (uses `confirmedAt` anchor) |
+
+### Due-date logic
+
+- **Issue #1:** Sent immediately on confirm (within the confirm API request).
+- **Issue #2+:** Cron checks `lastDripSentAt + DRIP_CADENCE_DAYS`. With issue #1 sent on confirm day, issue #2 lands ~7 days after confirm.
+- **Catch-up:** `expectedDripIndex` computes how many issues should have been sent based on `confirmedAt` and cadence; `catchUpSubscriberDrip` sends any missed issues in order.
+
+### Ops commands
+
+```bash
+pnpm content:drip --dry-run          # preview due sends without Resend calls
+curl …/api/pipeline/drip -d '{"audit":true}'   # subscriber audit report
+curl …/api/pipeline/drip -d '{"catchUpEmail":"user@example.com"}'  # single-subscriber catch-up
+```
+
+### Legal / subscriber-facing pages
+
+Legal copy updated in `src/app/[locale]/legal/page.tsx` — delivery described as "fixed sequence, one every 7 days after confirm." No further legal changes required for drip framing unless marketing adds new claims (e.g. completion email at end of series — backlog).

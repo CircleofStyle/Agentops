@@ -4,6 +4,7 @@ export type ConsentPreferences = Record<ConsentCategory, boolean>;
 
 export const COOKIE_NAME = "nova_consent_preferences";
 export const COOKIE_MAX_AGE_SECONDS = 365 * 24 * 60 * 60; // 1 year
+export const CONSENT_UPDATED_EVENT = "nova-consent-updated";
 
 export const DEFAULT_CONSENT: ConsentPreferences = {
   analytics: false,

@@ -32,9 +32,18 @@ export async function GET() {
       crownProductConfigured: Boolean(process.env.GUMROAD_CROWN_PRODUCT_PERMALINK),
       checkoutUrlConfigured: Boolean(process.env.NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL),
       crownCheckoutUrlConfigured: Boolean(process.env.NEXT_PUBLIC_GUMROAD_CROWN_URL),
-      kitCheckoutUrlConfigured: Boolean(process.env.NEXT_PUBLIC_GUMROAD_KIT_URL),
+      kitCheckoutUrlConfigured:
+        Boolean(process.env.NEXT_PUBLIC_GUMROAD_KIT_URL) ||
+        Boolean(process.env.NEXT_PUBLIC_GUMROAD_KIT_URLS),
+      kitUrlsMapConfigured: Boolean(process.env.NEXT_PUBLIC_GUMROAD_KIT_URLS),
+      starterBundleCheckoutUrlConfigured: Boolean(
+        process.env.NEXT_PUBLIC_GUMROAD_STARTER_BUNDLE_URL,
+      ),
       missingPublic: [
         !process.env.NEXT_PUBLIC_GUMROAD_KIT_URL && "NEXT_PUBLIC_GUMROAD_KIT_URL",
+        !process.env.NEXT_PUBLIC_GUMROAD_KIT_URLS && "NEXT_PUBLIC_GUMROAD_KIT_URLS",
+        !process.env.NEXT_PUBLIC_GUMROAD_STARTER_BUNDLE_URL &&
+          "NEXT_PUBLIC_GUMROAD_STARTER_BUNDLE_URL",
         !process.env.NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL && "NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL",
         !process.env.NEXT_PUBLIC_GUMROAD_CROWN_URL && "NEXT_PUBLIC_GUMROAD_CROWN_URL",
       ].filter(Boolean),
@@ -55,6 +64,20 @@ export async function GET() {
         process.env.CRON_SECRET === process.env.CONTENT_PIPELINE_SECRET,
       dripSequenceEnabled: process.env.DRIP_SEQUENCE_ENABLED !== "false",
       cadenceDays: Number(process.env.DRIP_CADENCE_DAYS ?? 7),
+    },
+    transactionalSend: {
+      route: "/api/pipeline/send-email",
+      pipelineSecretConfigured: Boolean(process.env.CONTENT_PIPELINE_SECRET),
+      resendReady: resend.hasApiKey && resend.hasFromEmail,
+    },
+    seo: {
+      sitemapRoute: "/sitemap.xml",
+      robotsRoute: "/robots.txt",
+      siteUrl: getResendConfigStatus().hasSiteUrl ? process.env.NEXT_PUBLIC_SITE_URL : null,
+      siteUrlResolved: resend.hasSiteUrl,
+    },
+    analytics: {
+      ga4MeasurementIdConfigured: Boolean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID),
     },
   });
 }

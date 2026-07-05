@@ -1,7 +1,7 @@
 ---
 title: Cut no-shows with automated appointment reminders
 date: '2026-06-30'
-status: draft
+status: published
 slug: appointment-reminder-workflow
 season: 1
 seasonNumber: 4
@@ -14,8 +14,11 @@ toolRequirements:
   - Gmail
   - Zapier
 roiImpact: Recover 15–30% of would-be no-shows with timed email reminders
-emailSubject: "Playbook #4: Cut no-shows with automated reminders"
-workflowDiagramAlt: Appointment booked, 24-hour email reminder, optional 2-hour email nudge, no-show flagged in tracker
+emailSubject: 'Playbook #4: Cut no-shows with automated reminders'
+workflowDiagramAlt: >-
+  Appointment booked, 24-hour email reminder, optional 2-hour email nudge,
+  no-show flagged in tracker
+publishedAt: '2026-07-01'
 ---
 You booked the job. The client confirmed. Then they ghost on the day — and you lose a slot you could have filled.
 

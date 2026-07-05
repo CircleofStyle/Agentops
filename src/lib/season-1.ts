@@ -71,7 +71,7 @@ export const SEASON_1_ISSUES: SeasonIssue[] = [
     slug: "appointment-reminder-workflow",
     title: "Cut no-shows with automated reminders",
     pillar: "Deliver",
-    status: "planned",
+    status: "published",
   },
   {
     number: 5,

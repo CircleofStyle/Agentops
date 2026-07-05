@@ -38,6 +38,7 @@ PRODUCTS = [
         "description": "<p>Unlock the full Season 1 playbook archive on the web.</p>",
         "env_url": "NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL",
         "env_permalink": "GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK",
+        "zip_file": None,
     },
     {
         "slug": "crown-discipline",
@@ -46,16 +47,47 @@ PRODUCTS = [
         "description": "<p>Paid add-on: Season 1 playbook #12 — Crown discipline AI CEO epilogue.</p>",
         "env_url": "NEXT_PUBLIC_GUMROAD_CROWN_URL",
         "env_permalink": "GUMROAD_CROWN_PRODUCT_PERMALINK",
-    },
-    {
-        "slug": "inbox-triage-kit",
-        "name": "Automate This Week — Inbox Triage Kit",
-        "price_cents": 900,
-        "description": "<p>Issue-page kit CTA product (optional).</p>",
-        "env_url": "NEXT_PUBLIC_GUMROAD_KIT_URL",
-        "env_permalink": None,
+        "zip_file": None,
     },
 ]
+
+# Workflow Kit Store — playbooks #1–#3 (+ starter bundle). ZIPs from pnpm kits:export.
+KIT_PRODUCTS = [
+    {
+        "slug": "inbox-triage-kit",
+        "playbook_slug": "auto-triage-customer-emails",
+        "name": "Automate This Week — Inbox Triage Kit",
+        "price_cents": 1900,
+        "description": "<p>Copy-paste Zapier kit: GPT inbox classification, Slack routing, Gmail drafts. Playbook #1 accelerator.</p>",
+        "zip_file": "inbox-triage-kit.zip",
+    },
+    {
+        "slug": "quote-follow-up-kit",
+        "playbook_slug": "quote-follow-up-workflow",
+        "name": "Automate This Week — Quote Follow-Up Kit",
+        "price_cents": 1900,
+        "description": "<p>Google Sheets quote tracker + day-3/day-7 Gmail nudges. Playbook #2 accelerator.</p>",
+        "zip_file": "quote-follow-up-kit.zip",
+    },
+    {
+        "slug": "google-review-request-kit",
+        "playbook_slug": "google-review-request-workflow",
+        "name": "Automate This Week — Google Review Request Kit",
+        "price_cents": 1900,
+        "description": "<p>Job tracker + review request emails on a 2-day / 7-day schedule. Playbook #3 accelerator.</p>",
+        "zip_file": "google-review-request-kit.zip",
+    },
+    {
+        "slug": "starter-bundle-kits-1-3",
+        "playbook_slug": None,
+        "name": "Automate This Week — Starter Bundle (Kits #1–#3)",
+        "price_cents": 3900,
+        "description": "<p>All three Season 1 workflow kits in one purchase.</p>",
+        "zip_file": "starter-bundle-kits-1-3.zip",
+    },
+]
+
+KITS_OUTPUT_DIR = ROOT / "dist" / "kits"
 
 
 def gumroad_url(slug: str) -> str:
@@ -95,6 +127,66 @@ def list_products(token: str) -> list[dict]:
     if not payload.get("success"):
         raise RuntimeError(f"Gumroad list products failed: {payload}")
     return payload.get("products") or []
+
+
+def run_kit_export() -> None:
+    proc = subprocess.run(
+        ["pnpm", "kits:export"],
+        cwd=ROOT,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError("pnpm kits:export failed — run manually before Gumroad upload")
+
+
+def upload_gumroad_file(token: str, zip_path: Path) -> str:
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "gumroad-upload-file.py"), str(zip_path)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "GUMROAD_ACCESS_TOKEN": token},
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(f"gumroad upload failed for {zip_path.name}: {proc.stderr.strip()}")
+    payload = json.loads(proc.stdout.strip())
+    return payload["file_url"]
+
+
+def attach_product_file(token: str, product_id: str, file_url: str, display_name: str) -> None:
+    payload = gumroad_request(
+        token,
+        "PUT",
+        f"/products/{product_id}",
+        {
+            "files[0][url]": file_url,
+            "files[0][display_name]": display_name,
+        },
+    )
+    if not payload.get("success"):
+        raise RuntimeError(f"Gumroad attach file failed for {product_id}: {payload}")
+    print(f"gumroad_file_attached product_id={product_id} file={display_name}")
+
+
+def ensure_kit_product(token: str, spec: dict) -> dict:
+    product = ensure_product(token, spec)
+    zip_name = spec.get("zip_file")
+    if not zip_name:
+        return product
+    zip_path = KITS_OUTPUT_DIR / zip_name
+    if not zip_path.is_file():
+        raise RuntimeError(f"kit ZIP missing: {zip_path} — run pnpm kits:export")
+    file_url = upload_gumroad_file(token, zip_path)
+    attach_product_file(token, product["id"], file_url, zip_name)
+    return product
+
+
+def kit_url_map() -> dict[str, str]:
+    return {
+        spec["playbook_slug"]: gumroad_url(spec["slug"])
+        for spec in KIT_PRODUCTS
+        if spec.get("playbook_slug")
+    }
 
 
 def ensure_product(token: str, spec: dict) -> dict:
@@ -233,6 +325,7 @@ def main() -> int:
     secret = load_or_create_webhook_secret()
     ping_url = f"{SITE_URL}/api/webhooks/gumroad?secret={secret}"
 
+    kit_urls = kit_url_map()
     env_map = {
         "GUMROAD_WEBHOOK_SECRET": secret,
         "GUMROAD_ALL_ACCESS_PRODUCT_PERMALINK": "all-access-pass",
@@ -240,6 +333,8 @@ def main() -> int:
         "NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL": gumroad_url("all-access-pass"),
         "NEXT_PUBLIC_GUMROAD_CROWN_URL": gumroad_url("crown-discipline"),
         "NEXT_PUBLIC_GUMROAD_KIT_URL": gumroad_url("inbox-triage-kit"),
+        "NEXT_PUBLIC_GUMROAD_KIT_URLS": json.dumps(kit_urls, separators=(",", ":")),
+        "NEXT_PUBLIC_GUMROAD_STARTER_BUNDLE_URL": gumroad_url("starter-bundle-kits-1-3"),
     }
 
     token = os.environ.get("GUMROAD_ACCESS_TOKEN", "").strip()
@@ -247,8 +342,12 @@ def main() -> int:
         if not token:
             print("GUMROAD_ACCESS_TOKEN missing — skipping Gumroad API (use --vercel-only)", file=sys.stderr)
         else:
+            if not args.dry_run:
+                run_kit_export()
             for spec in PRODUCTS:
                 ensure_product(token, spec)
+            for spec in KIT_PRODUCTS:
+                ensure_kit_product(token, spec)
             ensure_sale_webhook(token, ping_url)
 
     for name, value in env_map.items():

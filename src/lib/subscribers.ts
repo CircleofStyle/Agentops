@@ -25,6 +25,8 @@ export type SubscriberRecord = {
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
+  /** Optional signup attribution — how the subscriber heard about ATW. */
+  referralSource?: string;
   /** ISO timestamp when subscriber entered the drip sequence. */
   dripEnrolledAt?: string;
   /** Count of playbook issues sent via drip (0 = enrolled, none sent yet). */
@@ -120,6 +122,7 @@ export async function upsertPendingSubscriber(
   token: string,
   utm?: UtmParams,
   preferredLocale: Locale = defaultLocale,
+  referralSource?: string,
 ): Promise<SubscriberRecord> {
   const subscribers = await readSubscribers();
   const normalized = email.toLowerCase();
@@ -137,6 +140,7 @@ export async function upsertPendingSubscriber(
     createdAt: existing?.createdAt ?? new Date().toISOString(),
     token,
     preferredLocale: existing?.preferredLocale ?? preferredLocale,
+    referralSource: referralSource ?? existing?.referralSource,
     ...attribution,
   };
 

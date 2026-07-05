@@ -2,6 +2,7 @@ import { getPublishedIssue } from "@/lib/content/storage";
 import { logger } from "@/lib/logger";
 import { PB3_DRIP_SLUG, sendTransactionalPlaybookEmail } from "@/lib/playbook-email";
 import { getDripCadenceDays, getDripSequenceSlugs } from "@/lib/drip-sequence";
+import { kitByPlaybookSlug } from "@/lib/kit-catalog";
 import {
   hydrateSubscriberDripState,
   loadDripStateFromResend,
@@ -170,6 +171,7 @@ export async function sendPlaybookDripToSubscriber(
     issue,
     locale,
     includeForwardReferralPs: slug === PB3_DRIP_SLUG,
+    includeKitPromoPs: kitByPlaybookSlug(slug) != null,
   });
 
   if (!sendResult.ok && sendResult.error?.toLowerCase().includes("too many requests")) {
@@ -179,6 +181,7 @@ export async function sendPlaybookDripToSubscriber(
       issue,
       locale,
       includeForwardReferralPs: slug === PB3_DRIP_SLUG,
+      includeKitPromoPs: kitByPlaybookSlug(slug) != null,
     });
     if (retry.ok) {
       await recordDripSend(subscriber.email, slug);

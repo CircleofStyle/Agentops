@@ -53,11 +53,21 @@ jobs:
               echo "$response"
               if echo "$response" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'; then
                 echo "Health check passed on attempt ${attempt}"
-                exit 0
+                break
               fi
+            fi
+            if [ "${attempt}" -eq 12 ]; then
+              echo "Health check failed — if you see 401, disable Vercel Deployment Protection or set VERCEL_AUTOMATION_BYPASS_SECRET"
+              exit 1
             fi
             echo "Attempt ${attempt}/12 failed; retrying in 10s..."
             sleep 10
           done
-          echo "Health check failed — if you see 401, disable Vercel Deployment Protection or set VERCEL_AUTOMATION_BYPASS_SECRET"
-          exit 1
+          echo "Checking SEO routes"
+          for path in /sitemap.xml /robots.txt; do
+            curl "${CURL_OPTS[@]}" -o /dev/null -w "%{http_code}" "${BASE}${path}" | grep -q '^200$' || {
+              echo "Expected 200 from ${BASE}${path}"
+              exit 1
+            }
+            echo "${path} OK"
+          done

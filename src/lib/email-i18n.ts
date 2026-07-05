@@ -21,6 +21,9 @@ export type TransactionalEmailCopy = {
   playbookToolsPrefix: string;
   playbookRoiPrefix: string;
   pb3ReferralPs: string;
+  kitPromoPs: string;
+  kitPromoCatalogLink: string;
+  kitPromoCheckoutLink: string;
   subscribeAlreadyConfirmed: string;
   subscribeSuccess: string;
   subscribeNoResend: string;
@@ -51,6 +54,10 @@ const en: TransactionalEmailCopy = {
   playbookRoiPrefix: "ROI:",
   pb3ReferralPs:
     "P.S. Know someone who'd use this? Forward this email — signup link:",
+  kitPromoPs:
+    "P.S. Want import-ready files? The {kitName} ({price}) bundles the Zapier blueprint and templates.",
+  kitPromoCatalogLink: "View kit",
+  kitPromoCheckoutLink: "Get instant download",
   subscribeAlreadyConfirmed: "You're already subscribed. Check your inbox for the latest issue.",
   subscribeSuccess:
     "Check your inbox to confirm — your first automation playbook arrives right after.",
@@ -85,6 +92,10 @@ const de: TransactionalEmailCopy = {
   playbookRoiPrefix: "ROI:",
   pb3ReferralPs:
     "P.S. Kennst du jemanden, dem das hilft? Leite diese E-Mail weiter — Anmeldelink:",
+  kitPromoPs:
+    "P.S. Importfertige Dateien? Das {kitName} ({price}) enthält Zapier-Blueprint und Vorlagen.",
+  kitPromoCatalogLink: "Kit ansehen",
+  kitPromoCheckoutLink: "Sofort-Download",
   subscribeAlreadyConfirmed:
     "Du bist bereits angemeldet. Prüfe dein Postfach für die neueste Ausgabe.",
   subscribeSuccess:

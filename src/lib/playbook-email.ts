@@ -13,6 +13,12 @@ import {
 } from "@/lib/content/metadata";
 import { extractTeaser } from "@/lib/content/visibility";
 import { getTransactionalEmailCopy } from "@/lib/email-i18n";
+import {
+  buildGumroadKitCatalogLink,
+  formatKitPriceCents,
+  resolveKitCheckoutUrl,
+} from "@/lib/gumroad";
+import { kitByPlaybookSlug } from "@/lib/kit-catalog";
 import { logger } from "@/lib/logger";
 import { getFromEmail, getResendClient, getSiteUrl } from "@/lib/resend";
 
@@ -43,6 +49,47 @@ function buildPb3ForwardReferralPostscript(
   return {
     html: `<p style="color: #64748b; font-size: 14px; line-height: 1.6; margin: 24px 0 0;"><strong>${copy.pb3ReferralPs}</strong> <a href="${signupUrl}" style="color: #0ea5e9;">${signupDisplay}</a></p>`,
     text: `${copy.pb3ReferralPs} ${signupDisplay}`,
+  };
+}
+
+export function buildKitCatalogUrl(
+  playbookSlug: string,
+  locale: Locale = "en",
+  siteUrl?: string,
+): string {
+  const url = new URL(siteUrl ?? getSiteUrl());
+  url.pathname = localizedPath(`/kits/${playbookSlug}`, locale);
+  url.search = "";
+  url.searchParams.set("utm_source", "atw");
+  url.searchParams.set("utm_medium", "drip_email");
+  url.searchParams.set("utm_campaign", playbookSlug);
+  return url.toString();
+}
+
+function buildKitPromoPostscript(
+  playbookSlug: string,
+  locale: Locale,
+  siteUrl?: string,
+): { html: string; text: string } | null {
+  const kit = kitByPlaybookSlug(playbookSlug);
+  if (!kit) return null;
+
+  const copy = getTransactionalEmailCopy(locale);
+  const kitShortName = kit.name.replace(/^Automate This Week — /, "");
+  const price = formatKitPriceCents(kit.priceCents);
+  const promoLine = copy.kitPromoPs
+    .replace("{kitName}", kitShortName)
+    .replace("{price}", price);
+
+  const catalogUrl = buildKitCatalogUrl(playbookSlug, locale, siteUrl);
+  const checkoutBase = resolveKitCheckoutUrl(playbookSlug);
+  const checkoutUrl = checkoutBase
+    ? buildGumroadKitCatalogLink(checkoutBase, playbookSlug, "drip_email")
+    : catalogUrl;
+
+  return {
+    html: `<p style="color: #64748b; font-size: 14px; line-height: 1.6; margin: 24px 0 0;"><strong>${promoLine}</strong> <a href="${catalogUrl}" style="color: #0ea5e9;">${copy.kitPromoCatalogLink}</a> · <a href="${checkoutUrl}" style="color: #0ea5e9;">${copy.kitPromoCheckoutLink}</a></p>`,
+    text: `${promoLine} ${copy.kitPromoCatalogLink}: ${catalogUrl} · ${copy.kitPromoCheckoutLink}: ${checkoutUrl}`,
   };
 }
 
@@ -83,7 +130,7 @@ export function buildPlaybookEmailHtml(
   issueUrl: string,
   bodyHtml: string,
   locale: Locale = "en",
-  options?: { includeUnsubscribe?: boolean; includeForwardReferralPs?: boolean },
+  options?: { includeUnsubscribe?: boolean; includeForwardReferralPs?: boolean; includeKitPromoPs?: boolean },
 ): string {
   const copy = getTransactionalEmailCopy(locale);
   const unsubscribe = options?.includeUnsubscribe !== false
@@ -120,6 +167,7 @@ export function buildPlaybookEmailHtml(
       </p>
       <p style="color: #64748b; font-size: 14px;">${copy.playbookCopyLink} ${issueUrl}</p>
       ${options?.includeForwardReferralPs ? buildPb3ForwardReferralPostscript(locale).html : ""}
+      ${options?.includeKitPromoPs ? buildKitPromoPostscript(issue.frontmatter.slug, locale)?.html ?? "" : ""}
       <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
       <p style="color: #64748b; font-size: 12px;">
         ${unsubscribe}
@@ -133,18 +181,24 @@ export function buildPlaybookEmailText(
   summary: string,
   issueUrl: string,
   locale: Locale = "en",
-  options?: { includeForwardReferralPs?: boolean },
+  options?: { includeForwardReferralPs?: boolean; includeKitPromoPs?: boolean },
 ): string {
-  const postscript = options?.includeForwardReferralPs
-    ? `\n\n${buildPb3ForwardReferralPostscript(locale).text}`
-    : "";
+  const postscriptParts: string[] = [];
+  if (options?.includeForwardReferralPs) {
+    postscriptParts.push(buildPb3ForwardReferralPostscript(locale).text);
+  }
+  if (options?.includeKitPromoPs) {
+    const kitPs = buildKitPromoPostscript(issue.frontmatter.slug, locale);
+    if (kitPs) postscriptParts.push(kitPs.text);
+  }
+  const postscript = postscriptParts.length > 0 ? `\n\n${postscriptParts.join("\n\n")}` : "";
   return `${issue.frontmatter.title}\n\n${summary}\n\n${issue.body}\n\n${getTransactionalEmailCopy(locale).playbookOpenCta.replace(" →", "")}: ${issueUrl}${postscript}`;
 }
 
 export async function buildPlaybookEmailContent(
   issue: IssueDocument,
   locale: Locale = "en",
-  options?: { includeUnsubscribe?: boolean; includeForwardReferralPs?: boolean },
+  options?: { includeUnsubscribe?: boolean; includeForwardReferralPs?: boolean; includeKitPromoPs?: boolean },
 ): Promise<{
   subject: string;
   summary: string;
@@ -168,6 +222,7 @@ export async function sendTransactionalPlaybookEmail(options: {
   locale?: Locale;
   subjectPrefix?: string;
   includeForwardReferralPs?: boolean;
+  includeKitPromoPs?: boolean;
 }): Promise<{ ok: boolean; messageId?: string; error?: string }> {
   const resend = getResendClient();
   if (!resend) {
@@ -178,6 +233,7 @@ export async function sendTransactionalPlaybookEmail(options: {
   const { subject, html, text } = await buildPlaybookEmailContent(options.issue, locale, {
     includeUnsubscribe: false,
     includeForwardReferralPs: options.includeForwardReferralPs,
+    includeKitPromoPs: options.includeKitPromoPs,
   });
   const prefix = options.subjectPrefix ?? "";
 

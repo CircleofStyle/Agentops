@@ -6,6 +6,7 @@ import { addToResendAudience, sendVerificationEmail } from "@/lib/email";
 import { getTransactionalEmailCopy } from "@/lib/email-i18n";
 import { logger } from "@/lib/logger";
 import { findSubscriber, upsertPendingSubscriber } from "@/lib/subscribers";
+import { isReferralSource } from "@/lib/referral-source";
 import { sanitizeUtmInput } from "@/lib/utm";
 
 const subscribeSchema = z.object({
@@ -14,6 +15,7 @@ const subscribeSchema = z.object({
   utm_source: z.string().max(100).optional(),
   utm_medium: z.string().max(100).optional(),
   utm_campaign: z.string().max(100).optional(),
+  referralSource: z.string().max(50).optional(),
 });
 
 export async function POST(request: Request) {
@@ -34,10 +36,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const { email, preferredLocale: rawLocale, ...utmFields } = parsed.data;
+  const { email, preferredLocale: rawLocale, referralSource: rawReferral, ...utmFields } =
+    parsed.data;
   const preferredLocale =
     rawLocale && isLocale(rawLocale) ? rawLocale : defaultLocale;
   const utm = sanitizeUtmInput(utmFields);
+  const referralSource =
+    rawReferral && isReferralSource(rawReferral) ? rawReferral : undefined;
   const copy = getTransactionalEmailCopy(preferredLocale);
   const existing = await findSubscriber(email);
 
@@ -56,7 +61,7 @@ export async function POST(request: Request) {
     );
   }
 
-  await upsertPendingSubscriber(email, token, utm, preferredLocale);
+  await upsertPendingSubscriber(email, token, utm, preferredLocale, referralSource);
 
   if (utm?.utm_source) {
     logger.info("Subscriber attribution captured", {
@@ -66,6 +71,10 @@ export async function POST(request: Request) {
       utm_medium: utm.utm_medium,
       utm_campaign: utm.utm_campaign,
     });
+  }
+
+  if (referralSource) {
+    logger.info("Subscriber referral source captured", { email, referralSource });
   }
 
   const emailSent = await sendVerificationEmail(email, token, preferredLocale);

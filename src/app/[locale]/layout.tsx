@@ -3,11 +3,13 @@ import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { SiteFooter } from "@/components/SiteFooter";
 import { isLocale, localeHtmlLang, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { I18nProvider } from "@/i18n/I18nProvider";
+import { getSiteUrl } from "@/lib/resend";
 
 import "../globals.css";
 
@@ -24,7 +26,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
   const dict = await getDictionary(raw);
 
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+    metadataBase: new URL(getSiteUrl()),
     title: dict.meta.siteTitle,
     description: dict.meta.siteDescription,
     openGraph: {
@@ -61,6 +63,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
           <div className="flex-1">{children}</div>
           <SiteFooter />
           <CookieConsentBanner />
+          <GoogleAnalytics />
         </I18nProvider>
       </body>
     </html>

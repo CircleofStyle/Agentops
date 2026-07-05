@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import {
+  CONSENT_UPDATED_EVENT,
   COOKIE_CATEGORY_DEFINITIONS,
   ConsentCategory,
   ConsentPreferences,
@@ -44,19 +45,23 @@ export function CookieConsentBanner() {
     setIsInitialized(true);
   }, []);
 
+  const persistConsent = (next: ConsentPreferences) => {
+    writeConsentCookie(next);
+    window.dispatchEvent(new Event(CONSENT_UPDATED_EVENT));
+    setIsVisible(false);
+  };
+
   const handleAcceptAll = () => {
     const allOn: ConsentPreferences = {
       analytics: true,
       marketing: true,
     };
     setPreferences(allOn);
-    writeConsentCookie(allOn);
-    setIsVisible(false);
+    persistConsent(allOn);
   };
 
   const handleSavePreferences = () => {
-    writeConsentCookie(preferences);
-    setIsVisible(false);
+    persistConsent(preferences);
   };
 
   const toggleCategory = (category: ConsentCategory) => {

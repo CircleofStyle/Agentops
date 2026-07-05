@@ -54,6 +54,40 @@ Without Resend configured, signups are stored locally in `data/subscribers.json`
 - `POST /api/content/publish` — publish draft (auth: `CONTENT_PIPELINE_SECRET`); optional `{ "broadcast": true }` to email audience after publish
 - `POST /api/content/broadcast` — send playbook email for an already-published issue (auth: `CONTENT_PIPELINE_SECRET`; skipped when drip sequence is active unless `catchUp: true`)
 - `GET|POST /api/pipeline/drip` — advance due drip emails + migrate legacy subscribers (auth: `CONTENT_PIPELINE_SECRET` or Vercel `CRON_SECRET`; Vercel cron daily 14:00 UTC). Body flags: `audit: true`, `catchUpEmail`, `dryRun`.
+- `POST /api/pipeline/send-email` — one-off transactional plain-text send (auth: `CONTENT_PIPELINE_SECRET`). Body: `{ "to", "subject", "text", "replyTo?", "dryRun?" }`. Used for Reddit draft delivery and other non-marketing agent sends.
+
+### Reddit daily scan (reputation program)
+
+CMO routine uses `scripts/reddit-daily-scan.py` for fetch + filter only (drafting/email stays in CMO workflow). Tries Arctic Shift → Pullpush → Reddit OAuth (when `REDDIT_CLIENT_ID` / `REDDIT_CLIENT_SECRET` are set). Exits non-zero when no source returns posts in the 14-day window so routine runs can flag infra outages.
+
+```bash
+python3 scripts/reddit-daily-scan.py --pretty
+# Exit 0 = at least one source returned in-window posts; JSON on stdout includes candidates + source health
+# Exit 1 = all sources failed or stale (infra_outage: true in JSON)
+```
+
+### Agent transactional email (Reddit drafts, board delivery)
+
+When the workspace lacks `RESEND_API_KEY`, agents call production with `CONTENT_PIPELINE_SECRET` from `.env.production.local`:
+
+```bash
+python3 scripts/send-transactional-email.py \
+  --to recipient@example.com \
+  --subject "Subject line" \
+  --text-file path/to/body.txt
+
+# Dry-run (validates auth + payload, no send):
+python3 scripts/send-transactional-email.py --dry-run \
+  --to recipient@example.com --subject "Test" --text "Hello"
+
+# Direct API:
+curl -fsS -X POST https://automatethisweek.com/api/pipeline/send-email \
+  -H "Authorization: Bearer $CONTENT_PIPELINE_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"to":"recipient@example.com","subject":"Test","text":"Hello","dryRun":true}'
+```
+
+Required env (production Vercel): `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `CONTENT_PIPELINE_SECRET`. Local `.env.local` placeholders are insufficient — use `--via-api` (script default) or populate `.env.production.local`.
 
 ### Weekly playbook broadcast
 
