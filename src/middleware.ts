@@ -1,22 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
+import { defaultLocale, isLocale } from "@/i18n/config";
 
 const LOCALE_COOKIE = "NEXT_LOCALE";
 
-function pickLocale(request: NextRequest): Locale {
-  const cookie = request.cookies.get(LOCALE_COOKIE)?.value;
-  if (cookie && isLocale(cookie)) {
-    return cookie;
+function shouldSuggestGermanHome(request: NextRequest): boolean {
+  if (request.cookies.get(LOCALE_COOKIE)?.value) {
+    return false;
   }
-
   const accept = request.headers.get("accept-language") ?? "";
-  if (accept.toLowerCase().includes("de")) {
-    return "de";
-  }
-
-  return defaultLocale;
+  return accept.toLowerCase().includes("de");
 }
 
 export function middleware(request: NextRequest) {
@@ -43,15 +37,25 @@ export function middleware(request: NextRequest) {
     const rest = segments.slice(1).join("/");
     const url = request.nextUrl.clone();
     url.pathname = rest ? `/${rest}` : "/";
-    return NextResponse.redirect(url);
+    const response = NextResponse.redirect(url);
+    response.cookies.set(LOCALE_COOKIE, defaultLocale, { path: "/", sameSite: "lax" });
+    return response;
   }
 
-  const locale = pickLocale(request);
+  // Unprefixed URLs are canonical English. Only suggest /de on first visit to /.
+  if (pathname === "/" && shouldSuggestGermanHome(request)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/de";
+    const response = NextResponse.redirect(url);
+    response.cookies.set(LOCALE_COOKIE, "de", { path: "/", sameSite: "lax" });
+    return response;
+  }
+
   const url = request.nextUrl.clone();
-  url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
+  url.pathname = `/${defaultLocale}${pathname === "/" ? "" : pathname}`;
 
   const response = NextResponse.rewrite(url);
-  response.cookies.set(LOCALE_COOKIE, locale, { path: "/", sameSite: "lax" });
+  response.cookies.set(LOCALE_COOKIE, defaultLocale, { path: "/", sameSite: "lax" });
   return response;
 }
 
