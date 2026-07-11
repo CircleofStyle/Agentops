@@ -62,7 +62,7 @@ Give subscribers a **visible arc** so the drip feels intentional, not random.
 | 2 | `quote-follow-up-workflow` | Never forget to follow up on a quote | **Convert** | ✅ Published |
 | 3 | `google-review-request-workflow` | Turn finished jobs into Google reviews | **Reputation** | ✅ Draft approved |
 | 4 | `appointment-reminder-workflow` | Cut no-shows with automated reminders | **Deliver** | ✅ Published 2026-07-01 |
-| 5 | `invoice-chase-workflow` | Friendly payment reminders without awkward calls | **Cash** | 📋 Planned |
+| 5 | `invoice-chase-workflow` | Friendly payment reminders without awkward calls | **Cash** | ✅ Published 2026-07-11 |
 | 6 | `new-lead-welcome-sequence` | Instant welcome + intake for new inquiries | **Capture** | 📋 Planned |
 | 7 | `job-completion-checklist` | Auto-send completion summary + upsell prompt | **Deliver** | 📋 Planned |
 | 8 | `referral-ask-workflow` | Ask happy clients for referrals on schedule | **Grow** | 📋 Planned |

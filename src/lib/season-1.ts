@@ -78,7 +78,7 @@ export const SEASON_1_ISSUES: SeasonIssue[] = [
     slug: "invoice-chase-workflow",
     title: "Friendly payment reminders without awkward calls",
     pillar: "Cash",
-    status: "planned",
+    status: "published",
   },
   {
     number: 6,
