@@ -85,21 +85,21 @@ export const SEASON_1_ISSUES: SeasonIssue[] = [
     slug: "new-lead-welcome-sequence",
     title: "Instant welcome + intake for new inquiries",
     pillar: "Capture",
-    status: "planned",
+    status: "published",
   },
   {
     number: 7,
     slug: "job-completion-checklist",
     title: "Auto-send completion summary + upsell prompt",
     pillar: "Deliver",
-    status: "planned",
+    status: "published",
   },
   {
     number: 8,
     slug: "referral-ask-workflow",
     title: "Ask happy clients for referrals on schedule",
     pillar: "Grow",
-    status: "planned",
+    status: "published",
   },
   {
     number: 9,
@@ -120,7 +120,7 @@ export const SEASON_1_ISSUES: SeasonIssue[] = [
     slug: "review-response-templates",
     title: "Draft replies to Google reviews in one click",
     pillar: "Reputation",
-    status: "planned",
+    status: "published",
   },
   {
     number: 12,

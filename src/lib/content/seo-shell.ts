@@ -14,6 +14,10 @@ export const P0_SEO_SHELL_SLUGS = [
   "quote-follow-up-workflow",
   "google-review-request-workflow",
   "appointment-reminder-workflow",
+  "new-lead-welcome-sequence",
+  "job-completion-checklist",
+  "referral-ask-workflow",
+  "review-response-templates",
 ] as const;
 
 export type SeoShellSlug = (typeof P0_SEO_SHELL_SLUGS)[number];

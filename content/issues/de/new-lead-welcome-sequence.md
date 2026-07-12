@@ -1,10 +1,11 @@
 ---
-title: Zufriedene Kunden planmässig um Empfehlungen bitten
-date: '2026-06-30'
-status: draft
+title: Sofortige Begrüßung und Aufnahme bei neuen Anfragen
+date: '2026-07-11'
+status: published
 slug: new-lead-welcome-sequence
 season: 1
 seasonNumber: 6
+sequenceOrder: 6
 topic: Begrüßungssequenz für neue Leads
 setupMinutes: 20
 visibility: email-only
@@ -16,8 +17,9 @@ toolRequirements:
 roiImpact: Auf neue Anfragen in unter 5 Minuten reagieren — bevor sie woanders anfragen
 emailSubject: "Playbook #6: Sofortige Begrüßung und Aufnahme bei neuen Anfragen"
 workflowDiagramAlt: Neue Anfrage, sofortige Willkommens-E-Mail, Link zum Aufnahmeformular, Nachfass wenn Formular nicht ausgefüllt
+publishedAt: '2026-07-11'
 ---
-Eine Interessentin meldet sich. Du bist auf der Baustelle. Bis du antwortest, hat sie schon zwei andere Offerten angefragt.
+Eine Interessentin meldet sich. Du bist mitten im Tagesgeschäft. Bis du antwortest, hat sie schon zwei andere Offerten angefragt.
 
 Sobald eine neue Anfrage eingeht — Formular, E-Mail oder Kontaktseite — erhält sie sofort eine Begrüßung und ein kurzes Aufnahmeformular. Du wirkst reaktionsschnell, ohne im Posteingang zu hängen.
 

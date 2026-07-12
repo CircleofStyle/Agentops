@@ -1,10 +1,11 @@
 ---
 title: Instant welcome + intake for new inquiries
-date: '2026-06-30'
-status: draft
+date: '2026-07-11'
+status: published
 slug: new-lead-welcome-sequence
 season: 1
 seasonNumber: 6
+sequenceOrder: 6
 topic: new lead welcome sequence
 setupMinutes: 20
 visibility: email-only
@@ -16,8 +17,9 @@ toolRequirements:
 roiImpact: Respond to new leads in under 5 minutes — before they shop elsewhere
 emailSubject: "Playbook #6: Instant welcome + intake for new inquiries"
 workflowDiagramAlt: New inquiry arrives, instant welcome email, intake form link, follow-up if form not completed
+publishedAt: '2026-07-11'
 ---
-A prospect reaches out. You're on a job site. By the time you reply, they've already requested two other quotes.
+A prospect reaches out. You're mid-day with client work. By the time you reply, they've already requested two other quotes.
 
 The moment a new inquiry lands — form, email, or contact page — they get an instant welcome and a short intake form. You look responsive without living in your inbox.
 

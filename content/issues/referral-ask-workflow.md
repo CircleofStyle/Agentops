@@ -1,10 +1,11 @@
 ---
 title: Ask happy clients for referrals on schedule
-date: '2026-06-30'
-status: draft
+date: '2026-07-12'
+status: published
 slug: referral-ask-workflow
 season: 1
 seasonNumber: 8
+sequenceOrder: 8
 topic: referral ask workflow
 setupMinutes: 20
 visibility: email-only
@@ -16,6 +17,7 @@ toolRequirements:
 roiImpact: Turn satisfied clients into a predictable referral channel
 emailSubject: "Playbook #8: Ask happy clients for referrals on schedule"
 workflowDiagramAlt: Job marked complete, wait 14 days, referral ask email, gentle reminder if no response
+publishedAt: '2026-07-12'
 ---
 You delivered great work. The client would happily refer you — but nobody asks, and the moment passes.
 

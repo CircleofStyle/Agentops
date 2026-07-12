@@ -63,12 +63,12 @@ Give subscribers a **visible arc** so the drip feels intentional, not random.
 | 3 | `google-review-request-workflow` | Turn finished jobs into Google reviews | **Reputation** | ✅ Draft approved |
 | 4 | `appointment-reminder-workflow` | Cut no-shows with automated reminders | **Deliver** | ✅ Published 2026-07-01 |
 | 5 | `invoice-chase-workflow` | Friendly payment reminders without awkward calls | **Cash** | ✅ Published 2026-07-11 |
-| 6 | `new-lead-welcome-sequence` | Instant welcome + intake for new inquiries | **Capture** | 📋 Planned |
-| 7 | `job-completion-checklist` | Auto-send completion summary + upsell prompt | **Deliver** | 📋 Planned |
-| 8 | `referral-ask-workflow` | Ask happy clients for referrals on schedule | **Grow** | 📋 Planned |
+| 6 | `new-lead-welcome-sequence` | Instant welcome + intake for new inquiries | **Capture** | ✅ Published 2026-07-11 |
+| 7 | `job-completion-checklist` | Auto-send completion summary + upsell prompt | **Deliver** | ✅ Published 2026-07-12 |
+| 8 | `referral-ask-workflow` | Ask happy clients for referrals on schedule | **Grow** | ✅ Published |
 | 9 | `weekly-ops-dashboard` | One Google Sheet dashboard for open quotes/jobs | **Ops** | 📋 Planned |
 | 10 | `slack-team-alerts` | Route urgent jobs to the right person in Slack | **Ops** | 📋 Planned |
-| 11 | `review-response-templates` | Draft replies to Google reviews in one click | **Reputation** | 📋 Planned |
+| 11 | `review-response-templates` | Draft replies to Google reviews in one click | **Reputation** | ✅ Published 2026-07-12 |
 | 12 | `crown-discipline-ai-ceo` | Crown discipline — run automations as a system | **Lead** | 💎 Paid add-on (not in drip) |
 
 **Publishing cadence:** 1 issue / 7 days in drip for playbooks **#1–11** only. Free drip does **not** include #12. Crown Discipline is a separate paid purchase.
@@ -172,13 +172,15 @@ CEO-approved compromise: keep **ATW** + **AI Workflow Agent** brands; launch **W
 | 3 | "Finished the job but no Google review?" | Issue #3 reviews |
 | 4 | "Can't wait 3 weeks for all 12?" | All-access tease |
 
-**Bio link:** `automatethisweek.com?utm_source=tiktok&utm_medium=bio`
+**Handle:** `@Automation_Architect_1` (bound [NOV-282](/NOV/issues/NOV-282); parent account ticket [NOV-281](/NOV/issues/NOV-281))
+
+**Bio link:** `https://automatethisweek.com?utm_source=tiktok&utm_medium=bio`
 
 **Posting cadence:** 2× / week once backlog of 4 videos exists; CMO drafts scripts from playbook steps.
 
 ### Board-owned account
 
-Correct model: board films (authentic SMB-adjacent face), CMO writes scripts + on-screen text. No agent posts to TikTok.
+Correct model: board keeps credentials and publishes manually; CMO owns scripts + on-screen text + publish packs. **Do not** share the TikTok password with agents. No agent login or auto-post.
 
 ---
 

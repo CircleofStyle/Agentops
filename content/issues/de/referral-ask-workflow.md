@@ -1,10 +1,11 @@
 ---
 title: Zufriedene Kunden planmässig um Empfehlungen bitten
-date: '2026-06-30'
-status: draft
+date: '2026-07-12'
+status: published
 slug: referral-ask-workflow
 season: 1
 seasonNumber: 8
+sequenceOrder: 8
 topic: Empfehlungsanfrage-Workflow
 setupMinutes: 20
 visibility: email-only
@@ -16,6 +17,7 @@ toolRequirements:
 roiImpact: Zufriedene Kundinnen in einen planbaren Empfehlungskanal verwandeln
 emailSubject: "Playbook #8: Zufriedene Kunden planmässig um Empfehlungen bitten"
 workflowDiagramAlt: Auftrag abgeschlossen, 14 Tage warten, Empfehlungsanfrage, sanfte Erinnerung ohne Antwort
+publishedAt: '2026-07-12'
 ---
 Du hast gute Arbeit geliefert. Die Kundin würde dich gerne weiterempfehlen — aber niemand fragt, und der Moment verstreicht.
 
