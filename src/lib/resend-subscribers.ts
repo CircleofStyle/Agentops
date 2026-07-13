@@ -133,7 +133,7 @@ export async function listResendAudienceSubscribers(): Promise<SubscriberRecord[
   }
 
   const records = data.data
-    .map((contact) => contactToSubscriberRecord(contact as ResendContact))
+    .map((contact) => contactToSubscriberRecord(contact as unknown as ResendContact))
     .filter((record): record is SubscriberRecord => record !== null);
 
   return Promise.all(records.map((record) => hydrateResendSubscriberRecord(record)));
