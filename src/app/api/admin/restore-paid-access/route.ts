@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isMetricsAuthorized } from "@/lib/metrics-auth";
 import { getSubscriberMetrics } from "@/lib/subscriber-metrics";
-import { grantAllAccess, grantCrownAccess } from "@/lib/subscribers";
+import {
+  grantAllAccessWithSync,
+  grantCrownAccessWithSync,
+} from "@/lib/subscribers";
 
 const grantSchema = z.object({
   email: z.string().email(),
@@ -44,24 +47,32 @@ export async function POST(request: Request) {
     allAccess?: boolean;
     crownAccess?: boolean;
     ok: boolean;
+    resendSynced: boolean;
   }> = [];
 
   for (const grant of parsed.data.grants) {
     const email = grant.email.toLowerCase();
     let ok = true;
+    let resendSynced = true;
 
     try {
       if (grant.allAccess) {
-        await grantAllAccess(email, grant.source);
+        const result = await grantAllAccessWithSync(email, grant.source);
+        resendSynced = result.resendSynced;
+        ok = result.resendSynced;
       }
       if (grant.crownAccess) {
-        await grantCrownAccess(email, grant.source);
+        const result = await grantCrownAccessWithSync(email, grant.source);
+        resendSynced = resendSynced && result.resendSynced;
+        ok = ok && result.resendSynced;
       }
       if (!grant.allAccess && !grant.crownAccess) {
         ok = false;
+        resendSynced = false;
       }
     } catch {
       ok = false;
+      resendSynced = false;
     }
 
     results.push({
@@ -69,6 +80,7 @@ export async function POST(request: Request) {
       allAccess: grant.allAccess,
       crownAccess: grant.crownAccess,
       ok,
+      resendSynced,
     });
   }
 

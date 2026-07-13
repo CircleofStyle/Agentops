@@ -15,14 +15,28 @@ type ResendContact = {
   created_at?: string;
   unsubscribed?: boolean;
   properties?: Record<string, string | number>;
+  [key: string]: unknown;
 };
 
 function placeholderToken(): string {
   return randomBytes(24).toString("hex");
 }
 
+function contactProperties(contact: ResendContact): Record<string, string | number> {
+  const props = { ...(contact.properties ?? {}) };
+  for (const [key, value] of Object.entries(contact)) {
+    if (key === "email" || key === "created_at" || key === "unsubscribed" || key === "properties") {
+      continue;
+    }
+    if (typeof value === "string" || typeof value === "number") {
+      props[key] = value;
+    }
+  }
+  return props;
+}
+
 function contactConfirmedAt(contact: ResendContact): string | undefined {
-  const props = contact.properties ?? {};
+  const props = contactProperties(contact);
   const confirmed = props[CONFIRMED_AT_KEY];
   if (typeof confirmed === "string" && confirmed) return confirmed;
 
@@ -36,7 +50,7 @@ function contactToSubscriberRecord(contact: ResendContact): SubscriberRecord | n
   if (!contact.email || contact.unsubscribed) return null;
 
   const confirmedAt = contactConfirmedAt(contact);
-  const props = contact.properties ?? {};
+  const props = contactProperties(contact);
   const dripSequenceIndex =
     typeof props.drip_sequence_index === "number" ? props.drip_sequence_index : undefined;
   const lastDripSentAt =
@@ -126,10 +140,7 @@ export async function listResendAudienceSubscribers(): Promise<SubscriberRecord[
 }
 
 async function hydrateResendSubscriberRecord(record: SubscriberRecord): Promise<SubscriberRecord> {
-  if (record.dripSequenceIndex != null && record.lastDripSentAt && record.dripEnrolledAt) {
-    return record;
-  }
-
+  // Audience list payloads often omit custom properties; always GET the contact.
   const audienceId = getAudienceId();
   if (!getResendClient() || !audienceId) return record;
 

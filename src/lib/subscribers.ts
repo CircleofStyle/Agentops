@@ -258,13 +258,23 @@ export async function grantAllAccess(
   email: string,
   source: SubscriberRecord["allAccessSource"] = "manual",
 ): Promise<SubscriberRecord> {
+  const result = await grantAllAccessWithSync(email, source);
+  return result.record;
+}
+
+export async function grantAllAccessWithSync(
+  email: string,
+  source: SubscriberRecord["allAccessSource"] = "manual",
+): Promise<{ record: SubscriberRecord; resendSynced: boolean }> {
   const subscribers = await readSubscribers();
   const normalized = email.toLowerCase();
   const index = subscribers.findIndex((s) => s.email === normalized);
   const now = new Date().toISOString();
 
+  let updated: SubscriberRecord;
+
   if (index === -1) {
-    const record: SubscriberRecord = {
+    updated = {
       email: normalized,
       status: "confirmed",
       createdAt: now,
@@ -274,31 +284,31 @@ export async function grantAllAccess(
       allAccessGrantedAt: now,
       allAccessSource: source,
     };
-    subscribers.push(record);
-    await writeSubscribers(subscribers);
-    await syncAllAccessToResend(normalized, true, {
-      grantedAt: record.allAccessGrantedAt,
-      source,
-    });
-    return record;
+    subscribers.push(updated);
+  } else {
+    updated = {
+      ...subscribers[index],
+      status: "confirmed",
+      confirmedAt: subscribers[index].confirmedAt ?? now,
+      allAccess: true,
+      allAccessGrantedAt: subscribers[index].allAccessGrantedAt ?? now,
+      allAccessSource: source,
+    };
+    subscribers[index] = updated;
   }
 
-  const updated: SubscriberRecord = {
-    ...subscribers[index],
-    status: "confirmed",
-    confirmedAt: subscribers[index].confirmedAt ?? now,
-    allAccess: true,
-    allAccessGrantedAt: subscribers[index].allAccessGrantedAt ?? now,
-    allAccessSource: source,
-  };
-
-  subscribers[index] = updated;
   await writeSubscribers(subscribers);
-  await syncAllAccessToResend(normalized, true, {
+  const resendSynced = await syncAllAccessToResend(normalized, true, {
     grantedAt: updated.allAccessGrantedAt,
     source,
   });
-  return updated;
+  if (!resendSynced) {
+    logger.warn("All Access granted locally but Resend sync failed", {
+      email: normalized,
+      source,
+    });
+  }
+  return { record: updated, resendSynced };
 }
 
 export async function revokeAllAccess(email: string): Promise<SubscriberRecord | null> {
@@ -316,13 +326,23 @@ export async function grantCrownAccess(
   email: string,
   source: SubscriberRecord["crownAccessSource"] = "manual",
 ): Promise<SubscriberRecord> {
+  const result = await grantCrownAccessWithSync(email, source);
+  return result.record;
+}
+
+export async function grantCrownAccessWithSync(
+  email: string,
+  source: SubscriberRecord["crownAccessSource"] = "manual",
+): Promise<{ record: SubscriberRecord; resendSynced: boolean }> {
   const subscribers = await readSubscribers();
   const normalized = email.toLowerCase();
   const index = subscribers.findIndex((s) => s.email === normalized);
   const now = new Date().toISOString();
 
+  let updated: SubscriberRecord;
+
   if (index === -1) {
-    const record: SubscriberRecord = {
+    updated = {
       email: normalized,
       status: "confirmed",
       createdAt: now,
@@ -332,31 +352,31 @@ export async function grantCrownAccess(
       crownAccessGrantedAt: now,
       crownAccessSource: source,
     };
-    subscribers.push(record);
-    await writeSubscribers(subscribers);
-    await syncCrownAccessToResend(normalized, true, {
-      grantedAt: record.crownAccessGrantedAt,
-      source,
-    });
-    return record;
+    subscribers.push(updated);
+  } else {
+    updated = {
+      ...subscribers[index],
+      status: "confirmed",
+      confirmedAt: subscribers[index].confirmedAt ?? now,
+      crownAccess: true,
+      crownAccessGrantedAt: subscribers[index].crownAccessGrantedAt ?? now,
+      crownAccessSource: source,
+    };
+    subscribers[index] = updated;
   }
 
-  const updated: SubscriberRecord = {
-    ...subscribers[index],
-    status: "confirmed",
-    confirmedAt: subscribers[index].confirmedAt ?? now,
-    crownAccess: true,
-    crownAccessGrantedAt: subscribers[index].crownAccessGrantedAt ?? now,
-    crownAccessSource: source,
-  };
-
-  subscribers[index] = updated;
   await writeSubscribers(subscribers);
-  await syncCrownAccessToResend(normalized, true, {
+  const resendSynced = await syncCrownAccessToResend(normalized, true, {
     grantedAt: updated.crownAccessGrantedAt,
     source,
   });
-  return updated;
+  if (!resendSynced) {
+    logger.warn("Crown access granted locally but Resend sync failed", {
+      email: normalized,
+      source,
+    });
+  }
+  return { record: updated, resendSynced };
 }
 
 export async function revokeCrownAccess(email: string): Promise<SubscriberRecord | null> {
