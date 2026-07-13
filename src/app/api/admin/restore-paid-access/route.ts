@@ -62,31 +62,39 @@ export async function POST(request: Request) {
     crownAccess?: boolean;
     ok: boolean;
     resendSynced: boolean;
+    syncDetail?: unknown;
   }> = [];
 
   for (const grant of parsed.data.grants) {
     const email = grant.email.toLowerCase();
     let ok = true;
     let resendSynced = true;
+    let syncDetail: unknown;
 
     try {
       if (grant.allAccess) {
         const result = await grantAllAccessWithSync(email, grant.source);
         resendSynced = result.resendSynced;
         ok = result.resendSynced;
+        syncDetail = result.syncDetail;
       }
       if (grant.crownAccess) {
         const result = await grantCrownAccessWithSync(email, grant.source);
         resendSynced = resendSynced && result.resendSynced;
         ok = ok && result.resendSynced;
+        syncDetail = result.syncDetail;
       }
       if (!grant.allAccess && !grant.crownAccess) {
         ok = false;
         resendSynced = false;
       }
-    } catch {
+    } catch (error) {
       ok = false;
       resendSynced = false;
+      syncDetail = {
+        reason: "exception",
+        body: error instanceof Error ? error.message : "unknown",
+      };
     }
 
     results.push({
@@ -95,6 +103,7 @@ export async function POST(request: Request) {
       crownAccess: grant.crownAccess,
       ok,
       resendSynced,
+      syncDetail,
     });
   }
 

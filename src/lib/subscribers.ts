@@ -9,7 +9,13 @@ import {
   syncConfirmedAtToResend,
 } from "@/lib/resend-subscribers";
 import { syncDripStateToResend } from "@/lib/resend-drip-state";
-import { syncAllAccessToResend, syncCrownAccessToResend } from "@/lib/resend-paid-access";
+import {
+  syncAllAccessToResend,
+  syncAllAccessToResendDetailed,
+  syncCrownAccessToResend,
+  syncCrownAccessToResendDetailed,
+  type PaidAccessSyncResult,
+} from "@/lib/resend-paid-access";
 import type { Locale } from "@/i18n/config";
 import { defaultLocale } from "@/i18n/config";
 import { syncPreferredLocaleToResend } from "@/lib/resend-subscribers";
@@ -265,7 +271,11 @@ export async function grantAllAccess(
 export async function grantAllAccessWithSync(
   email: string,
   source: SubscriberRecord["allAccessSource"] = "manual",
-): Promise<{ record: SubscriberRecord; resendSynced: boolean }> {
+): Promise<{
+  record: SubscriberRecord;
+  resendSynced: boolean;
+  syncDetail?: PaidAccessSyncResult;
+}> {
   const subscribers = await readSubscribers();
   const normalized = email.toLowerCase();
   const index = subscribers.findIndex((s) => s.email === normalized);
@@ -298,17 +308,20 @@ export async function grantAllAccessWithSync(
   }
 
   await writeSubscribers(subscribers);
-  const resendSynced = await syncAllAccessToResend(normalized, true, {
+  const syncDetail = await syncAllAccessToResendDetailed(normalized, true, {
     grantedAt: updated.allAccessGrantedAt,
     source,
   });
-  if (!resendSynced) {
+  if (!syncDetail.ok) {
     logger.warn("All Access granted locally but Resend sync failed", {
       email: normalized,
       source,
+      reason: syncDetail.reason,
+      status: syncDetail.status,
+      path: syncDetail.path,
     });
   }
-  return { record: updated, resendSynced };
+  return { record: updated, resendSynced: syncDetail.ok, syncDetail };
 }
 
 export async function revokeAllAccess(email: string): Promise<SubscriberRecord | null> {
@@ -333,7 +346,11 @@ export async function grantCrownAccess(
 export async function grantCrownAccessWithSync(
   email: string,
   source: SubscriberRecord["crownAccessSource"] = "manual",
-): Promise<{ record: SubscriberRecord; resendSynced: boolean }> {
+): Promise<{
+  record: SubscriberRecord;
+  resendSynced: boolean;
+  syncDetail?: PaidAccessSyncResult;
+}> {
   const subscribers = await readSubscribers();
   const normalized = email.toLowerCase();
   const index = subscribers.findIndex((s) => s.email === normalized);
@@ -366,17 +383,20 @@ export async function grantCrownAccessWithSync(
   }
 
   await writeSubscribers(subscribers);
-  const resendSynced = await syncCrownAccessToResend(normalized, true, {
+  const syncDetail = await syncCrownAccessToResendDetailed(normalized, true, {
     grantedAt: updated.crownAccessGrantedAt,
     source,
   });
-  if (!resendSynced) {
+  if (!syncDetail.ok) {
     logger.warn("Crown access granted locally but Resend sync failed", {
       email: normalized,
       source,
+      reason: syncDetail.reason,
+      status: syncDetail.status,
+      path: syncDetail.path,
     });
   }
-  return { record: updated, resendSynced };
+  return { record: updated, resendSynced: syncDetail.ok, syncDetail };
 }
 
 export async function revokeCrownAccess(email: string): Promise<SubscriberRecord | null> {

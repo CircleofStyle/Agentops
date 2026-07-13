@@ -240,6 +240,13 @@ async function readContactProperties(email: string): Promise<Record<string, stri
   return null;
 }
 
+/** Public read helper for metrics hydration — prefers global contact properties. */
+export async function readPaidAccessContactProperties(
+  email: string,
+): Promise<Record<string, string | number> | null> {
+  return readContactProperties(email);
+}
+
 async function patchViaPath(
   path: string,
   properties: Record<string, string>,
@@ -259,16 +266,30 @@ async function patchViaPath(
   };
 }
 
+export type PaidAccessSyncResult = {
+  ok: boolean;
+  path?: string;
+  status?: number;
+  body?: string;
+  storedKeys?: string[];
+  mismatched?: string[];
+  reason?: string;
+};
+
 async function patchContactProperties(
   email: string,
   properties: Record<string, string>,
-): Promise<boolean> {
-  if (!getResendClient()) return false;
+): Promise<PaidAccessSyncResult> {
+  if (!getResendClient()) {
+    return { ok: false, reason: "resend_client_missing" };
+  }
 
+  // Best-effort registration. Read-after-write is the durability gate.
   const propertiesOk = await ensurePaidAccessContactProperties();
   if (!propertiesOk) {
-    logger.warn("Resend paid-access sync aborted: properties not ready", { email });
-    return false;
+    logger.warn("Resend paid-access properties not fully ready; attempting patch anyway", {
+      email,
+    });
   }
 
   const normalized = email.toLowerCase();
@@ -280,7 +301,10 @@ async function patchContactProperties(
       : null,
   ].filter((path): path is string => Boolean(path));
 
-  let lastFailure: { status?: number; body?: string; path?: string } | null = null;
+  let lastFailure: PaidAccessSyncResult = {
+    ok: false,
+    reason: "no_paths",
+  };
 
   for (const path of paths) {
     let result = await patchViaPath(path, properties);
@@ -297,6 +321,12 @@ async function patchContactProperties(
     if (result.ok) {
       const stored = await readContactProperties(normalized);
       if (!stored) {
+        lastFailure = {
+          ok: false,
+          path,
+          status: result.status,
+          reason: "patch_ok_contact_unreadable",
+        };
         logger.warn("Resend paid-access patch ok but contact unreadable", {
           email: normalized,
           path,
@@ -304,34 +334,48 @@ async function patchContactProperties(
         continue;
       }
 
-      const mismatched = Object.entries(properties).filter(([key, expected]) => {
-        const actual = stored[key];
-        return String(actual ?? "") !== expected;
-      });
+      const mismatched = Object.entries(properties)
+        .filter(([key, expected]) => String(stored[key] ?? "") !== expected)
+        .map(([key]) => key);
 
       if (mismatched.length > 0) {
+        lastFailure = {
+          ok: false,
+          path,
+          status: result.status,
+          reason: "read_after_write_mismatch",
+          storedKeys: Object.keys(stored),
+          mismatched,
+        };
         logger.warn("Resend paid-access read-after-write mismatch", {
           email: normalized,
           path,
-          mismatched: mismatched.map(([key]) => key),
-          stored,
+          mismatched,
+          storedKeys: Object.keys(stored),
         });
         continue;
       }
 
-      return true;
+      return { ok: true, path, status: result.status, storedKeys: Object.keys(stored) };
     }
 
-    lastFailure = { ...result, path };
+    lastFailure = {
+      ok: false,
+      path,
+      status: result.status,
+      body: result.body?.slice(0, 500),
+      reason: "patch_failed",
+    };
   }
 
   logger.warn("Resend paid-access sync failed", {
     email: normalized,
-    status: lastFailure?.status,
-    body: lastFailure?.body,
-    path: lastFailure?.path,
+    status: lastFailure.status,
+    body: lastFailure.body,
+    path: lastFailure.path,
+    reason: lastFailure.reason,
   });
-  return false;
+  return lastFailure;
 }
 
 export async function syncAllAccessToResend(
@@ -339,6 +383,15 @@ export async function syncAllAccessToResend(
   granted: boolean,
   meta?: { grantedAt?: string; source?: PaidAccessSource },
 ): Promise<boolean> {
+  const result = await syncAllAccessToResendDetailed(email, granted, meta);
+  return result.ok;
+}
+
+export async function syncAllAccessToResendDetailed(
+  email: string,
+  granted: boolean,
+  meta?: { grantedAt?: string; source?: PaidAccessSource },
+): Promise<PaidAccessSyncResult> {
   const properties: Record<string, string> = {
     [ALL_ACCESS_KEY]: granted ? "true" : "false",
   };
@@ -356,6 +409,15 @@ export async function syncCrownAccessToResend(
   granted: boolean,
   meta?: { grantedAt?: string; source?: PaidAccessSource },
 ): Promise<boolean> {
+  const result = await syncCrownAccessToResendDetailed(email, granted, meta);
+  return result.ok;
+}
+
+export async function syncCrownAccessToResendDetailed(
+  email: string,
+  granted: boolean,
+  meta?: { grantedAt?: string; source?: PaidAccessSource },
+): Promise<PaidAccessSyncResult> {
   const properties: Record<string, string> = {
     [CROWN_ACCESS_KEY]: granted ? "true" : "false",
   };

@@ -2,7 +2,10 @@ import { randomBytes } from "crypto";
 import type { Locale } from "@/i18n/config";
 import { defaultLocale } from "@/i18n/config";
 import { logger } from "@/lib/logger";
-import { paidAccessFieldsFromProperties } from "@/lib/resend-paid-access";
+import {
+  paidAccessFieldsFromProperties,
+  readPaidAccessContactProperties,
+} from "@/lib/resend-paid-access";
 import { getAudienceId, getResendClient } from "@/lib/resend";
 import { normalizePreferredLocale } from "@/lib/subscriber-locale";
 import type { SubscriberRecord } from "@/lib/subscribers";
