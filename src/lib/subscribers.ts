@@ -9,6 +9,7 @@ import {
   syncConfirmedAtToResend,
 } from "@/lib/resend-subscribers";
 import { syncDripStateToResend } from "@/lib/resend-drip-state";
+import { syncAllAccessToResend, syncCrownAccessToResend } from "@/lib/resend-paid-access";
 import type { Locale } from "@/i18n/config";
 import { defaultLocale } from "@/i18n/config";
 import { syncPreferredLocaleToResend } from "@/lib/resend-subscribers";
@@ -275,6 +276,10 @@ export async function grantAllAccess(
     };
     subscribers.push(record);
     await writeSubscribers(subscribers);
+    await syncAllAccessToResend(normalized, true, {
+      grantedAt: record.allAccessGrantedAt,
+      source,
+    });
     return record;
   }
 
@@ -289,14 +294,22 @@ export async function grantAllAccess(
 
   subscribers[index] = updated;
   await writeSubscribers(subscribers);
+  await syncAllAccessToResend(normalized, true, {
+    grantedAt: updated.allAccessGrantedAt,
+    source,
+  });
   return updated;
 }
 
 export async function revokeAllAccess(email: string): Promise<SubscriberRecord | null> {
-  return updateSubscriber(email, (record) => ({
+  const updated = await updateSubscriber(email, (record) => ({
     ...record,
     allAccess: false,
   }));
+  if (updated) {
+    await syncAllAccessToResend(email, false);
+  }
+  return updated;
 }
 
 export async function grantCrownAccess(
@@ -321,6 +334,10 @@ export async function grantCrownAccess(
     };
     subscribers.push(record);
     await writeSubscribers(subscribers);
+    await syncCrownAccessToResend(normalized, true, {
+      grantedAt: record.crownAccessGrantedAt,
+      source,
+    });
     return record;
   }
 
@@ -335,12 +352,20 @@ export async function grantCrownAccess(
 
   subscribers[index] = updated;
   await writeSubscribers(subscribers);
+  await syncCrownAccessToResend(normalized, true, {
+    grantedAt: updated.crownAccessGrantedAt,
+    source,
+  });
   return updated;
 }
 
 export async function revokeCrownAccess(email: string): Promise<SubscriberRecord | null> {
-  return updateSubscriber(email, (record) => ({
+  const updated = await updateSubscriber(email, (record) => ({
     ...record,
     crownAccess: false,
   }));
+  if (updated) {
+    await syncCrownAccessToResend(email, false);
+  }
+  return updated;
 }

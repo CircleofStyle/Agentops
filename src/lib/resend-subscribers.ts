@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import type { Locale } from "@/i18n/config";
 import { defaultLocale } from "@/i18n/config";
 import { logger } from "@/lib/logger";
+import { paidAccessFieldsFromProperties } from "@/lib/resend-paid-access";
 import { getAudienceId, getResendClient } from "@/lib/resend";
 import { normalizePreferredLocale } from "@/lib/subscriber-locale";
 import type { SubscriberRecord } from "@/lib/subscribers";
@@ -45,6 +46,7 @@ function contactToSubscriberRecord(contact: ResendContact): SubscriberRecord | n
   const preferredLocale =
     normalizePreferredLocale(props[PREFERRED_LOCALE_KEY]) ?? defaultLocale;
   const createdAt = contact.created_at ?? confirmedAt ?? new Date().toISOString();
+  const paidAccess = paidAccessFieldsFromProperties(props);
 
   return {
     email: contact.email.toLowerCase(),
@@ -56,6 +58,7 @@ function contactToSubscriberRecord(contact: ResendContact): SubscriberRecord | n
     dripSequenceIndex,
     lastDripSentAt,
     preferredLocale,
+    ...paidAccess,
   };
 }
 
@@ -150,6 +153,12 @@ async function hydrateResendSubscriberRecord(record: SubscriberRecord): Promise<
     lastDripSentAt: record.lastDripSentAt ?? hydrated.lastDripSentAt,
     confirmedAt: record.confirmedAt ?? hydrated.confirmedAt,
     preferredLocale: record.preferredLocale ?? hydrated.preferredLocale,
+    allAccess: record.allAccess ?? hydrated.allAccess,
+    allAccessGrantedAt: record.allAccessGrantedAt ?? hydrated.allAccessGrantedAt,
+    allAccessSource: record.allAccessSource ?? hydrated.allAccessSource,
+    crownAccess: record.crownAccess ?? hydrated.crownAccess,
+    crownAccessGrantedAt: record.crownAccessGrantedAt ?? hydrated.crownAccessGrantedAt,
+    crownAccessSource: record.crownAccessSource ?? hydrated.crownAccessSource,
   };
 }
 
