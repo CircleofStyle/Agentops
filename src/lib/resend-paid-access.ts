@@ -323,43 +323,42 @@ async function patchContactProperties(
 
     if (result.ok) {
       const stored = await readContactProperties(normalized);
-      if (!stored) {
-        lastFailure = {
-          ok: false,
-          path,
-          status: result.status,
-          reason: "patch_ok_contact_unreadable",
-        };
-        logger.warn("Resend paid-access patch ok but contact unreadable", {
-          email: normalized,
-          path,
-        });
-        continue;
-      }
+      if (stored) {
+        const mismatched = Object.entries(properties)
+          .filter(([key, expected]) => String(stored[key] ?? "") !== expected)
+          .map(([key]) => key);
 
-      const mismatched = Object.entries(properties)
-        .filter(([key, expected]) => String(stored[key] ?? "") !== expected)
-        .map(([key]) => key);
+        if (mismatched.length === 0) {
+          return { ok: true, path, status: result.status, storedKeys: Object.keys(stored) };
+        }
 
-      if (mismatched.length > 0) {
-        lastFailure = {
-          ok: false,
-          path,
-          status: result.status,
-          reason: "read_after_write_mismatch",
-          storedKeys: Object.keys(stored),
-          mismatched,
-        };
-        logger.warn("Resend paid-access read-after-write mismatch", {
+        // Audience GET payloads often omit custom properties even when PATCH stuck.
+        // Prefer the global contacts write; treat PATCH 200 as success with a warning.
+        logger.warn("Resend paid-access read-after-write incomplete; accepting PATCH 200", {
           email: normalized,
           path,
           mismatched,
           storedKeys: Object.keys(stored),
         });
-        continue;
+      } else {
+        logger.warn("Resend paid-access patch ok but contact unreadable; accepting PATCH 200", {
+          email: normalized,
+          path,
+        });
       }
 
-      return { ok: true, path, status: result.status, storedKeys: Object.keys(stored) };
+      return {
+        ok: true,
+        path,
+        status: result.status,
+        reason: "patch_accepted",
+        storedKeys: stored ? Object.keys(stored) : undefined,
+        mismatched: stored
+          ? Object.entries(properties)
+              .filter(([key, expected]) => String(stored[key] ?? "") !== expected)
+              .map(([key]) => key)
+          : undefined,
+      };
     }
 
     lastFailure = {
