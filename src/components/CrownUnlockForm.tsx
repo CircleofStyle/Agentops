@@ -3,7 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { useI18n } from "@/i18n/I18nProvider";
+import { localizedPath } from "@/i18n/navigation";
+
 export function CrownUnlockForm() {
+  const { locale, dict } = useI18n();
+  const t = dict.crown;
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -28,28 +33,26 @@ export function CrownUnlockForm() {
 
       if (!response.ok) {
         setStatus("error");
-        setMessage(data.error ?? "Unlock failed. Try again.");
+        setMessage(data.error ?? t.unlockFailed);
         return;
       }
 
-      window.location.href = data.redirect ?? "/crown";
+      window.location.href = data.redirect ?? localizedPath("/crown", locale);
     } catch {
       setStatus("error");
-      setMessage("Network error. Please try again.");
+      setMessage(t.unlockNetworkError);
     }
   }
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8">
-      <h2 className="text-xl font-bold text-white">Already purchased?</h2>
-      <p className="mt-2 text-slate-400">
-        Enter the email from your Gumroad receipt to unlock Crown Discipline in your browser.
-      </p>
+      <h2 className="text-xl font-bold text-white">{t.unlockTitle}</h2>
+      <p className="mt-2 text-slate-400">{t.unlockBody}</p>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="crown-email" className="block text-sm font-medium text-slate-300">
-            Email
+            {t.unlockEmailLabel}
           </label>
           <input
             id="crown-email"
@@ -58,13 +61,14 @@ export function CrownUnlockForm() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-white placeholder:text-slate-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-            placeholder="you@company.com"
+            placeholder={t.unlockEmailPlaceholder}
           />
         </div>
 
         <div>
           <label htmlFor="crown-code" className="block text-sm font-medium text-slate-300">
-            Access code <span className="font-normal text-slate-500">(optional)</span>
+            {t.unlockCodeLabel}{" "}
+            <span className="font-normal text-slate-500">{t.unlockCodeOptional}</span>
           </label>
           <input
             id="crown-code"
@@ -72,7 +76,7 @@ export function CrownUnlockForm() {
             value={code}
             onChange={(event) => setCode(event.target.value)}
             className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-white placeholder:text-slate-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-            placeholder="If you received a manual code"
+            placeholder={t.unlockCodePlaceholder}
           />
         </div>
 
@@ -83,14 +87,17 @@ export function CrownUnlockForm() {
           disabled={status === "loading"}
           className="inline-flex items-center justify-center rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {status === "loading" ? "Unlocking…" : "Unlock Crown Discipline"}
+          {status === "loading" ? t.unlockSubmitting : t.unlockSubmit}
         </button>
       </form>
 
       <p className="mt-4 text-sm text-slate-500">
-        Need playbooks #1–11?{" "}
-        <Link href="/all-access" className="text-brand-500 transition hover:text-brand-400">
-          All Access Pass →
+        {t.unlockNeedPlaybooks}{" "}
+        <Link
+          href={localizedPath("/all-access", locale)}
+          className="text-brand-500 transition hover:text-brand-400"
+        >
+          {t.unlockNeedPlaybooksLink}
         </Link>
       </p>
     </div>

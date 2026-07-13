@@ -3,7 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { useI18n } from "@/i18n/I18nProvider";
+import { localizedPath } from "@/i18n/navigation";
+
 export function AllAccessUnlockForm() {
+  const { locale, dict } = useI18n();
+  const t = dict.allAccess;
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -28,28 +33,26 @@ export function AllAccessUnlockForm() {
 
       if (!response.ok) {
         setStatus("error");
-        setMessage(data.error ?? "Unlock failed. Try again.");
+        setMessage(data.error ?? t.unlockFailed);
         return;
       }
 
-      window.location.href = data.redirect ?? "/issues";
+      window.location.href = data.redirect ?? localizedPath("/issues", locale);
     } catch {
       setStatus("error");
-      setMessage("Network error. Please try again.");
+      setMessage(t.unlockNetworkError);
     }
   }
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8">
-      <h2 className="text-xl font-bold text-white">Already purchased?</h2>
-      <p className="mt-2 text-slate-400">
-        Enter the email from your Gumroad receipt to unlock the full archive in your browser.
-      </p>
+      <h2 className="text-xl font-bold text-white">{t.unlockTitle}</h2>
+      <p className="mt-2 text-slate-400">{t.unlockBody}</p>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="all-access-email" className="block text-sm font-medium text-slate-300">
-            Email
+            {t.unlockEmailLabel}
           </label>
           <input
             id="all-access-email"
@@ -58,13 +61,14 @@ export function AllAccessUnlockForm() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-            placeholder="you@company.com"
+            placeholder={t.unlockEmailPlaceholder}
           />
         </div>
 
         <div>
           <label htmlFor="all-access-code" className="block text-sm font-medium text-slate-300">
-            Access code <span className="font-normal text-slate-500">(optional)</span>
+            {t.unlockCodeLabel}{" "}
+            <span className="font-normal text-slate-500">{t.unlockCodeOptional}</span>
           </label>
           <input
             id="all-access-code"
@@ -72,7 +76,7 @@ export function AllAccessUnlockForm() {
             value={code}
             onChange={(event) => setCode(event.target.value)}
             className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-            placeholder="If you received a manual code"
+            placeholder={t.unlockCodePlaceholder}
           />
         </div>
 
@@ -83,14 +87,17 @@ export function AllAccessUnlockForm() {
           disabled={status === "loading"}
           className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {status === "loading" ? "Unlocking…" : "Unlock archive"}
+          {status === "loading" ? t.unlockSubmitting : t.unlockSubmit}
         </button>
       </form>
 
       <p className="mt-4 text-sm text-slate-500">
-        Prefer the free drip?{" "}
-        <Link href="/" className="text-brand-500 transition hover:text-brand-400">
-          Subscribe free →
+        {t.unlockPreferFree}{" "}
+        <Link
+          href={localizedPath("/", locale)}
+          className="text-brand-500 transition hover:text-brand-400"
+        >
+          {t.unlockPreferFreeLink}
         </Link>
       </p>
     </div>

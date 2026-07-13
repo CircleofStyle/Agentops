@@ -150,6 +150,12 @@ const de: Dictionary = {
   seoShell: {
     faqHeading: "Häufig gestellte Fragen",
     relatedLinksHeading: "Verwandte Playbooks und Ressourcen",
+    paidLadder: {
+      eyebrow: "Optionaler Beschleuniger",
+      heading: "Dateien ohne Copy-Paste?",
+      body: "Importfertige Vorlagen · gratis Playbook bleibt · {price}.",
+      ctaLabel: "Kit holen — {price}",
+    },
   },
   season1: {
     metaTitle: "Übersicht Serie 1 — Automate This Week",
@@ -231,11 +237,30 @@ const de: Dictionary = {
     price: "€29 einmalig",
     ctaBody:
       "Playbooks #1–11 sofort — plus künftige Playbooks aus Serie 1, sobald wir sie veröffentlichen. Crown Discipline (#12) ist ein separater Kauf.",
-    ctaButton: "All Access auf Gumroad holen",
+    ctaButton: "All Access holen",
+    inlineCtaLabel: "All Access holen — €29",
     checkoutSoon: "Checkout folgt bald —",
+    earlyAccessSuffix: "für frühen Zugang.",
+    inlineSoonBody: "All-Access-Checkout folgt bald.",
+    inlineSoonCta: "Schreib uns",
+    inlineSoonSuffix: "wenn du frühen Zugang willst.",
     comingSoonEyebrow: "Startet mit mehr Playbooks",
     comingSoonBody:
       "All Access schalten wir frei, sobald mindestens fünf gratis Playbooks aus Serie 1 live sind — damit der Pass vom ersten Tag an echten Wert liefert. Bis dahin ist die Gratis-Serie der beste Weg.",
+    unlockTitle: "Schon gekauft?",
+    unlockBody:
+      "Gib die E-Mail von deiner Kaufbestätigung ein, um das volle Archiv im Browser freizuschalten.",
+    unlockEmailLabel: "E-Mail",
+    unlockCodeLabel: "Zugangscode",
+    unlockCodeOptional: "(optional)",
+    unlockCodePlaceholder: "Falls du einen manuellen Code erhalten hast",
+    unlockEmailPlaceholder: "du@firma.com",
+    unlockSubmit: "Archiv freischalten",
+    unlockSubmitting: "Wird freigeschaltet…",
+    unlockFailed: "Freischaltung fehlgeschlagen. Bitte erneut versuchen.",
+    unlockNetworkError: "Netzwerkfehler. Bitte erneut versuchen.",
+    unlockPreferFree: "Lieber die Gratis-Serie?",
+    unlockPreferFreeLink: "Gratis abonnieren →",
   },
   crown: {
     metaTitle: "Crown Discipline — Automate This Week",
@@ -246,16 +271,35 @@ const de: Dictionary = {
     subtitle:
       "Du hast die Automatisierungen gebaut. Jetzt installiere die Rolle, die sie steuert: ein KI-CEO, der Ziele setzt, an Spezialistinnen delegiert und deinen Betrieb im Takt hält.",
     unlocked: "Freigeschaltet",
+    unlockedBody:
+      "Playbook #12 erscheint hier, sobald wir es veröffentlichen. Du hast Zugang — schau später für das vollständige Betriebsmodell-Playbook, Delegationsvorlagen und das wöchentliche Heartbeat-Ritual vorbei.",
     separateFromAllAccess: "Separat von All Access",
+    purchaseNote: "Playbook #12 · Einmalkauf",
+    playbookNumberNote: "Playbook #12.",
     ctaEyebrow: "Crown Discipline",
     price: "€59 einmalig",
     ctaBody:
       "Der Abschluss von Serie 1 — installiere einen KI-CEO, der Aufgaben an Spezialistinnen verteilt, damit deine Playbooks als ein Betriebssystem laufen.",
-    ctaButton: "Crown Discipline auf Gumroad holen",
+    ctaButton: "Crown Discipline holen",
     checkoutSoon: "Checkout folgt bald —",
+    earlyAccessSuffix: "für frühen Zugang.",
     comingSoonEyebrow: "Playbook #12 noch nicht veröffentlicht",
     comingSoonBody:
       "Crown Discipline steht auf der Serie-1-Roadmap als kostenpflichtiger Abschluss. Checkout bleibt ausgeblendet, bis das vollständige Playbook da ist — kein Verkauf eines leeren Upgrades.",
+    unlockTitle: "Schon gekauft?",
+    unlockBody:
+      "Gib die E-Mail von deiner Kaufbestätigung ein, um Crown Discipline im Browser freizuschalten.",
+    unlockEmailLabel: "E-Mail",
+    unlockCodeLabel: "Zugangscode",
+    unlockCodeOptional: "(optional)",
+    unlockCodePlaceholder: "Falls du einen manuellen Code erhalten hast",
+    unlockEmailPlaceholder: "du@firma.com",
+    unlockSubmit: "Crown Discipline freischalten",
+    unlockSubmitting: "Wird freigeschaltet…",
+    unlockFailed: "Freischaltung fehlgeschlagen. Bitte erneut versuchen.",
+    unlockNetworkError: "Netzwerkfehler. Bitte erneut versuchen.",
+    unlockNeedPlaybooks: "Brauchst du Playbooks #1–11?",
+    unlockNeedPlaybooksLink: "All Access Pass →",
   },
   legal: {
     metaTitle: "Rechtliches — Automate This Week",
@@ -299,6 +343,9 @@ const de: Dictionary = {
   affiliate: {
     disclosure:
       "Einige Links in diesem Playbook sind Affiliate-Links. Wenn du darüber buchst, kann Automate This Week eine kleine Provision erhalten — ohne Mehrkosten für dich. Wir empfehlen nur Tools, die wir in den Playbooks nutzen. Einschliesslich NovaRho-Affiliate-Links, wo angegeben.",
+    toolsHeading: "Tools für dieses Playbook",
+    toolsBody:
+      "Melde dich über diese Links an, um den Workflow umzusetzen. Anderes Tool? Die Schritte oben bleiben gültig — tausche die Plattform in Trigger- und Routing-Schritten aus.",
   },
   kits: {
     metaTitle: "Workflow-Kits — Automate This Week",
@@ -315,10 +362,10 @@ const de: Dictionary = {
     setupLabel: "Setup",
     checkoutEyebrow: "Kit holen",
     checkoutBody:
-      "Sofortiger Gumroad-Download — Zapier-Blueprint, Vorlagen und Setup-Checkliste. Einmaliger Kauf, für immer deins.",
+      "Sofortiger Download nach dem Checkout — Zapier-Blueprint, Vorlagen und Setup-Checkliste. Einmaliger Kauf, für immer deins.",
     checkoutCta: "Kit holen — {price}",
     previewCheckoutNote:
-      "Vorschau-Checkout-URL — live Gumroad-SKU folgt, sobald der Store bereitsteht.",
+      "Vorschau-Checkout-URL — live SKU folgt, sobald der Store bereitsteht.",
     bundleEyebrow: "Bundle & sparen",
     bundleCta: "Starter-Bundle holen — {price}",
     backToCatalog: "← Alle Workflow-Kits",

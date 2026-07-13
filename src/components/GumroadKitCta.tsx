@@ -1,40 +1,55 @@
-import { buildGumroadKitLink, getGumroadKitUrlForSlug } from "@/lib/gumroad";
+import { buildGumroadKitLink, resolveKitCheckoutUrl } from "@/lib/gumroad";
 import { kitByPlaybookSlug } from "@/lib/kit-catalog";
+
+type KitCtaCopy = {
+  eyebrow: string;
+  heading: string;
+  body: string;
+  ctaLabel: string;
+};
 
 interface GumroadKitCtaProps {
   issueSlug: string;
+  /** Locale-aware copy — reuse `dict.seoShell.paidLadder` (Stripe-first; no Gumroad branding). */
+  copy: KitCtaCopy;
 }
 
-export function GumroadKitCta({ issueSlug }: GumroadKitCtaProps) {
-  const kitUrl = getGumroadKitUrlForSlug(issueSlug);
-  if (!kitUrl) return null;
-
+/** Issue-page kit CTA — Stripe-first; component name kept for import stability. */
+export function GumroadKitCta({ issueSlug, copy }: GumroadKitCtaProps) {
   const kit = kitByPlaybookSlug(issueSlug);
-  const href = buildGumroadKitLink(kitUrl, issueSlug);
+  if (!kit) return null;
+
+  const kitUrl = resolveKitCheckoutUrl(issueSlug);
+  const priceLabel = `€${(kit.priceCents / 100).toFixed(0)}`;
+  const ctaLabel = copy.ctaLabel.replace("{price}", priceLabel);
 
   return (
     <aside
       className="mt-12 rounded-2xl border border-brand-500/30 bg-brand-500/5 p-6 sm:p-8"
-      aria-label="Optional done-for-you kit"
+      aria-label={copy.heading}
     >
       <p className="text-xs font-semibold uppercase tracking-wider text-brand-500">
-        Optional accelerator
+        {copy.eyebrow}
       </p>
-      <h2 className="mt-3 text-xl font-bold text-white sm:text-2xl">
-        Want the done-for-you kit?
-      </h2>
-      <p className="mt-3 text-slate-400">
-        Zapier export + prompt doc + checklist — €{kit ? (kit.priceCents / 100).toFixed(0) : "19"}.
-        The newsletter stays free; this is for teams who want a head start.
-      </p>
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-6 inline-flex items-center justify-center rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
-      >
-        Get the kit on Gumroad
-      </a>
+      <h2 className="mt-3 text-xl font-bold text-white sm:text-2xl">{copy.heading}</h2>
+      <p className="mt-3 text-slate-400">{copy.body.replace("{price}", priceLabel)}</p>
+      {kitUrl ? (
+        <a
+          href={buildGumroadKitLink(kitUrl, issueSlug)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center justify-center rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+        >
+          {ctaLabel}
+        </a>
+      ) : (
+        <span
+          aria-disabled="true"
+          className="mt-6 inline-flex cursor-not-allowed items-center justify-center rounded-lg border border-slate-700 bg-slate-900/60 px-5 py-2.5 text-sm font-semibold text-slate-500"
+        >
+          {ctaLabel}
+        </span>
+      )}
     </aside>
   );
 }

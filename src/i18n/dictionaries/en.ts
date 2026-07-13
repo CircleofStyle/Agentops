@@ -149,6 +149,12 @@ const en: Dictionary = {
   seoShell: {
     faqHeading: "Frequently asked questions",
     relatedLinksHeading: "Related playbooks and resources",
+    paidLadder: {
+      eyebrow: "Optional accelerator",
+      heading: "Want the files without copy-paste?",
+      body: "Import-ready templates · free playbook still works · {price}.",
+      ctaLabel: "Get the kit — {price}",
+    },
   },
   season1: {
     metaTitle: "Season 1 roadmap — Automate This Week",
@@ -230,11 +236,30 @@ const en: Dictionary = {
     price: "€29 one-time",
     ctaBody:
       "Playbooks #1–11 immediately — plus future Season 1 no-code issues as we ship them. Crown Discipline (#12) is a separate purchase.",
-    ctaButton: "Get all access on Gumroad",
+    ctaButton: "Get all access",
+    inlineCtaLabel: "Get All Access — €29",
     checkoutSoon: "Checkout opens soon —",
+    earlyAccessSuffix: "for early access.",
+    inlineSoonBody: "All Access checkout opens soon.",
+    inlineSoonCta: "Email us",
+    inlineSoonSuffix: "if you want early access.",
     comingSoonEyebrow: "Opens with more playbooks",
     comingSoonBody:
       "All Access unlocks when at least five free Season 1 playbooks are live — so the pass delivers real value on day one. Until then, the free drip is the best path.",
+    unlockTitle: "Already purchased?",
+    unlockBody:
+      "Enter the email from your purchase receipt to unlock the full archive in your browser.",
+    unlockEmailLabel: "Email",
+    unlockCodeLabel: "Access code",
+    unlockCodeOptional: "(optional)",
+    unlockCodePlaceholder: "If you received a manual code",
+    unlockEmailPlaceholder: "you@company.com",
+    unlockSubmit: "Unlock archive",
+    unlockSubmitting: "Unlocking…",
+    unlockFailed: "Unlock failed. Try again.",
+    unlockNetworkError: "Network error. Please try again.",
+    unlockPreferFree: "Prefer the free drip?",
+    unlockPreferFreeLink: "Subscribe free →",
   },
   crown: {
     metaTitle: "Crown Discipline — Automate This Week",
@@ -245,16 +270,35 @@ const en: Dictionary = {
     subtitle:
       "You've built the automations. Now install the role that runs them: an AI CEO who sets goals, delegates to specialist agents, and keeps your business on rhythm.",
     unlocked: "Unlocked",
+    unlockedBody:
+      "Playbook #12 content ships here as we publish it. You have access — check back for the full operating-model playbook, delegation templates, and weekly heartbeat ritual.",
     separateFromAllAccess: "Separate from All Access",
+    purchaseNote: "Playbook #12 · one-time purchase",
+    playbookNumberNote: "Playbook #12.",
     ctaEyebrow: "Crown Discipline",
     price: "€59 one-time",
     ctaBody:
       "The Season 1 finale — install an AI CEO that orchestrates specialist agents so your playbooks run as one operating system.",
-    ctaButton: "Get Crown Discipline on Gumroad",
+    ctaButton: "Get Crown Discipline",
     checkoutSoon: "Checkout opens soon —",
+    earlyAccessSuffix: "for early access.",
     comingSoonEyebrow: "Playbook #12 not published yet",
     comingSoonBody:
       "Crown Discipline is on the Season 1 roadmap as the paid finale. Checkout stays hidden until the full playbook ships — no selling an empty upgrade.",
+    unlockTitle: "Already purchased?",
+    unlockBody:
+      "Enter the email from your purchase receipt to unlock Crown Discipline in your browser.",
+    unlockEmailLabel: "Email",
+    unlockCodeLabel: "Access code",
+    unlockCodeOptional: "(optional)",
+    unlockCodePlaceholder: "If you received a manual code",
+    unlockEmailPlaceholder: "you@company.com",
+    unlockSubmit: "Unlock Crown Discipline",
+    unlockSubmitting: "Unlocking…",
+    unlockFailed: "Unlock failed. Try again.",
+    unlockNetworkError: "Network error. Please try again.",
+    unlockNeedPlaybooks: "Need playbooks #1–11?",
+    unlockNeedPlaybooksLink: "All Access Pass →",
   },
   legal: {
     metaTitle: "Legal — Automate This Week",
@@ -297,6 +341,9 @@ const en: Dictionary = {
   affiliate: {
     disclosure:
       "Some links in this playbook are affiliate links. If you sign up through them, Automate This Week may earn a small commission at no extra cost to you. We only recommend tools we use in the playbooks. Including NovaRho affiliate links where noted.",
+    toolsHeading: "Tools for this playbook",
+    toolsBody:
+      "Sign up through these links to implement the workflow. Replacing a tool? The steps above still apply — swap the platform in the trigger and routing steps.",
   },
   kits: {
     metaTitle: "Workflow Kits — Automate This Week",
@@ -313,10 +360,10 @@ const en: Dictionary = {
     setupLabel: "setup",
     checkoutEyebrow: "Get the kit",
     checkoutBody:
-      "Instant Gumroad download — Zapier blueprint, templates, and setup checklist. One-time purchase, yours forever.",
+      "Instant download after checkout — Zapier blueprint, templates, and setup checklist. One-time purchase, yours forever.",
     checkoutCta: "Get kit — {price}",
     previewCheckoutNote:
-      "Preview checkout URL — live Gumroad SKU wiring lands when store provisioning completes.",
+      "Preview checkout URL — live SKU wiring lands when store provisioning completes.",
     bundleEyebrow: "Bundle & save",
     bundleCta: "Get starter bundle — {price}",
     backToCatalog: "← All workflow kits",

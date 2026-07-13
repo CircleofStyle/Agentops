@@ -62,10 +62,7 @@ export default async function CrownPage({ params }: PageProps) {
               {t.unlocked}
             </p>
             <h2 className="mt-3 text-xl font-bold text-white">{crown.title}</h2>
-            <p className="mt-3 text-slate-400">
-              Playbook #12 content ships here as we publish it. You have access — check back for
-              the full operating-model playbook, delegation templates, and weekly heartbeat ritual.
-            </p>
+            <p className="mt-3 text-slate-400">{t.unlockedBody}</p>
           </section>
         ) : showCommerce ? (
           <div className="mt-10 space-y-8">
@@ -86,7 +83,7 @@ export default async function CrownPage({ params }: PageProps) {
           className="mt-12 rounded-xl border border-slate-800 bg-slate-900/40 p-6 text-sm text-slate-400"
         >
           <p className="font-medium text-slate-300">{t.separateFromAllAccess}</p>
-          <p className="mt-4 text-xs text-slate-500">Playbook #12 · Gumroad purchase</p>
+          <p className="mt-4 text-xs text-slate-500">{t.purchaseNote}</p>
         </section>
       </div>
     </main>

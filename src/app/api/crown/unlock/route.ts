@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "No Crown Discipline purchase found for this email. Use the same address as your Gumroad checkout, or enter an access code if you have one.",
+          "No Crown Discipline purchase found for this email. Use the same address as your purchase receipt, or enter an access code if you have one.",
       },
       { status: 403 },
     );

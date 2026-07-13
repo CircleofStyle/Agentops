@@ -10,6 +10,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "i18n:parity": "tsx scripts/check-i18n-parity.ts",
+    "verify:de-ui": "tsx scripts/verify-de-ui-hardcoded.ts",
     "content:draft": "tsx scripts/content.ts draft",
     "content:publish": "tsx scripts/content.ts publish",
     "content:broadcast": "tsx scripts/content.ts broadcast",

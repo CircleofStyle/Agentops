@@ -122,6 +122,12 @@ export type Dictionary = {
   seoShell: {
     faqHeading: string;
     relatedLinksHeading: string;
+    paidLadder: {
+      eyebrow: string;
+      heading: string;
+      body: string;
+      ctaLabel: string;
+    };
   };
   season1: {
     metaTitle: string;
@@ -190,9 +196,27 @@ export type Dictionary = {
     price: string;
     ctaBody: string;
     ctaButton: string;
+    inlineCtaLabel: string;
     checkoutSoon: string;
+    earlyAccessSuffix: string;
+    inlineSoonBody: string;
+    inlineSoonCta: string;
+    inlineSoonSuffix: string;
     comingSoonEyebrow: string;
     comingSoonBody: string;
+    unlockTitle: string;
+    unlockBody: string;
+    unlockEmailLabel: string;
+    unlockCodeLabel: string;
+    unlockCodeOptional: string;
+    unlockCodePlaceholder: string;
+    unlockEmailPlaceholder: string;
+    unlockSubmit: string;
+    unlockSubmitting: string;
+    unlockFailed: string;
+    unlockNetworkError: string;
+    unlockPreferFree: string;
+    unlockPreferFreeLink: string;
   };
   crown: {
     metaTitle: string;
@@ -201,14 +225,31 @@ export type Dictionary = {
     title: string;
     subtitle: string;
     unlocked: string;
+    unlockedBody: string;
     separateFromAllAccess: string;
+    purchaseNote: string;
+    playbookNumberNote: string;
     ctaEyebrow: string;
     price: string;
     ctaBody: string;
     ctaButton: string;
     checkoutSoon: string;
+    earlyAccessSuffix: string;
     comingSoonEyebrow: string;
     comingSoonBody: string;
+    unlockTitle: string;
+    unlockBody: string;
+    unlockEmailLabel: string;
+    unlockCodeLabel: string;
+    unlockCodeOptional: string;
+    unlockCodePlaceholder: string;
+    unlockEmailPlaceholder: string;
+    unlockSubmit: string;
+    unlockSubmitting: string;
+    unlockFailed: string;
+    unlockNetworkError: string;
+    unlockNeedPlaybooks: string;
+    unlockNeedPlaybooksLink: string;
   };
   legal: {
     metaTitle: string;
@@ -246,6 +287,8 @@ export type Dictionary = {
   };
   affiliate: {
     disclosure: string;
+    toolsHeading: string;
+    toolsBody: string;
   };
   kits: {
     metaTitle: string;

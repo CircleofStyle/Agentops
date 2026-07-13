@@ -17,7 +17,7 @@ export function GumroadCrownCta({ surface = "crown_page" }: GumroadCrownCtaProps
       <p className="text-xs font-semibold uppercase tracking-wider text-amber-400">{t.ctaEyebrow}</p>
       <p className="mt-3 text-3xl font-bold text-white">{t.price}</p>
       <p className="mt-3 text-slate-400">
-        {t.separateFromAllAccess} — Playbook #12.
+        {t.separateFromAllAccess} — {t.playbookNumberNote}
       </p>
       {checkoutUrl ? (
         <a
@@ -34,7 +34,7 @@ export function GumroadCrownCta({ surface = "crown_page" }: GumroadCrownCtaProps
           <a href="mailto:hello@novarho.com" className="text-amber-400 hover:text-amber-300">
             {dict.common.emailUs}
           </a>{" "}
-          for early access.
+          {t.earlyAccessSuffix}
         </p>
       )}
     </div>

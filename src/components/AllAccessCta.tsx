@@ -1,4 +1,7 @@
+"use client";
+
 import { buildGumroadAllAccessLink, getGumroadAllAccessUrl } from "@/lib/gumroad";
+import { useI18n } from "@/i18n/I18nProvider";
 import { isAllAccessCommerceVisible } from "@/lib/commerce-visibility";
 
 type AllAccessCtaProps = {
@@ -7,6 +10,9 @@ type AllAccessCtaProps = {
 };
 
 export function AllAccessCta({ surface, className = "" }: AllAccessCtaProps) {
+  const { dict } = useI18n();
+  const t = dict.allAccess;
+
   if (!isAllAccessCommerceVisible()) {
     return null;
   }
@@ -19,11 +25,11 @@ export function AllAccessCta({ surface, className = "" }: AllAccessCtaProps) {
         className={`rounded-xl border border-slate-700 bg-slate-900/60 p-6 text-center ${className}`}
       >
         <p className="text-sm text-slate-400">
-          All Access checkout opens soon.{" "}
+          {t.inlineSoonBody}{" "}
           <a href="mailto:hello@novarho.com" className="text-brand-400 hover:text-brand-300">
-            Email us
+            {t.inlineSoonCta}
           </a>{" "}
-          if you want early access.
+          {t.inlineSoonSuffix}
         </p>
       </div>
     );
@@ -38,7 +44,7 @@ export function AllAccessCta({ surface, className = "" }: AllAccessCtaProps) {
       rel="noopener noreferrer"
       className={`inline-flex items-center justify-center rounded-lg bg-brand-500 px-6 py-3 font-semibold text-white transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 ${className}`}
     >
-      Get All Access — €29
+      {t.inlineCtaLabel}
     </a>
   );
 }

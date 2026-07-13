@@ -116,8 +116,12 @@ echo "$all_access" | grep -qi "€29" || {
   exit 1
 }
 if [[ "${ALL_ACCESS_LAUNCH:-0}" == "1" ]]; then
-  echo "$all_access" | grep -qi "Get all access on Gumroad" || {
-    echo "FAIL: /all-access missing live Gumroad checkout CTA — NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL unset or deploy stale"
+  echo "$all_access" | grep -qi "Get all access" || {
+    echo "FAIL: /all-access missing live checkout CTA — NEXT_PUBLIC_GUMROAD_ALL_ACCESS_URL unset or deploy stale"
+    exit 1
+  }
+  echo "$all_access" | grep -qiE "on Gumroad|Get the kit on Gumroad" && {
+    echo "FAIL: /all-access still shows stale Gumroad customer-facing branding"
     exit 1
   }
   echo "$all_access" | grep -qi "Checkout opens soon" && {

@@ -32,7 +32,7 @@ export function GumroadAllAccessCta({ surface = "all_access_page" }: GumroadAllA
           <a href="mailto:hello@novarho.com" className="text-brand-400 hover:text-brand-300">
             {dict.common.emailUs}
           </a>{" "}
-          for early access.
+          {t.earlyAccessSuffix}
         </p>
       )}
     </div>

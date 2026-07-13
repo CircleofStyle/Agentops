@@ -124,11 +124,15 @@ export default async function IssuePage({ params }: PageProps) {
           </section>
         ) : null}
 
-        {showFullBody ? <GumroadKitCta issueSlug={slug} /> : null}
+        {showFullBody ? <GumroadKitCta issueSlug={slug} copy={dict.seoShell.paidLadder} /> : null}
 
         {showFullBody && issueHasAffiliateTools(slug) ? (
           <>
-            <AffiliateToolLinks issueSlug={slug} />
+            <AffiliateToolLinks
+              issueSlug={slug}
+              heading={dict.affiliate.toolsHeading}
+              body={dict.affiliate.toolsBody}
+            />
             <AffiliateDisclosure className="mt-6" />
           </>
         ) : null}
