@@ -147,8 +147,8 @@ async function fetchResendContact(email: string): Promise<ResendContact | null> 
 
   const audienceId = getAudienceId();
   const paths = [
-    `/contacts/${encodeURIComponent(email)}`,
-    audienceId ? `/audiences/${audienceId}/contacts/${encodeURIComponent(email)}` : null,
+    `/contacts/${email}`,
+    audienceId ? `/audiences/${audienceId}/contacts/${email}` : null,
   ].filter((path): path is string => Boolean(path));
 
   for (const path of paths) {

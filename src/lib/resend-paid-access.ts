@@ -83,6 +83,15 @@ async function ensureGlobalContact(email: string): Promise<boolean> {
   return false;
 }
 
+/** Match Resend SDK path building — do not URL-encode the email local identity. */
+function contactPath(email: string, audienceId?: string): string {
+  const normalized = email.toLowerCase();
+  if (audienceId) {
+    return `/audiences/${audienceId}/contacts/${normalized}`;
+  }
+  return `/contacts/${normalized}`;
+}
+
 async function ensureContactProperty(key: string, type: "string" | "number"): Promise<boolean> {
   const response = await resendFetch("/contact-properties", {
     method: "POST",
@@ -223,12 +232,9 @@ function contactPropertiesFromPayload(
 async function readContactProperties(email: string): Promise<Record<string, string | number> | null> {
   const normalized = email.toLowerCase();
   const audienceId = getAudienceId();
-  const paths = [
-    `/contacts/${encodeURIComponent(normalized)}`,
-    audienceId
-      ? `/audiences/${audienceId}/contacts/${encodeURIComponent(normalized)}`
-      : null,
-  ].filter((path): path is string => Boolean(path));
+  const paths = [contactPath(normalized), audienceId ? contactPath(normalized, audienceId) : null].filter(
+    (path): path is string => Boolean(path),
+  );
 
   for (const path of paths) {
     const response = await resendFetch(path);
@@ -294,12 +300,9 @@ async function patchContactProperties(
 
   const normalized = email.toLowerCase();
   const audienceId = getAudienceId();
-  const paths = [
-    `/contacts/${encodeURIComponent(normalized)}`,
-    audienceId
-      ? `/audiences/${audienceId}/contacts/${encodeURIComponent(normalized)}`
-      : null,
-  ].filter((path): path is string => Boolean(path));
+  const paths = [contactPath(normalized), audienceId ? contactPath(normalized, audienceId) : null].filter(
+    (path): path is string => Boolean(path),
+  );
 
   let lastFailure: PaidAccessSyncResult = {
     ok: false,
