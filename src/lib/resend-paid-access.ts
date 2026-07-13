@@ -9,6 +9,15 @@ export const CROWN_ACCESS_KEY = "crown_access";
 export const CROWN_ACCESS_GRANTED_AT_KEY = "crown_access_granted_at";
 export const CROWN_ACCESS_SOURCE_KEY = "crown_access_source";
 
+const PAID_ACCESS_PROPERTY_KEYS = [
+  ALL_ACCESS_KEY,
+  ALL_ACCESS_GRANTED_AT_KEY,
+  ALL_ACCESS_SOURCE_KEY,
+  CROWN_ACCESS_KEY,
+  CROWN_ACCESS_GRANTED_AT_KEY,
+  CROWN_ACCESS_SOURCE_KEY,
+] as const;
+
 type PaidAccessSource = NonNullable<
   SubscriberRecord["allAccessSource"] | SubscriberRecord["crownAccessSource"]
 >;
@@ -51,41 +60,93 @@ async function ensureAudienceContact(email: string): Promise<boolean> {
   return true;
 }
 
-async function ensureContactProperty(key: string, type: "string" | "number"): Promise<void> {
+async function ensureGlobalContact(email: string): Promise<boolean> {
+  const response = await resendFetch("/contacts", {
+    method: "POST",
+    body: JSON.stringify({
+      email: email.toLowerCase(),
+      unsubscribed: false,
+    }),
+  });
+
+  if (!response) return false;
+  if (response.ok || response.status === 409) return true;
+
+  const body = await response.text();
+  if (body.toLowerCase().includes("already")) return true;
+
+  logger.warn("Resend global contact create for paid-access failed", {
+    email,
+    status: response.status,
+    body,
+  });
+  return false;
+}
+
+async function ensureContactProperty(key: string, type: "string" | "number"): Promise<boolean> {
   const response = await resendFetch("/contact-properties", {
     method: "POST",
     body: JSON.stringify({
       key,
       type,
-      fallback_value: type === "number" ? 0 : "",
+      fallback_value: type === "number" ? 0 : key.endsWith("_access") ? "false" : "",
     }),
   });
 
-  if (!response) return;
-  if (response.ok || response.status === 409) return;
+  if (!response) return false;
+  if (response.ok || response.status === 409) return true;
 
   const body = await response.text();
-  if (body.toLowerCase().includes("already")) return;
+  if (body.toLowerCase().includes("already")) return true;
 
   logger.warn("Resend paid-access property setup failed", {
     key,
     status: response.status,
     body,
   });
+  return false;
+}
+
+async function listContactPropertyKeys(): Promise<Set<string> | null> {
+  const response = await resendFetch("/contact-properties");
+  if (!response?.ok) {
+    logger.warn("Resend contact-properties list failed", {
+      status: response?.status,
+      body: await response?.text(),
+    });
+    return null;
+  }
+
+  const payload = (await response.json()) as {
+    data?: Array<{ key?: string }>;
+  };
+  const keys = new Set<string>();
+  for (const item of payload.data ?? []) {
+    if (item.key) keys.add(item.key);
+  }
+  return keys;
 }
 
 /** Idempotently register custom contact properties used for paid unlocks on Vercel. */
 export async function ensurePaidAccessContactProperties(): Promise<boolean> {
-  if (propertiesReady || !getResendClient()) return Boolean(getResendClient());
+  if (propertiesReady) return true;
+  if (!getResendClient()) return false;
 
-  await Promise.all([
-    ensureContactProperty(ALL_ACCESS_KEY, "string"),
-    ensureContactProperty(ALL_ACCESS_GRANTED_AT_KEY, "string"),
-    ensureContactProperty(ALL_ACCESS_SOURCE_KEY, "string"),
-    ensureContactProperty(CROWN_ACCESS_KEY, "string"),
-    ensureContactProperty(CROWN_ACCESS_GRANTED_AT_KEY, "string"),
-    ensureContactProperty(CROWN_ACCESS_SOURCE_KEY, "string"),
-  ]);
+  const created = await Promise.all(
+    PAID_ACCESS_PROPERTY_KEYS.map((key) => ensureContactProperty(key, "string")),
+  );
+  if (created.some((ok) => !ok)) {
+    return false;
+  }
+
+  const existing = await listContactPropertyKeys();
+  if (!existing) return false;
+
+  const missing = PAID_ACCESS_PROPERTY_KEYS.filter((key) => !existing.has(key));
+  if (missing.length > 0) {
+    logger.warn("Resend paid-access properties missing after setup", { missing });
+    return false;
+  }
 
   propertiesReady = true;
   return true;
@@ -135,40 +196,142 @@ export function paidAccessFieldsFromProperties(
   };
 }
 
-async function patchContactProperties(
-  email: string,
-  properties: Record<string, string>,
-): Promise<boolean> {
-  const audienceId = getAudienceId();
-  if (!audienceId || !getResendClient()) return false;
+function contactPropertiesFromPayload(
+  payload: Record<string, unknown>,
+): Record<string, string | number> {
+  const nested = payload.properties;
+  const props: Record<string, string | number> = {};
 
-  await ensurePaidAccessContactProperties();
+  if (nested && typeof nested === "object") {
+    for (const [key, value] of Object.entries(nested as Record<string, unknown>)) {
+      if (typeof value === "string" || typeof value === "number") {
+        props[key] = value;
+      }
+    }
+  }
 
+  for (const [key, value] of Object.entries(payload)) {
+    if (key === "email" || key === "id" || key === "object" || key === "properties") continue;
+    if (typeof value === "string" || typeof value === "number") {
+      props[key] = value;
+    }
+  }
+
+  return props;
+}
+
+async function readContactProperties(email: string): Promise<Record<string, string | number> | null> {
   const normalized = email.toLowerCase();
-  const path = `/audiences/${audienceId}/contacts/${encodeURIComponent(normalized)}`;
-  let response = await resendFetch(path, {
+  const audienceId = getAudienceId();
+  const paths = [
+    `/contacts/${encodeURIComponent(normalized)}`,
+    audienceId
+      ? `/audiences/${audienceId}/contacts/${encodeURIComponent(normalized)}`
+      : null,
+  ].filter((path): path is string => Boolean(path));
+
+  for (const path of paths) {
+    const response = await resendFetch(path);
+    if (!response?.ok) continue;
+    const payload = (await response.json()) as Record<string, unknown>;
+    return contactPropertiesFromPayload(payload);
+  }
+
+  return null;
+}
+
+async function patchViaPath(
+  path: string,
+  properties: Record<string, string>,
+): Promise<{ ok: boolean; status?: number; body?: string }> {
+  const response = await resendFetch(path, {
     method: "PATCH",
     body: JSON.stringify({ properties }),
   });
 
-  if (response?.status === 404) {
-    await ensureAudienceContact(normalized);
-    response = await resendFetch(path, {
-      method: "PATCH",
-      body: JSON.stringify({ properties }),
-    });
-  }
+  if (!response) return { ok: false };
+  if (response.ok) return { ok: true, status: response.status };
 
-  if (!response?.ok) {
-    logger.warn("Resend paid-access sync failed", {
-      email: normalized,
-      status: response?.status,
-      body: await response?.text(),
-    });
+  return {
+    ok: false,
+    status: response.status,
+    body: await response.text(),
+  };
+}
+
+async function patchContactProperties(
+  email: string,
+  properties: Record<string, string>,
+): Promise<boolean> {
+  if (!getResendClient()) return false;
+
+  const propertiesOk = await ensurePaidAccessContactProperties();
+  if (!propertiesOk) {
+    logger.warn("Resend paid-access sync aborted: properties not ready", { email });
     return false;
   }
 
-  return true;
+  const normalized = email.toLowerCase();
+  const audienceId = getAudienceId();
+  const paths = [
+    `/contacts/${encodeURIComponent(normalized)}`,
+    audienceId
+      ? `/audiences/${audienceId}/contacts/${encodeURIComponent(normalized)}`
+      : null,
+  ].filter((path): path is string => Boolean(path));
+
+  let lastFailure: { status?: number; body?: string; path?: string } | null = null;
+
+  for (const path of paths) {
+    let result = await patchViaPath(path, properties);
+
+    if (result.status === 404) {
+      if (path.startsWith("/contacts/")) {
+        await ensureGlobalContact(normalized);
+      } else {
+        await ensureAudienceContact(normalized);
+      }
+      result = await patchViaPath(path, properties);
+    }
+
+    if (result.ok) {
+      const stored = await readContactProperties(normalized);
+      if (!stored) {
+        logger.warn("Resend paid-access patch ok but contact unreadable", {
+          email: normalized,
+          path,
+        });
+        continue;
+      }
+
+      const mismatched = Object.entries(properties).filter(([key, expected]) => {
+        const actual = stored[key];
+        return String(actual ?? "") !== expected;
+      });
+
+      if (mismatched.length > 0) {
+        logger.warn("Resend paid-access read-after-write mismatch", {
+          email: normalized,
+          path,
+          mismatched: mismatched.map(([key]) => key),
+          stored,
+        });
+        continue;
+      }
+
+      return true;
+    }
+
+    lastFailure = { ...result, path };
+  }
+
+  logger.warn("Resend paid-access sync failed", {
+    email: normalized,
+    status: lastFailure?.status,
+    body: lastFailure?.body,
+    path: lastFailure?.path,
+  });
+  return false;
 }
 
 export async function syncAllAccessToResend(

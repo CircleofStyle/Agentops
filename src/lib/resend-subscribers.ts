@@ -139,21 +139,34 @@ export async function listResendAudienceSubscribers(): Promise<SubscriberRecord[
   return Promise.all(records.map((record) => hydrateResendSubscriberRecord(record)));
 }
 
-async function hydrateResendSubscriberRecord(record: SubscriberRecord): Promise<SubscriberRecord> {
-  // Audience list payloads often omit custom properties; always GET the contact.
+async function fetchResendContact(email: string): Promise<ResendContact | null> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return null;
+
   const audienceId = getAudienceId();
-  if (!getResendClient() || !audienceId) return record;
+  const paths = [
+    `/contacts/${encodeURIComponent(email)}`,
+    audienceId ? `/audiences/${audienceId}/contacts/${encodeURIComponent(email)}` : null,
+  ].filter((path): path is string => Boolean(path));
 
-  const response = await fetch(
-    `https://api.resend.com/audiences/${audienceId}/contacts/${encodeURIComponent(record.email)}`,
-    {
-      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}` },
-    },
-  );
+  for (const path of paths) {
+    const response = await fetch(`https://api.resend.com${path}`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!response.ok) continue;
+    return (await response.json()) as ResendContact;
+  }
 
-  if (!response.ok) return record;
+  return null;
+}
 
-  const contact = (await response.json()) as ResendContact;
+async function hydrateResendSubscriberRecord(record: SubscriberRecord): Promise<SubscriberRecord> {
+  // List payloads often omit custom properties; always GET the contact.
+  if (!getResendClient()) return record;
+
+  const contact = await fetchResendContact(record.email);
+  if (!contact) return record;
+
   const hydrated = contactToSubscriberRecord({ ...contact, email: record.email });
   if (!hydrated) return record;
 

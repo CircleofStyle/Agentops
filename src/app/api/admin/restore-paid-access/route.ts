@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isMetricsAuthorized } from "@/lib/metrics-auth";
+import { ensurePaidAccessContactProperties } from "@/lib/resend-paid-access";
 import { getSubscriberMetrics } from "@/lib/subscriber-metrics";
 import {
   grantAllAccessWithSync,
@@ -39,6 +40,19 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: parsed.error.errors[0]?.message ?? "Invalid body" },
       { status: 400 },
+    );
+  }
+
+  const propertiesReady = await ensurePaidAccessContactProperties();
+  if (!propertiesReady) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Resend paid-access contact properties are not ready",
+        restored: 0,
+        results: [],
+      },
+      { status: 502 },
     );
   }
 
@@ -89,6 +103,7 @@ export async function POST(request: Request) {
     ok: results.every((result) => result.ok),
     restored: results.filter((result) => result.ok).length,
     results,
+    propertiesReady,
     subscribers: metrics.subscribers,
     timestamp: metrics.timestamp,
   });
