@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isMetricsAuthorized } from "@/lib/metrics-auth";
-import { ensurePaidAccessContactProperties } from "@/lib/resend-paid-access";
 import { getSubscriberMetrics } from "@/lib/subscriber-metrics";
 import {
   grantAllAccessWithSync,
@@ -22,6 +21,9 @@ const bodySchema = z.object({
 /**
  * Restore paid unlocks onto durable Resend contact properties.
  * Auth: Bearer METRICS_SECRET or CONTENT_PIPELINE_SECRET.
+ *
+ * Prefer sealed grants in content/paid-access-grants.sealed.json for durable
+ * All Access recovery when Resend custom properties are unavailable.
  */
 export async function POST(request: Request) {
   if (!isMetricsAuthorized(request.headers.get("authorization"))) {
@@ -43,58 +45,71 @@ export async function POST(request: Request) {
     );
   }
 
-  const propertiesReady = await ensurePaidAccessContactProperties();
-  if (!propertiesReady) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "Resend paid-access contact properties are not ready",
-        restored: 0,
-        results: [],
-      },
-      { status: 502 },
-    );
-  }
-
   const results: Array<{
     email: string;
     allAccess?: boolean;
     crownAccess?: boolean;
     ok: boolean;
     resendSynced: boolean;
-    syncDetail?: unknown;
+    syncDetail?: {
+      reason?: string;
+      path?: string;
+      status?: number;
+      mismatched?: string[];
+      storedKeys?: string[];
+    };
   }> = [];
 
   for (const grant of parsed.data.grants) {
     const email = grant.email.toLowerCase();
     let ok = true;
     let resendSynced = true;
-    let syncDetail: unknown;
+    let syncDetail:
+      | {
+          reason?: string;
+          path?: string;
+          status?: number;
+          mismatched?: string[];
+          storedKeys?: string[];
+        }
+      | undefined;
 
     try {
       if (grant.allAccess) {
         const result = await grantAllAccessWithSync(email, grant.source);
         resendSynced = result.resendSynced;
         ok = result.resendSynced;
-        syncDetail = result.syncDetail;
+        syncDetail = result.syncDetail
+          ? {
+              reason: result.syncDetail.reason,
+              path: result.syncDetail.path,
+              status: result.syncDetail.status,
+              mismatched: result.syncDetail.mismatched,
+              storedKeys: result.syncDetail.storedKeys,
+            }
+          : undefined;
       }
       if (grant.crownAccess) {
         const result = await grantCrownAccessWithSync(email, grant.source);
         resendSynced = resendSynced && result.resendSynced;
         ok = ok && result.resendSynced;
-        syncDetail = result.syncDetail;
+        syncDetail = result.syncDetail
+          ? {
+              reason: result.syncDetail.reason,
+              path: result.syncDetail.path,
+              status: result.syncDetail.status,
+              mismatched: result.syncDetail.mismatched,
+              storedKeys: result.syncDetail.storedKeys,
+            }
+          : syncDetail;
       }
       if (!grant.allAccess && !grant.crownAccess) {
         ok = false;
         resendSynced = false;
       }
-    } catch (error) {
+    } catch {
       ok = false;
       resendSynced = false;
-      syncDetail = {
-        reason: "exception",
-        body: error instanceof Error ? error.message : "unknown",
-      };
     }
 
     results.push({
@@ -112,7 +127,6 @@ export async function POST(request: Request) {
     ok: results.every((result) => result.ok),
     restored: results.filter((result) => result.ok).length,
     results,
-    propertiesReady,
     subscribers: metrics.subscribers,
     timestamp: metrics.timestamp,
   });

@@ -4,7 +4,6 @@ import { defaultLocale } from "@/i18n/config";
 import { logger } from "@/lib/logger";
 import {
   paidAccessFieldsFromProperties,
-  readPaidAccessContactProperties,
 } from "@/lib/resend-paid-access";
 import { getAudienceId, getResendClient } from "@/lib/resend";
 import { normalizePreferredLocale } from "@/lib/subscriber-locale";

@@ -16,6 +16,10 @@ import {
   syncCrownAccessToResendDetailed,
   type PaidAccessSyncResult,
 } from "@/lib/resend-paid-access";
+import {
+  applySealedPaidAccessGrants,
+  loadSealedPaidAccessGrants,
+} from "@/lib/paid-access-sealed";
 import type { Locale } from "@/i18n/config";
 import { defaultLocale } from "@/i18n/config";
 import { syncPreferredLocaleToResend } from "@/lib/resend-subscribers";
@@ -107,8 +111,9 @@ async function persistPreferredLocale(record: SubscriberRecord): Promise<void> {
 async function loadAllSubscribers(): Promise<SubscriberRecord[]> {
   const local = await readSubscribers();
   const remote = await listResendAudienceSubscribers();
-  if (remote.length === 0) return local;
-  return mergeSubscriberRecords(local, remote);
+  const merged = remote.length === 0 ? local : mergeSubscriberRecords(local, remote);
+  const sealed = await loadSealedPaidAccessGrants();
+  return applySealedPaidAccessGrants(merged, sealed);
 }
 
 export async function findSubscriber(email: string): Promise<SubscriberRecord | undefined> {
